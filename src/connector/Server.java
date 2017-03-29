@@ -1,13 +1,14 @@
 package connector;
 
+import static connector.constant.ServerConfig.*;
+import static connector.constant.TrayType.SERVER_TRAY;
+import connector.view.ClientFrame;
+import connector.model.Message;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
@@ -15,21 +16,13 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.net.*;
-import java.net.UnknownHostException;
-import java.security.PublicKey;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.Enumeration;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-//import javax.swing.JFrame;
-//import static javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE;
 import javax.swing.text.AbstractDocument;
 
 public class Server extends javax.swing.JFrame {
-
-    private static final int SERVER = 1;
     private static int port;
     private static int numUs;
     private static ServerThread serverThread;
@@ -37,17 +30,11 @@ public class Server extends javax.swing.JFrame {
     private String pfStr;
     private Boolean isStartServer = false;
     private Encryption serverEncryption;
-//    private String strPort;
-    //private Socket socket;
-
-    ArrayList<String> listNames;
-
+    private int conf;
+    private ArrayList<String> listNames;
     private List<Connection> connections
             = Collections.synchronizedList(new ArrayList<Connection>());
     //private ServerSocket serverSocket;
-    int conf;
-    int fromClient;
-    int alone;
 
     public Server(String s, int conf) {
         super(s);
@@ -59,9 +46,6 @@ public class Server extends javax.swing.JFrame {
         port = 9988;
         numUs = 0;
         pfStr = "9988";
-//        strPort = "9988";
-        fromClient = 1;
-        alone = 0;
 
         initComponents();
         ((AbstractDocument) tfPort.getDocument()).setDocumentFilter(new Utils().new DocumentFilterForPort());
@@ -96,7 +80,7 @@ public class Server extends javax.swing.JFrame {
 //
 //                    //e.printStackTrace();
 //                }
-                if (isStartServer && conf == alone) {
+                if (isStartServer && conf == ONLY_SERVER) {
                     stopServer();
                 }
                 setVisible(false);
@@ -112,7 +96,7 @@ public class Server extends javax.swing.JFrame {
             }
 
             public void windowIconified(WindowEvent event) {
-                new Tray().setTrayIcon(Server.this, null, SERVER);
+                new Tray().setTrayIcon(Server.this, null, SERVER_TRAY);
                 setVisible(false);
             }
 
@@ -172,16 +156,16 @@ public class Server extends javax.swing.JFrame {
 
     public void setPort(String strPort) {
         if (Integer.parseInt(strPort) <= 0 || Integer.parseInt(strPort) > 65535) {
-            lbNumUs.setText(Strings.getSTR_WRONG_PORT());
+            lbNumUs.setText(Strings.STR_WRONG_PORT);
         } else {
             this.port = Integer.parseInt(strPort);
-            lbNumUs.setText(Strings.getSTR_SET_PORT() + port);
+            lbNumUs.setText(Strings.STR_SET_PORT + port);
         }
     }
 
     public void setPas(String pas) {
         this.pfStr = pas;
-        lbNumUs.setText(Strings.getSTR_SET_PASS());
+        lbNumUs.setText(Strings.STR_SET_PASS());
     }
 
     public static StringBuilder getBuffChat() {
@@ -200,7 +184,7 @@ public class Server extends javax.swing.JFrame {
 //                        (Connection) iter.next().serverSocket.close();
 //                        ((Connection) iter.next()).out.println(Encryption.encode(Strings.getSTR_EXIT_ALL(), pfStr));
                         Connection thisConnection = iter.next();
-                        thisConnection.outputStream.writeObject(new Message(thisConnection.clientEncryption.encrypt(Strings.getSTR_EXIT_ALL()), true));
+                        thisConnection.outputStream.writeObject(new Message(thisConnection.clientEncryption.encrypt(Strings.STR_EXIT_ALL), true));
                     }
                 }
             }
@@ -211,8 +195,6 @@ public class Server extends javax.swing.JFrame {
     }
 
     private class Connection extends Thread {
-//        private BufferedReader in;
-//        private PrintWriter out;
         private Socket socket;
         private Boolean flagWrongNic = false;
         private boolean stoped = false;
@@ -228,15 +210,10 @@ public class Server extends javax.swing.JFrame {
             clientEncryption = new Encryption();
 
             try {
-//                in = new BufferedReader(new InputStreamReader(
-//                        socket.getInputStream()));
-//                out = new PrintWriter(socket.getOutputStream(), true);
-
                 inputStream = new ObjectInputStream(this.socket.getInputStream());
 //                System.out.println("Server: inputStream");
                 outputStream = new ObjectOutputStream(this.socket.getOutputStream());
 //                System.out.println("Server: outputStream");
-
             } catch (IOException e) {
                 e.printStackTrace();
                 close();
@@ -259,7 +236,7 @@ public class Server extends javax.swing.JFrame {
 //                    System.out.println("Server got name: " + name);//
 
                     clientEncryption.createPair(message.getPublicKey());
-                    Connection.this.outputStream.writeObject(new Message(clientEncryption.encrypt(Strings.getSTR_SEND_PUB_KEY()), true, serverEncryption.getPublicKeyFromKeypair()));
+                    Connection.this.outputStream.writeObject(new Message(clientEncryption.encrypt(Strings.STR_SEND_PUB_KEY), true, serverEncryption.getPublicKeyFromKeypair()));
 //                    System.out.println("Server got key: "/* + message.getPublicKey()*/);
 
                     if (stoped) {
@@ -271,7 +248,7 @@ public class Server extends javax.swing.JFrame {
                         }
                         for (int i = 0; i < listNames.size(); i++) {
                             if (name.equals(listNames.get(i))) {                                              
-                                Connection.this.outputStream.writeObject(new Message(clientEncryption.encrypt(Strings.getSTR_SAME_NIC()), false));
+                                Connection.this.outputStream.writeObject(new Message(clientEncryption.encrypt(Strings.STR_SAME_NIC), false));
 //                                System.out.println("Server: " + Strings.getSTR_SAME_NIC());
                                 flagWrongNic = true;
                                 stoped = true;
@@ -310,7 +287,7 @@ public class Server extends javax.swing.JFrame {
                                 if (stoped) {
                                     break;
                                 }
-                                if (str.equals(Strings.getSTR_EXIT())) {
+                                if (str.equals(Strings.STR_EXIT)) {
                                     synchronized (connections) {
                                         Iterator<Connection> iter = connections.iterator();
                                         while (iter.hasNext()) {
@@ -325,11 +302,11 @@ public class Server extends javax.swing.JFrame {
                                     stoped = true;
                                     break;
                                 }
-                                if (str.equals(Strings.getSTR_EXIT_ALL())) {
+                                if (str.equals(Strings.STR_EXIT_ALL)) {
                                     setStop();
                                     break;
                                 }
-                                if (str.equals(Strings.getSTR_GET_ALL_MSG())) {
+                                if (str.equals(Strings.STR_GET_ALL_MSG)) {
                                     Connection.this.outputStream.writeObject(
                                             new Message(clientEncryption.encrypt("----- Все сообщения -----" + new String(buffChat)
                                                     + "\n----------------------\n"), false));
@@ -337,7 +314,7 @@ public class Server extends javax.swing.JFrame {
                                 }
 
                                 // Отправляем всем клиентам очередное сообщение
-                                if (!str.equals(Strings.getSTR_GET_ALL_MSG())) {
+                                if (!str.equals(Strings.STR_GET_ALL_MSG)) {
                                     synchronized (connections) {
                                         Iterator<Connection> iter = connections.iterator();
 
@@ -669,12 +646,12 @@ public class Server extends javax.swing.JFrame {
     }//GEN-LAST:event_pfPasKeyPressed
 
     private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem1ActionPerformed
-        ClientFrame client = new ClientFrame(Strings.getMAIN_NAME());
+        ClientFrame client = new ClientFrame(Strings.MAIN_NAME);
         client.setVisible(true);
     }//GEN-LAST:event_jMenuItem1ActionPerformed
 
     private void jMenuItem2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem2ActionPerformed
-        Server server = new Server(Strings.getMAIN_NAME(), 0);
+        Server server = new Server(Strings.MAIN_NAME, ONLY_SERVER);
         server.setVisible(true);
     }//GEN-LAST:event_jMenuItem2ActionPerformed
 
