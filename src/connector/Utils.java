@@ -17,7 +17,7 @@ import javax.swing.text.DocumentFilter;
 // Класс с дополнительными функциями. Вынесены сюда, чтобы не засорять основной код.
 public class Utils {
 
-    private static final String SOUND_MSG = "sounds/Blocked.wav";
+    private static final String SOUND_MSG = "resources/sounds/Blocked.wav";
      private static final URL soundURL = Utils.class.getResource(SOUND_MSG);
      // Фильтр для поля IP, на данный момент не используется.
     public class DocumentFilterForIP extends DocumentFilter {

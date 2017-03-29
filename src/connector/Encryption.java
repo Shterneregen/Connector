@@ -1,11 +1,7 @@
 package connector;
 
 import java.io.UnsupportedEncodingException;
-import java.math.BigInteger;
-import java.security.InvalidKeyException;
-
 import java.security.KeyPair;
-//import java.security.KeyPair.*;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
@@ -16,7 +12,6 @@ import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
-//import org.apache.commons.codec.binary.Hex;
 
 public class Encryption {
 
@@ -145,7 +140,7 @@ return new String(iMsg,"Cp1251");
      * @param args the command line arguments
      */
     
-    void createPair(PublicKey publicKey)  {try {
+    public void createPair(PublicKey publicKey)  {try {
         //throws NoSuchAlgorithmException, NoSuchPaddingException
        
         KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA");
@@ -160,7 +155,7 @@ return new String(iMsg,"Cp1251");
 
     }
     
-    void doThis()  {try {
+    public void doThis()  {try {
         //throws NoSuchAlgorithmException, NoSuchPaddingException
         KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA");
         kpg.initialize(1024);

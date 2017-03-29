@@ -1,5 +1,7 @@
 package connector;
 
+import connector.view.MainPanel;
+import static connector.constant.TrayType.SERVER_TRAY;
 import java.awt.*;
 import static java.awt.Frame.NORMAL;
 import javax.swing.*;
@@ -16,15 +18,14 @@ import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
 public class Tray {
-
-//    public JFrame frame;
     public static final String APPLICATION_NAME_SERVER = "Server";
     public static final String APPLICATION_NAME_CLIENT = "Client";
-    public static final String ICON_SERVER = "images/save.png";
-    public static final String ICON_CLIENT = "images/icon.png";
+    public static final String ICON_SERVER = "resources/images/save.png";
+    public static final String ICON_CLIENT = "resources/images/icon.png";
     private TrayIcon trayIcon;
     private SystemTray tray;   
     private Link link;
+//    private int conf;
     
     
     public Tray(){
@@ -36,7 +37,7 @@ public class Tray {
 //    ArrayList<Client> listClients = new ArrayList<Client>();
 
 //    public void setTrayIcon(JFrame frame, ArrayList<Client> listClients, int conf) {
-    public void setTrayIcon(JFrame frame, Client client, int conf) {     
+    public void setTrayIcon(JFrame frame, MainPanel client, int conf) {     
 //        this.listClients = listClients;
         if (!SystemTray.isSupported()) {
             return;
@@ -76,11 +77,10 @@ public class Tray {
         });
         trayMenu.add(item1);
 
-        URL imageURL = (conf == 1 ? Tray.class.getResource(ICON_SERVER) : Tray.class.getResource(ICON_CLIENT));
+        URL imageURL = (conf == SERVER_TRAY ? Tray.class.getResource(ICON_SERVER) : Tray.class.getResource(ICON_CLIENT));
 
         Image icon = Toolkit.getDefaultToolkit().getImage(imageURL);
-        //TrayIcon 
-        trayIcon = new TrayIcon(icon, (conf == 1 ? APPLICATION_NAME_SERVER : APPLICATION_NAME_CLIENT), trayMenu);
+        trayIcon = new TrayIcon(icon, (conf == SERVER_TRAY ? APPLICATION_NAME_SERVER : APPLICATION_NAME_CLIENT), trayMenu);
         trayIcon.setImageAutoSize(true);
 //        trayIcon.addMouseListener(new MouseListener(){
 //            @Override
@@ -128,8 +128,6 @@ public class Tray {
                 link = new Link(client);
                 link.start();
         }
-
-        //SystemTray 
         
         try {
             tray.add(trayIcon);
@@ -140,13 +138,13 @@ public class Tray {
 
     private class Link extends Thread {
 
-        Client client;
+        MainPanel client;
         private boolean stoped = false;
 
         private String msg = "";
         private String oldMsg = "Нет сообщений";
 
-        public Link(Client client) {
+        public Link(MainPanel client) {
             this.client = client;
         }
 
