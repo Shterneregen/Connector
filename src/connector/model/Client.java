@@ -6,6 +6,8 @@
 package connector.model;
 
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -19,6 +21,8 @@ public class Client {
     private int port;
     private String ip;
     private String nicname;    
+    private ObjectInputStream inputStream;
+    private ObjectOutputStream outputStream;
 
     public Client() {
         port = 0;
@@ -35,6 +39,15 @@ public class Client {
     public void initSocket(){
         try {
             this.socket = new Socket(ip, port);
+        } catch (IOException ex) {
+            Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    public void setStreams(){          
+        try {
+            outputStream = new ObjectOutputStream(this.getSocket().getOutputStream());
+            inputStream = new ObjectInputStream(this.getSocket().getInputStream());
         } catch (IOException ex) {
             Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -71,4 +84,20 @@ public class Client {
     public void setNicname(String nicname) {
         this.nicname = nicname;
     }    
+
+    public ObjectInputStream getInputStream() {
+        return inputStream;
+    }
+
+    public void setInputStream(ObjectInputStream inputStream) {
+        this.inputStream = inputStream;
+    }
+
+    public ObjectOutputStream getOutputStream() {
+        return outputStream;
+    }
+
+    public void setOutputStream(ObjectOutputStream outputStream) {
+        this.outputStream = outputStream;
+    }
 }

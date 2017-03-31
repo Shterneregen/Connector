@@ -1,82 +1,70 @@
-package connector;
+package connector.view;
 
-import connector.tab.ButtonTabComponent;
-import java.awt.Component;
-import java.awt.FlowLayout;
+import connector.Strings;
+import connector.Tray;
+import static connector.constant.ClientType.CLIENT_WITHOUT_SERVER;
+import static connector.constant.ServerConfig.ONLY_SERVER;
 import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.Toolkit;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
-import java.io.BufferedReader;
-import java.io.File;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
-import java.net.Socket;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
-import javax.swing.JTabbedPane;
-
-import javax.swing.text.AbstractDocument;
 
 public class ClientFrame extends javax.swing.JFrame {
 
     private static final int CLIENT = 0;
-    private Client client;
+    private MainPanel mainPanel;
     private String strChat;
-    private static final String CLIENT_BACKGROUND = "images/fon33.jpg";
+    private static final String CLIENT_BACKGROUND = "../resources/images/fon33.jpg";
 //    private static int numCl;
-    private Image icon;
+//    private Image icon;
 
 //    private static ArrayList<Client> listClients = new ArrayList<Client>();
 //    Utils.StatusBar statusBar;
 
-    public Client getClient() {
-        return client;
+    public MainPanel getMainPanel() {
+        return mainPanel;
     }
     
     public ClientFrame(String s) {
         super(s);
 //        numCl = 0;
-        try { 
-            icon = ImageIO.read(ClientFrame.class.getResourceAsStream("images/icon.png"));
-        } catch (IOException ex) {
-            Logger.getLogger(ClientFrame.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        setIconImage(icon);
+//        try { 
+//            icon = ImageIO.read(ClientFrame.class.getResourceAsStream("../resources/images/icon.png"));
+//        } catch (IOException ex) {
+//            Logger.getLogger(ClientFrame.class.getName()).log(Level.SEVERE, null, ex);
+//        }
+//        setIconImage(icon);
 // statusBar = new Utils().new StatusBar();
 ////            getContentPane().add(statusBar, java.awt.BorderLayout.SOUTH);
 //            getContentPane().add(statusBar,java.awt.BorderLayout.SOUTH);
 ////            getContentPane().add(statusBar,java.awt.BorderLayout.SOUTH);
 //            statusBar.setMessage("FUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUU");
 
-        client = new Client(0);
-        
+        mainPanel = new MainPanel(CLIENT_WITHOUT_SERVER);       
         
         initComponents();
-
-//        client.setName("Диалог");
-//        jTabbedPane1.add(client);
-//        jpTop.add(client);
+//        jTabbedPane1.add(mainPanel);
+//        jpTop.add(mainPanel);
 
 //        jPanel1.setLayout(new FlowLayout());
-//        jPanel1.add(client);
+//        jPanel1.add(mainPanel);
 
         BgPanel bgPanel = new BgPanel();
-        bgPanel.add(client);
+        bgPanel.add(mainPanel);
 //        setContentPane(new BgPanel());
         this.setContentPane(bgPanel);
         
 
-//        listClients.add(client);
-        
+//        listClients.add(mainPanel);        
         
         setResizable(false);
         setLocationRelativeTo(null);
@@ -93,9 +81,9 @@ public class ClientFrame extends javax.swing.JFrame {
             }
 
             public void windowClosing(WindowEvent event) {
-                if (client.getFlagGoodConn()) {
+                if (mainPanel.getFlagGoodConn()) {
                     try {
-                        client.clientSendMsg(Strings.getSTR_EXIT());
+                        mainPanel.clientSendMsg(Strings.STR_EXIT);
                     } catch (UnsupportedEncodingException ex) {
 //                        tpOutput.append("\n --- Исключение из  windowClosing---");
                         Logger.getLogger(ClientFrame.class.getName()).log(Level.SEVERE, null, ex);
@@ -117,7 +105,7 @@ public class ClientFrame extends javax.swing.JFrame {
 
 //                if (numCl != 0) {
 //                    new Tray().setTrayIcon(ClientFrame.this, listClients, CLIENT);
-                    new Tray().setTrayIcon(ClientFrame.this, client, CLIENT);
+                    new Tray().setTrayIcon(ClientFrame.this, mainPanel, CLIENT);
 //                } else {
 //                    new Tray().setTrayIcon(ClientFrame.this, null, CLIENT);
 //                }
@@ -149,24 +137,6 @@ public class ClientFrame extends javax.swing.JFrame {
             repaint();
         }
     }
-
-//    public void addPanel(JPanel jp)
-//{
-//    JPanel jp1=new JPanel();
-//    int count=jp.getComponentCount()-1;
-//        int i=0;
-//    for(;i>=0;i--)
-//    {
-//         jp1.addComponent(
-//              ((Component) // this casts the clone back to component. This is maybe superfluous.
-//               ((Cloneable)jp.getComponent(i) // You have to ensure that all components that are returned are in fact instances of Cloneable.
-//               ).clone()
-//              ));
-//    }
-//    //after this I am setting bounds of jp1.
-//    this.add(jp1);
-//}
-
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -268,7 +238,7 @@ public class ClientFrame extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jMenuItem2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem2ActionPerformed
-        Server server = new Server(Strings.getMAIN_NAME(),0);
+        ServerFrame server = new ServerFrame(Strings.MAIN_NAME, ONLY_SERVER);
         server.setVisible(true);
     }//GEN-LAST:event_jMenuItem2ActionPerformed
 
@@ -282,11 +252,10 @@ public class ClientFrame extends javax.swing.JFrame {
 //        } else {
 //            tfInput.setText("Клиент не запущен");
 //        }
-
     }//GEN-LAST:event_jMenuItem4ActionPerformed
 
     private void jMenuItem3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem3ActionPerformed
-        ClientFrame client = new ClientFrame(Strings.getMAIN_NAME());
+        ClientFrame client = new ClientFrame(Strings.MAIN_NAME);
         client.setVisible(true);
     }//GEN-LAST:event_jMenuItem3ActionPerformed
 
@@ -306,30 +275,6 @@ public class ClientFrame extends javax.swing.JFrame {
     private void jMenuItem7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem7ActionPerformed
         System.exit(0);
     }//GEN-LAST:event_jMenuItem7ActionPerformed
-    
-    /////////////////////////////////////////////////////////////////////
-        //        Client client = new Client(1);
-        //        client.setName("Диалог Master "+ (++numCl));
-        //        listClients.add(client);
-        //        jpClient.add(client);
-
-        //        repaint();
-        //        jTabbedPane1.setTabPlacement(JTabbedPane.TOP);
-
-        //        Client client = new Client(Utils.getMAIN_NAME());
-        //        client.setName(clientPanelName);
-        //        jTabbedPane1.add(client);
-        //        JTabbedPane pane = new JTabbedPane();
-        //        add(pane);
-        //        jTabbedPane1.setTabComponentAt(numCl++, new ButtonTabComponent(jTabbedPane1));
-        //        jTabbedPane1.add(new ButtonTabComponent(jTabbedPane1));
-    /////////////////////////////////////////////////////////////////////
-        //        Client client = new Client(0);
-        //        client.setName("Диалог Slave " + (++numCl));
-        //        listClients.add(client);
-        //        jpClient.add(client);
-    /////////////////////////////////////////////////////////////////////
-    
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JMenu jMenu1;

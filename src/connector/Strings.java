@@ -31,6 +31,6 @@ public class Strings {
 //    public static final String STR_YOU_EXIT = "--- You left the conversation ---";
 //    public static final String STR_NON_ACK = "--- The server is not responding ---"; 
         
-    public static final String VERSION = "1.2";
+    public static final String VERSION = "1.2.1";
     public static final String MAIN_NAME = "Connector "+VERSION;
 }

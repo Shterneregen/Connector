@@ -1,4 +1,12 @@
-package connector;
+package connector.view;
+
+import connector.Encryption;
+import connector.Strings;
+import connector.Utils;
+import connector.model.Message;
+import connector.model.Client;
+import connector.constant.ClientType;
+import static connector.constant.ServerConfig.SERVER_FROM_CLIENT;
 import java.awt.Component;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
@@ -6,8 +14,6 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.Socket;
 import java.util.ArrayList;
@@ -15,95 +21,57 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.AbstractButton;
 import javax.swing.text.AbstractDocument;
-//import connector.Utils.StatusBar;
-//import connector.tab.ButtonTabComponent;
-//import java.awt.BasicStroke;
-//import java.awt.Color;
-//import java.awt.Dimension;
-//import java.awt.FlowLayout;
-//import java.awt.Graphics;
-//import java.awt.Graphics2D;
-//import java.awt.Image;
-//import java.awt.Toolkit;
-//import java.awt.event.ActionEvent;
-//import java.awt.event.ActionListener;
-//import java.awt.event.WindowEvent;
-//import java.awt.event.WindowListener;
-//import java.io.BufferedReader;
-//import java.io.File;
-//import java.io.InputStreamReader;
-//import java.io.PrintWriter;
-//import java.net.URL;
-//import javax.imageio.ImageIO;
-//import javax.swing.BorderFactory;
-//import javax.swing.Icon;
-//import javax.swing.JButton;
-//import javax.swing.JLabel;
-//import javax.swing.JPanel;
-//import javax.swing.JTabbedPane;
-//import static javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE;
-//import javax.swing.plaf.basic.BasicButtonUI;
 
-public class Client extends javax.swing.JPanel { 
+public class MainPanel extends javax.swing.JPanel {
+
+    private Client client;
     private Socket socket;
-    private int port;
-    private String ip;
-    private String nicname;  
+
     private String strChat;
     private String receiveStr;
     private String pfStr;
+
     private String strBtSetIP;
     private String strBtSetPort;
     private String strBtSetNic;
     private String strBtSetPas;
+
     private int conf;
-    private int serverMark;
-    private int clientMark;
-    private Server server;
+
+    private ServerFrame serverFrame;
     private Resender resender;
-    private Boolean flagGoodConn;   
+
+    private Boolean flagGoodConn;
     private boolean errConn;
     private boolean bRsa;
+
     private Encryption serverEncryption;
     private Encryption clientEncryption;
-    private ObjectInputStream inputStream = null;
-    private ObjectOutputStream outputStream = null;      
-    private ArrayList<String> listAddr = new ArrayList<String>();
+
+    private ArrayList<String> listAddr;
+//    private Image icon;
 //    private final JTabbedPane pane;
-//    private static final int CLIENT = 0;
-//    private BufferedReader in;
-//    private PrintWriter out;
-//    private String message;
-//    private String strBtStartClient;
-//    private String strBtStopClient;    
-//    StatusBar statusBar;     
-//    private String strPort;
-//    private String strNic;
-//    private String strForTfInput = "Подключитесь к серверу";
-//    private boolean bMinSetCon = false;
-//    private boolean bMinSetCon = false;
-//    private int wPSetCon;
-//    private int hPSetCon;
-//    private int wFrame;
-//    private int hFrame;
-//    private static final String CLIENT_BACKGROUND = "images/dark.jpg";
-//    public Client(final JTabbedPane pane) {
-    public Client(int conf) {
+
+    public MainPanel(int conf) {
+//        try {
+//            icon = ImageIO.read(MainPanel.class.getResourceAsStream("../resources/images/setting.png"));
+//        } catch (IOException ex) {
+//            Logger.getLogger(MainPanel.class.getName()).log(Level.SEVERE, null, ex);
+//        }
+//        btSettings.setIcon((Icon) icon);
+        listAddr = new ArrayList<String>();
         this.conf = conf;
-        port = 9988;
-        nicname = "NicName";
         pfStr = "9988";
+        client = new Client();
 
         strBtSetIP = "Установить IP";
         strBtSetPort = "Установить порт";
         strBtSetNic = "Установить Ник";
         strBtSetPas = "Установить пароль";
-        server = new Server(Strings.getMAIN_NAME(),1);
+        serverFrame = new ServerFrame(Strings.MAIN_NAME, SERVER_FROM_CLIENT);
         flagGoodConn = false;
         errConn = false;
-        listAddr = server.getMyLocalIP();
-        serverMark = 1;
-        clientMark = 0;
+        listAddr = serverFrame.getMyLocalIP();
         strChat = "Нет сообщений";
         bRsa = false;
         clientEncryption = new Encryption();
@@ -111,16 +79,16 @@ public class Client extends javax.swing.JPanel {
         serverEncryption = new Encryption();
 
         initComponents();
+        btSettings.setIcon(new javax.swing.ImageIcon(getClass().getResource("../resources/images/setting.png")));
         btSettings.setToolTipText("Настройки соединения");
         for (int i = 0; i < listAddr.size(); i++) {
             tfIP.addItem(listAddr.get(i));
         }
-        if (conf == serverMark) {
+        if (conf == ClientType.CLIENT_WITH_SERVER) {
             btStartClient.setText("Создать диалог");
             btStopClient.setText("Остановить диалог");
             tfIP.setEditable(false);
-            
-        } else if(conf == clientMark){
+        } else if (conf == ClientType.CLIENT_WITHOUT_SERVER) {
             btStartClient.setText("Подключиться");
             btStopClient.setText("Выйти");
         }
@@ -129,17 +97,17 @@ public class Client extends javax.swing.JPanel {
         tpOutput.setWrapStyleWord(true);// слова не будут разрываться в том месте, где они «натыкаются» на границу компонента, а будут целиком перенесены на новую строку
         tpOutput.setLineWrap(true);     // длинные строки будут укладываться в несколько строк вместо одной, уходящей за границы компонента
         tpOutput.setEditable(false);
-        tfInput.setText(Strings.getSTR_TO_CONN());
+        tfInput.setText(Strings.STR_TO_CONN);
         tfInput.setEditable(false);
         btStopClient.setEnabled(false);
         btSent.setEnabled(false);
-        btSettings.setEnabled(false);       
+        btSettings.setEnabled(false);
 
         cbNewConv.addItemListener(new ItemListener() {
             @Override
             public void itemStateChanged(ItemEvent e) {
-                if (cbNewConv.isSelected()) {                   
-                    Client.this.conf = serverMark;
+                if (cbNewConv.isSelected()) {
+                    MainPanel.this.conf = ClientType.CLIENT_WITH_SERVER;
                     btStartClient.setText("Создать диалог");
                     btStopClient.setText("Остановить диалог");
                     tfIP.setEditable(false);
@@ -148,8 +116,8 @@ public class Client extends javax.swing.JPanel {
                     for (int i = 0; i < listAddr.size(); i++) {
                         tfIP.addItem(listAddr.get(i));
                     }
-                } else {                   
-                    Client.this.conf = clientMark;
+                } else {
+                    MainPanel.this.conf = ClientType.CLIENT_WITHOUT_SERVER;
                     btStartClient.setText("Присоединиться");
                     btStopClient.setText("Выйти");
                     tfIP.setEditable(true);
@@ -161,52 +129,6 @@ public class Client extends javax.swing.JPanel {
                 }
             }
         });
-//        JButton button = new Client.TabButton();
-//        JButton button = new TabButton();
-//        add(button);
-//        setBorder(BorderFactory.createEmptyBorder(2, 0, 0, 0));
-//        ((AbstractDocument) tfIP.getDocument()).setDocumentFilter(new Utils().new DocumentFilterForIP());
-        
-//        btSettings.setIcon(new javax.swing.ImageIcon(getClass().getResource("/connector/images/setting.png")));
-//        try {
-//            btSettings.setIcon((Icon) ImageIO.read(Client.class.getResourceAsStream("images/icon.png")));
-//        } catch (IOException ex) {
-//            Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
-//        }       
-//        icon = ImageIO.read(ClientFrame.class.getResourceAsStream("images/icon.png"));
-//        btStartClient.setText(ip);
-//        strIP = "127.0.0.1";
-//        strPort = "9988";
-//        strNic = "NicName";       
-//        setContentPane(new BgPanel());
-//        statusBar = new Utils().new StatusBar();
-//        add(statusBar, java.awt.BorderLayout.SOUTH);
-        
-//        super(new FlowLayout(FlowLayout.LEFT, 0, 0));
-//        if (pane == null) {
-//            throw new NullPointerException("TabbedPane is null");
-//        }
-//        this.pane = pane;
-//        setOpaque(false);
-//        make JLabel read titles from JTabbedPane
-//        JLabel label = new JLabel() {
-//            public String getText() {
-//                int i = pane.indexOfTabComponent(Client.this);
-//                if (i != -1) {
-//                    return pane.getTitleAt(i);
-//                }
-//                return null;
-//            }
-//        };
-//        add(label);
-//        add more space between the label and the button
-//        label.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 5));
-//        tab button
-//        JButton button = new Client.TabButton();
-//        add(button);
-//        //add more space to the top of the component
-//        setBorder(BorderFactory.createEmptyBorder(2, 0, 0, 0));
-//        super(s);
     }
 
     public boolean checkString(String string) {
@@ -218,15 +140,14 @@ public class Client extends javax.swing.JPanel {
         return true;
     }
 
-    public void setPort(String strPort) {
+    public Integer getAndCheckPort(String strPort) {
 //        if(!checkString(strPort)){            
 //            tfInput.setText("Неверный номер порта");
 //        } else 
         if (Integer.parseInt(strPort) <= 0 || Integer.parseInt(strPort) > 65535) {
-            tfInput.setText(Strings.getSTR_WRONG_PORT());
+            return null;
         } else {
-            this.port = Integer.parseInt(strPort);
-            tfInput.setText(Strings.getSTR_SET_PORT() + port);
+            return Integer.parseInt(strPort);
         }
     }
 
@@ -242,7 +163,7 @@ public class Client extends javax.swing.JPanel {
         }
     }
 
-    public void setIP(String ip) {
+    public String getAndCheckIP(String ip) {
         char[] chArr = ip.toCharArray();
 
         String ip_1 = "", ip_2 = "", ip_3 = "", ip_4 = "";
@@ -254,8 +175,7 @@ public class Client extends javax.swing.JPanel {
             ip_1 += chArr[i];
         }
         if (!checkIP(ip_1)) {
-            tfInput.setText(Strings.getSTR_WRONG_IP());
-            return;
+            return null;
         }
         i++;
         for (; i < chArr.length; i++) {
@@ -265,8 +185,7 @@ public class Client extends javax.swing.JPanel {
             ip_2 += chArr[i];
         }
         if (!checkIP(ip_2)) {
-            tfInput.setText(Strings.getSTR_WRONG_IP());
-            return;
+            return null;
         }
         i++;
         for (; i < chArr.length; i++) {
@@ -276,41 +195,40 @@ public class Client extends javax.swing.JPanel {
             ip_3 += chArr[i];
         }
         if (!checkIP(ip_3)) {
-            tfInput.setText(Strings.getSTR_WRONG_IP());
-            return;
+            return null;
         }
         i++;
         for (; i < chArr.length; i++) {
             ip_4 += chArr[i];
         }
         if (!checkIP(ip_4)) {
-            tfInput.setText(Strings.getSTR_WRONG_IP());
-            return;
+            return null;
         }
-
-        tfInput.setText(Strings.getSTR_SET_IP() + ip_1 + "." + ip_2 + "." + ip_3 + "." + ip_4);
-        this.ip = ip;
+//        tfInput.setText(Strings.getSTR_SET_IP() + ip_1 + "." + ip_2 + "." + ip_3 + "." + ip_4);
+        return ip;
     }
 
-    public void setNic(String nicname) {
-        this.nicname = nicname;
-        tfInput.setText(Strings.getSTR_SET_NIC() + nicname);
-    }
-
+//    public void setNic(String nicname) {
+//        this.nicname = nicname;
+//        tfInput.setText(Strings.getSTR_SET_NIC() + nicname);
+//    }
     public void setPas(String pas) {
         this.pfStr = pas;
-        tfInput.setText(Strings.getSTR_SET_PASS());
+        tfInput.setText(Strings.STR_SET_PASS);
     }
 
     // Закрывает потоки и сокет
     private void close() {
         try {
-//            in.close();
-//            out.close();
-            inputStream.close();
-            outputStream.flush();
-            outputStream.close();
+            client.getInputStream().close();
+            client.getOutputStream().flush();
+            client.getOutputStream().close();
             
+            
+//            inputStream.close();
+//            outputStream.flush();
+//            outputStream.close();
+
             socket.close();
         } catch (Exception e) {
             //System.err.println("Потоки не были закрыты!");
@@ -320,35 +238,20 @@ public class Client extends javax.swing.JPanel {
 
     private void setConnection() {
         try {
-            socket = new Socket(ip, port);
-//            in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-//            out = new PrintWriter(socket.getOutputStream(), true);
-//            System.out.println("Client: Socket");           
-            outputStream = new ObjectOutputStream(this.socket.getOutputStream());
-//            System.out.println("Client: outputStream");
-            inputStream   = new ObjectInputStream(this.socket.getInputStream());
-//            System.out.println("Client: inputStream");
-            //out.println(pfStr);
-            //out.println(nicname);
-
+            client.setStreams();
             resender = new Resender();
             resender.start();
-//            Thread.currentThread().sleep(1000);
             strChat = "";
-//            out.println(Encryption.encode(pfStr, pfStr));   // Отсылаем пароль
-            outputStream.writeObject(new Message(Encryption.encode(pfStr, pfStr),Encryption.encode(nicname, pfStr), clientEncryption.getPublicKeyFromKeypair()));
             
+            client.getOutputStream().writeObject(new Message(Encryption.encode(pfStr, pfStr), Encryption.encode(client.getNicname(), pfStr), clientEncryption.getPublicKeyFromKeypair()));
 //            System.out.println("Encrypted from client to server: "+Encryption.encode(nicname, pfStr));
-//            System.out.println(Encryption.decode(Encryption.encode("Decrypted from client to server: "+nicname, pfStr), pfStr));
-         
-//            out.println(Encryption.encode(nicname, pfStr)); // Отсылаем ник
-//            out.println(encryption.encrypt(nicname));
+//            System.out.println(Encryption.decode(Encryption.encode("Decrypted from client to server: "+nicname, pfStr), pfStr));         
             flagGoodConn = true;
             setButtonAfterStart();
-            
+
         } catch (IOException ex) {
             //Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
-            tpOutput.append(Strings.getSTR_NON_ACK() + "\n");
+            tpOutput.append(Strings.STR_NON_ACK + "\n");
             tpOutput.setCaretPosition(tpOutput.getText().length());
             errConn = true;
             flagGoodConn = false;
@@ -359,24 +262,25 @@ public class Client extends javax.swing.JPanel {
     public void clientSendMsg(String message) throws UnsupportedEncodingException {
         //if (!message.equals("") && flagGoodConn) {
         if (!message.equals("")) {
-            if (message.equals(Strings.getSTR_EXIT())) {
+            if (message.equals(Strings.STR_EXIT)) {
                 if (!errConn) {
-                    tpOutput.append(Strings.getSTR_YOU_EXIT() + "\n");
+                    tpOutput.append(Strings.STR_YOU_EXIT + "\n");
                     resender.setStop();
                 }
                 if (errConn && flagGoodConn) {
                     resender.setStop();
                 }
             }
-            
+
             try {
-                    outputStream.writeObject(new Message(serverEncryption.encrypt(message)));
+                client.getOutputStream().writeObject(new Message(serverEncryption.encrypt(message)));
+//                outputStream.writeObject(new Message(serverEncryption.encrypt(message)));
 //                    System.out.println("Client send message: "+serverEncryption.encrypt(message));
             } catch (IOException ex) {
-                Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
-            }            
+                Logger.getLogger(MainPanel.class.getName()).log(Level.SEVERE, null, ex);
+            }
 //            tpOutput.append("\n"+Encryption.encode(message, pfStr)+"\n");
-            if (message.equals(Strings.getSTR_EXIT())) {
+            if (message.equals(Strings.STR_EXIT)) {
                 //errConn = false;
                 exit();
             }
@@ -397,18 +301,11 @@ public class Client extends javax.swing.JPanel {
         btStopClient.setEnabled(true);
         btSent.setEnabled(true);
 
-        if (!(conf == serverMark)) {
-//            btSetIP.setEnabled(false);
+        if (!(conf == ClientType.CLIENT_WITH_SERVER)) {
             tfIP.setEditable(false);
         }
-
-//        btSetPort.setEnabled(false);
         tfPort.setEditable(false);
-
-//        btSetNic.setEnabled(false);
         tfNic.setEditable(false);
-
-//        btSetPas.setEnabled(false);
         pfPas.setEditable(false);
 
         tfInput.setEditable(true);
@@ -418,31 +315,23 @@ public class Client extends javax.swing.JPanel {
     }
 
     void setButtonBeforeStart() {
-
-        btStartClient.setEnabled(true); // true    false
+        btStartClient.setEnabled(true);
         btStopClient.setEnabled(false);
         btSent.setEnabled(false);
 
-        if (!(conf == serverMark)) {
-//            btSetIP.setEnabled(true);
+        if (!(conf == ClientType.CLIENT_WITH_SERVER)) {
             tfIP.setEditable(true);
         }
-
-//        btSetPort.setEnabled(true);
         tfPort.setEditable(true);
-
-//        btSetNic.setEnabled(true);
         tfNic.setEditable(true);
-
-//        btSetPas.setEnabled(true);
         pfPas.setEditable(true);
 
         tfInput.setEditable(false);
-        tfInput.setText(Strings.getSTR_TO_CONN());
+        tfInput.setText(Strings.STR_TO_CONN);
 
         cbNewConv.setEnabled(true);
     }
-    
+
     private class Resender extends Thread {
 
         private boolean stoped = false;
@@ -460,8 +349,7 @@ public class Client extends javax.swing.JPanel {
                 while (!stoped) {
 
                     try {
-
-                        message = (Message) inputStream.readObject();
+                        message = (Message) client.getInputStream().readObject();
 
                         if (bFirst) {
                             bFirst = false;
@@ -478,9 +366,9 @@ public class Client extends javax.swing.JPanel {
                         break;
                     }
                     ///////////////////////////////////////////////////////// 
-                    if (receiveStr.equals(Strings.getSTR_WRONG_PASS())
-                            || receiveStr.equals(Strings.getSTR_SAME_NIC())
-                            || receiveStr.equals(Strings.getSTR_STOP_SERVER())
+                    if (receiveStr.equals(Strings.STR_WRONG_PASS)
+                            || receiveStr.equals(Strings.STR_SAME_NIC)
+                            || receiveStr.equals(Strings.STR_STOP_SERVER)
                             || receiveStr.equals("")) {
                         strChat = strChat + "\n" + receiveStr;
                         tpOutput.append(receiveStr + "\n");
@@ -488,32 +376,31 @@ public class Client extends javax.swing.JPanel {
                         tpOutput.setCaretPosition(tpOutput.getText().length());
                         errConn = true;
 
-                        if (receiveStr.equals(Strings.getSTR_STOP_SERVER())) {
+                        if (receiveStr.equals(Strings.STR_STOP_SERVER)) {
                             resender.setStop();
                         }
 //                        System.out.println(nicname +" client receive att: " + receiveStr);
                         exit();
                         break;
                     }
-                    if (receiveStr.equals(Strings.getSTR_EXIT_ALL())) {
+                    if (receiveStr.equals(Strings.STR_EXIT_ALL)) {
 //                        out.println(Encryption.encode(Strings.getSTR_EXIT_ALL(), pfStr));
 //                        outputStream.writeObject(new Message(clientEncryption.encrypt(Strings.getSTR_EXIT_ALL())));
-                        outputStream.writeObject(new Message(serverEncryption.encrypt(Strings.getSTR_EXIT_ALL())));
-                        strChat = strChat + "\n" + Strings.getSTR_STOP_SERVER();
-                        tpOutput.append(Strings.getSTR_STOP_SERVER() + "\n");
+                        client.getOutputStream().writeObject(new Message(serverEncryption.encrypt(Strings.STR_EXIT_ALL)));
+                        strChat = strChat + "\n" + Strings.STR_STOP_SERVER;
+                        tpOutput.append(Strings.STR_STOP_SERVER + "\n");
                         tpOutput.setCaretPosition(tpOutput.getText().length());
                         resender.setStop();
                         exit();
                         break;
-                    } 
-                    /////////////////////////////////////////////////////////
+                    } /////////////////////////////////////////////////////////
                     else {
                         strChat = strChat + "\n" + receiveStr;
-                        if(!message.isfSystemMessage()){
+                        if (!message.isfSystemMessage()) {
                             tpOutput.append(receiveStr + "\n");
                             tpOutput.setCaretPosition(tpOutput.getText().length());
                         }
-                        
+
                     }
                 }
             } catch (IOException e) {
@@ -650,7 +537,6 @@ public class Client extends javax.swing.JPanel {
         cbNewConv.setText("Новый диалог");
         cbNewConv.setOpaque(false);
 
-        btSettings.setIcon(new javax.swing.ImageIcon(getClass().getResource("/connector/images/setting.png"))); // NOI18N
         btSettings.setBorderPainted(false);
         btSettings.setContentAreaFilled(false);
         btSettings.setFocusable(false);
@@ -794,7 +680,13 @@ public class Client extends javax.swing.JPanel {
 
     private void tfPortKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_tfPortKeyPressed
         if (evt.getKeyCode() == 10) {
-            setPort(tfPort.getText());
+            Integer port = getAndCheckPort(tfPort.getText());
+            if (port != null) {
+                client.setPort(port);
+                tfInput.setText("Порт установлен: " + port);
+            } else {
+                tfInput.setText("Неверный номер порта");
+            }
         }
     }//GEN-LAST:event_tfPortKeyPressed
 
@@ -806,31 +698,42 @@ public class Client extends javax.swing.JPanel {
 
     private void tfNicKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_tfNicKeyPressed
         if (evt.getKeyCode() == 10) {
-            setNic(tfNic.getText());
+            String nic = tfNic.getText();
+            if (nic != null) {
+                client.setNicname(nic);
+                tfInput.setText("Никнейм установлен: " + nic);
+            } else {
+                tfInput.setText("Введите никнейм");
+            }
         }
     }//GEN-LAST:event_tfNicKeyPressed
 
     private void btStartClientActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btStartClientActionPerformed
-        if (conf == serverMark) {
-            server.setPort(tfPort.getText());
-            server.setPas(String.valueOf(pfPas.getPassword()));
-            server.startServer();
+        if (conf == ClientType.CLIENT_WITH_SERVER) {
+            serverFrame.setPort(tfPort.getText());
+            serverFrame.setPas(String.valueOf(pfPas.getPassword()));
+            serverFrame.startServer();
         }
-        setNic(tfNic.getText());
-        setIP((String) tfIP.getSelectedItem());
+        String ip = getAndCheckIP((String) tfIP.getSelectedItem());
+        Integer port = getAndCheckPort(tfPort.getText());
+
+        client.setPort(port);
+        client.setIp(ip);
+        client.setNicname(tfNic.getText());
+        client.initSocket();
+
         setPas(String.valueOf(pfPas.getPassword()));
-        setPort(tfPort.getText());
         setConnection();
     }//GEN-LAST:event_btStartClientActionPerformed
 
     private void btStopClientActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btStopClientActionPerformed
         try {
-            clientSendMsg(Strings.getSTR_EXIT());
+            clientSendMsg(Strings.STR_EXIT);
         } catch (UnsupportedEncodingException ex) {
             Logger.getLogger(ClientFrame.class.getName()).log(Level.SEVERE, null, ex);
         }
-        if (conf == serverMark) {
-            server.stopServer();
+        if (conf == ClientType.CLIENT_WITH_SERVER) {
+            serverFrame.stopServer();
         }
     }//GEN-LAST:event_btStopClientActionPerformed
 
@@ -857,12 +760,17 @@ public class Client extends javax.swing.JPanel {
 
     private void tfIPKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_tfIPKeyPressed
         if (evt.getKeyCode() == 10) {
-            setIP((String) tfIP.getSelectedItem());
+            String ip = getAndCheckIP((String) tfIP.getSelectedItem());
+            if (ip != null) {
+                client.setIp(ip);
+            } else {
+                tfInput.setText(Strings.STR_WRONG_IP);
+            }
         }
     }//GEN-LAST:event_tfIPKeyPressed
 
     private void btSettingsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btSettingsActionPerformed
-        server.setVisible(true);
+        serverFrame.setVisible(true);
     }//GEN-LAST:event_btSettingsActionPerformed
 
 

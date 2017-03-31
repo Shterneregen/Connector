@@ -3,15 +3,11 @@ package connector;
 import connector.view.MainPanel;
 import static connector.constant.TrayType.SERVER_TRAY;
 import java.awt.*;
-import static java.awt.Frame.NORMAL;
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.io.IOException;
 import java.net.*;
-import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.sound.sampled.LineUnavailableException;
@@ -25,7 +21,6 @@ public class Tray {
     private TrayIcon trayIcon;
     private SystemTray tray;   
     private Link link;
-//    private int conf;
     
     
     public Tray(){
