@@ -1,5 +1,6 @@
 package connector;
 
+import connector.utils.Utils;
 import connector.view.MainPanel;
 import static connector.constant.TrayType.SERVER_TRAY;
 import java.awt.*;

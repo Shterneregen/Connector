@@ -1,4 +1,4 @@
-package connector;
+package connector.utils;
 
 import java.awt.Dimension;
 import java.io.File;

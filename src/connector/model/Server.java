@@ -5,9 +5,9 @@
  */
 package connector.model;
 
-import connector.Encryption;
-import connector.Strings;
-import connector.Utils;
+import connector.utils.Encryption;
+import connector.resources.Strings;
+import connector.utils.Utils;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -137,7 +137,6 @@ public class Server {
                         for (int i = 0; i < listNames.size(); i++) {
                             if (name.equals(listNames.get(i))) {                                              
                                 Connection.this.outputStream.writeObject(new Message(clientEncryption.encrypt(Strings.STR_SAME_NIC), false));
-//                                System.out.println("ServerFrame: " + Strings.getSTR_SAME_NIC());
                                 flagWrongNic = true;
                                 stoped = true;
                                 break;

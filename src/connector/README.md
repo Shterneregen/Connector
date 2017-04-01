@@ -15,3 +15,4 @@
             TODO: доделать controller и view(+)
 29.03.17 Пакет view. Класс Server в model, TrayType, ServerConfig. Server -> ServerFrame.
 31.03.17 Перенес стримы в Client
+01.04.17 Пытаюсь добавить файл пропертей и файлы с языками

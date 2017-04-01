@@ -1,8 +1,8 @@
 package connector.view;
 
-import connector.Encryption;
-import connector.Strings;
-import connector.Utils;
+import connector.utils.Encryption;
+import connector.resources.Strings;
+import connector.utils.Utils;
 import connector.model.Message;
 import connector.model.Client;
 import connector.constant.ClientType;
@@ -15,7 +15,6 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.net.Socket;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -25,7 +24,6 @@ import javax.swing.text.AbstractDocument;
 public class MainPanel extends javax.swing.JPanel {
 
     private Client client;
-    private Socket socket;
 
     private String strChat;
     private String receiveStr;
@@ -49,16 +47,9 @@ public class MainPanel extends javax.swing.JPanel {
     private Encryption clientEncryption;
 
     private ArrayList<String> listAddr;
-//    private Image icon;
 //    private final JTabbedPane pane;
 
     public MainPanel(int conf) {
-//        try {
-//            icon = ImageIO.read(MainPanel.class.getResourceAsStream("../resources/images/setting.png"));
-//        } catch (IOException ex) {
-//            Logger.getLogger(MainPanel.class.getName()).log(Level.SEVERE, null, ex);
-//        }
-//        btSettings.setIcon((Icon) icon);
         listAddr = new ArrayList<String>();
         this.conf = conf;
         pfStr = "9988";
@@ -103,10 +94,10 @@ public class MainPanel extends javax.swing.JPanel {
         btSent.setEnabled(false);
         btSettings.setEnabled(false);
 
-        cbNewConv.addItemListener(new ItemListener() {
+        cbNewConversation.addItemListener(new ItemListener() {
             @Override
             public void itemStateChanged(ItemEvent e) {
-                if (cbNewConv.isSelected()) {
+                if (cbNewConversation.isSelected()) {
                     MainPanel.this.conf = ClientType.CLIENT_WITH_SERVER;
                     btStartClient.setText("Создать диалог");
                     btStopClient.setText("Остановить диалог");
@@ -141,9 +132,6 @@ public class MainPanel extends javax.swing.JPanel {
     }
 
     public Integer getAndCheckPort(String strPort) {
-//        if(!checkString(strPort)){            
-//            tfInput.setText("Неверный номер порта");
-//        } else 
         if (Integer.parseInt(strPort) <= 0 || Integer.parseInt(strPort) > 65535) {
             return null;
         } else {
@@ -208,32 +196,9 @@ public class MainPanel extends javax.swing.JPanel {
         return ip;
     }
 
-//    public void setNic(String nicname) {
-//        this.nicname = nicname;
-//        tfInput.setText(Strings.getSTR_SET_NIC() + nicname);
-//    }
     public void setPas(String pas) {
         this.pfStr = pas;
-        tfInput.setText(Strings.STR_SET_PASS);
-    }
-
-    // Закрывает потоки и сокет
-    private void close() {
-        try {
-            client.getInputStream().close();
-            client.getOutputStream().flush();
-            client.getOutputStream().close();
-            
-            
-//            inputStream.close();
-//            outputStream.flush();
-//            outputStream.close();
-
-            socket.close();
-        } catch (Exception e) {
-            //System.err.println("Потоки не были закрыты!");
-            tfInput.setText("Что-то не так");
-        }
+//        tfInput.setText(Strings.STR_SET_PASS);
     }
 
     private void setConnection() {
@@ -290,13 +255,12 @@ public class MainPanel extends javax.swing.JPanel {
     private void exit() {
         setButtonBeforeStart();
 
-        close();
+        client.closeStreams();
         flagGoodConn = false;
         errConn = false;
     }
 
     void setButtonAfterStart() {
-
         btStartClient.setEnabled(false);
         btStopClient.setEnabled(true);
         btSent.setEnabled(true);
@@ -311,7 +275,7 @@ public class MainPanel extends javax.swing.JPanel {
         tfInput.setEditable(true);
         tfInput.setText("");
 
-        cbNewConv.setEnabled(false);
+        cbNewConversation.setEnabled(false);
     }
 
     void setButtonBeforeStart() {
@@ -329,7 +293,7 @@ public class MainPanel extends javax.swing.JPanel {
         tfInput.setEditable(false);
         tfInput.setText(Strings.STR_TO_CONN);
 
-        cbNewConv.setEnabled(true);
+        cbNewConversation.setEnabled(true);
     }
 
     private class Resender extends Thread {
@@ -372,7 +336,6 @@ public class MainPanel extends javax.swing.JPanel {
                             || receiveStr.equals("")) {
                         strChat = strChat + "\n" + receiveStr;
                         tpOutput.append(receiveStr + "\n");
-//                        tpOutput.append(receiveStr);
                         tpOutput.setCaretPosition(tpOutput.getText().length());
                         errConn = true;
 
@@ -404,7 +367,6 @@ public class MainPanel extends javax.swing.JPanel {
                     }
                 }
             } catch (IOException e) {
-                //System.err.println("Ошибка при получении сообщения.");
                 tpOutput.append("--- Ошибка при получении сообщения ---" + "\n");
                 //e.printStackTrace();
             }
@@ -457,7 +419,7 @@ public class MainPanel extends javax.swing.JPanel {
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
-        cbNewConv = new javax.swing.JCheckBox();
+        cbNewConversation = new javax.swing.JCheckBox();
         btSettings = new javax.swing.JButton();
         jPanel2 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
@@ -534,8 +496,8 @@ public class MainPanel extends javax.swing.JPanel {
 
         jLabel4.setText("Пароль:");
 
-        cbNewConv.setText("Новый диалог");
-        cbNewConv.setOpaque(false);
+        cbNewConversation.setText("Новый диалог");
+        cbNewConversation.setOpaque(false);
 
         btSettings.setBorderPainted(false);
         btSettings.setContentAreaFilled(false);
@@ -576,7 +538,7 @@ public class MainPanel extends javax.swing.JPanel {
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(tfPort, javax.swing.GroupLayout.PREFERRED_SIZE, 127, javax.swing.GroupLayout.PREFERRED_SIZE))))
                     .addGroup(pSetConLayout.createSequentialGroup()
-                        .addComponent(cbNewConv)
+                        .addComponent(cbNewConversation)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(btSettings, javax.swing.GroupLayout.PREFERRED_SIZE, 59, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap())
@@ -599,7 +561,7 @@ public class MainPanel extends javax.swing.JPanel {
                     .addComponent(pfPas, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(pSetConLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(cbNewConv)
+                    .addComponent(cbNewConversation)
                     .addComponent(btSettings, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(0, 0, 0))
         );
@@ -779,7 +741,7 @@ public class MainPanel extends javax.swing.JPanel {
     private javax.swing.JButton btSettings;
     private javax.swing.JButton btStartClient;
     private javax.swing.JButton btStopClient;
-    private javax.swing.JCheckBox cbNewConv;
+    private javax.swing.JCheckBox cbNewConversation;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;

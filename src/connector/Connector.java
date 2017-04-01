@@ -1,5 +1,6 @@
 package connector;
 
+import connector.resources.Strings;
 import connector.view.ClientFrame;
 import static javax.swing.JFrame.EXIT_ON_CLOSE;
 

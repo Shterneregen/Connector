@@ -1,6 +1,6 @@
 package connector.view;
 
-import connector.Strings;
+import connector.resources.Strings;
 import connector.Tray;
 import static connector.constant.ClientType.CLIENT_WITHOUT_SERVER;
 import static connector.constant.ServerConfig.ONLY_SERVER;
@@ -9,12 +9,10 @@ import java.awt.Image;
 import java.awt.Toolkit;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
@@ -24,9 +22,8 @@ public class ClientFrame extends javax.swing.JFrame {
     private MainPanel mainPanel;
     private String strChat;
     private static final String CLIENT_BACKGROUND = "../resources/images/fon33.jpg";
+    
 //    private static int numCl;
-//    private Image icon;
-
 //    private static ArrayList<Client> listClients = new ArrayList<Client>();
 //    Utils.StatusBar statusBar;
 
@@ -60,7 +57,6 @@ public class ClientFrame extends javax.swing.JFrame {
 
         BgPanel bgPanel = new BgPanel();
         bgPanel.add(mainPanel);
-//        setContentPane(new BgPanel());
         this.setContentPane(bgPanel);
         
 

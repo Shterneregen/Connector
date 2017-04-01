@@ -1,4 +1,4 @@
-package connector;
+package connector.utils;
 
 import java.io.UnsupportedEncodingException;
 import java.security.KeyPair;

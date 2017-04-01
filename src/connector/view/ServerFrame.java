@@ -1,8 +1,8 @@
 package connector.view;
 
-import connector.Strings;
+import connector.resources.Strings;
 import connector.Tray;
-import connector.Utils;
+import connector.utils.Utils;
 import static connector.constant.ServerConfig.*;
 import static connector.constant.TrayType.SERVER_TRAY;
 import connector.model.Server;

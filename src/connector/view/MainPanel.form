@@ -130,7 +130,7 @@
                               </Group>
                           </Group>
                           <Group type="102" attributes="0">
-                              <Component id="cbNewConv" min="-2" max="-2" attributes="0"/>
+                              <Component id="cbNewConversation" min="-2" max="-2" attributes="0"/>
                               <EmptySpace max="32767" attributes="0"/>
                               <Component id="btSettings" min="-2" pref="59" max="-2" attributes="0"/>
                           </Group>
@@ -160,7 +160,7 @@
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="1" attributes="0">
-                          <Component id="cbNewConv" min="-2" max="-2" attributes="0"/>
+                          <Component id="cbNewConversation" min="-2" max="-2" attributes="0"/>
                           <Component id="btSettings" min="-2" pref="35" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace min="-2" pref="0" max="-2" attributes="0"/>
@@ -240,7 +240,7 @@
                 <Property name="text" type="java.lang.String" value="&#x41f;&#x430;&#x440;&#x43e;&#x43b;&#x44c;:"/>
               </Properties>
             </Component>
-            <Component class="javax.swing.JCheckBox" name="cbNewConv">
+            <Component class="javax.swing.JCheckBox" name="cbNewConversation">
               <Properties>
                 <Property name="text" type="java.lang.String" value="&#x41d;&#x43e;&#x432;&#x44b;&#x439; &#x434;&#x438;&#x430;&#x43b;&#x43e;&#x433;"/>
                 <Property name="opaque" type="boolean" value="false"/>

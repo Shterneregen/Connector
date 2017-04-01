@@ -53,6 +53,23 @@ public class Client {
         }
     }
     
+    public void closeStreams() {
+        try {
+            if(inputStream != null){
+                inputStream.close();
+            }
+            if(outputStream != null){
+                outputStream.flush();
+                outputStream.close(); 
+            }
+            if(socket != null){
+                socket.close();
+            }
+        } catch (IOException ex) {
+            Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
     public Socket getSocket() {
         return socket;
     }

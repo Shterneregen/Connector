@@ -1,5 +1,5 @@
 
-package connector;
+package connector.resources;
 
 public class Strings {
     public static final String STR_EXIT = "</exit/>";
@@ -33,4 +33,6 @@ public class Strings {
         
     public static final String VERSION = "1.2.1";
     public static final String MAIN_NAME = "Connector "+VERSION;
+// ------------------------------------------------------------------------------------------- //    
+    public static final String PROPERTIES_FILE = "language";
 }
