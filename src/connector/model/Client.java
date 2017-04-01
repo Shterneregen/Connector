@@ -20,7 +20,9 @@ public class Client {
     private Socket socket;
     private int port;
     private String ip;
-    private String nicname;    
+    private String nicname;
+    private String pass;    
+
     private ObjectInputStream inputStream;
     private ObjectOutputStream outputStream;
 
@@ -28,12 +30,7 @@ public class Client {
         port = 0;
         ip = "";
         nicname = "";
-    }
-
-    public Client(int port, String ip, String nicname) {
-        this.port = port;
-        this.ip = ip;
-        this.nicname = nicname;
+        pass = "";
     }
     
     public void initSocket(){
@@ -100,6 +97,14 @@ public class Client {
 
     public void setNicname(String nicname) {
         this.nicname = nicname;
+    }    
+    
+    public String getPass() {
+        return pass;
+    }
+
+    public void setPass(String pass) {
+        this.pass = pass;
     }    
 
     public ObjectInputStream getInputStream() {

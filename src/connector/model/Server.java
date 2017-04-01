@@ -6,7 +6,7 @@
 package connector.model;
 
 import connector.utils.Encryption;
-import connector.resources.Strings;
+import connector.resources.ControlLines;
 import connector.utils.Utils;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -72,7 +72,7 @@ public class Server {
                 synchronized (connections) {
                     Iterator<Connection> iter = connections.iterator();
                     while (iter.hasNext()) {Connection thisConnection = iter.next();
-                        thisConnection.outputStream.writeObject(new Message(thisConnection.clientEncryption.encrypt(Strings.STR_EXIT_ALL), true));
+                        thisConnection.outputStream.writeObject(new Message(thisConnection.clientEncryption.encrypt(ControlLines.STR_EXIT_ALL), true));
                     }
                 }
             }
@@ -124,7 +124,7 @@ public class Server {
 //                    System.out.println("ServerFrame got name: " + name);//
 
                     clientEncryption.createPair(message.getPublicKey());
-                    Connection.this.outputStream.writeObject(new Message(clientEncryption.encrypt(Strings.STR_SEND_PUB_KEY), true, serverEncryption.getPublicKeyFromKeypair()));
+                    Connection.this.outputStream.writeObject(new Message(clientEncryption.encrypt(ControlLines.STR_SEND_PUB_KEY), true, serverEncryption.getPublicKeyFromKeypair()));
 //                    System.out.println("ServerFrame got key: "/* + message.getPublicKey()*/);
 
                     if (stoped) {
@@ -136,7 +136,7 @@ public class Server {
                         }
                         for (int i = 0; i < listNames.size(); i++) {
                             if (name.equals(listNames.get(i))) {                                              
-                                Connection.this.outputStream.writeObject(new Message(clientEncryption.encrypt(Strings.STR_SAME_NIC), false));
+                                Connection.this.outputStream.writeObject(new Message(clientEncryption.encrypt(ControlLines.STR_SAME_NIC), false));
                                 flagWrongNic = true;
                                 stoped = true;
                                 break;
@@ -174,7 +174,7 @@ public class Server {
                                 if (stoped) {
                                     break;
                                 }
-                                if (str.equals(Strings.STR_EXIT)) {
+                                if (str.equals(ControlLines.STR_EXIT)) {
                                     synchronized (connections) {
                                         Iterator<Connection> iter = connections.iterator();
                                         while (iter.hasNext()) {
@@ -188,11 +188,11 @@ public class Server {
                                     stoped = true;
                                     break;
                                 }
-                                if (str.equals(Strings.STR_EXIT_ALL)) {
+                                if (str.equals(ControlLines.STR_EXIT_ALL)) {
                                     setStop();
                                     break;
                                 }
-                                if (str.equals(Strings.STR_GET_ALL_MSG)) {
+                                if (str.equals(ControlLines.STR_GET_ALL_MSG)) {
                                     Connection.this.outputStream.writeObject(
                                             new Message(clientEncryption.encrypt("----- Все сообщения -----" + new String(buffChat)
                                                     + "\n----------------------\n"), false));
@@ -200,7 +200,7 @@ public class Server {
                                 }
 
                                 // Отправляем всем клиентам очередное сообщение
-                                if (!str.equals(Strings.STR_GET_ALL_MSG)) {
+                                if (!str.equals(ControlLines.STR_GET_ALL_MSG)) {
                                     synchronized (connections) {
                                         Iterator<Connection> iter = connections.iterator();
 

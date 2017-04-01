@@ -1,7 +1,7 @@
 package connector;
 
 import connector.utils.Utils;
-import connector.view.MainPanel;
+import connector.view.ClientPanel;
 import static connector.constant.TrayType.SERVER_TRAY;
 import java.awt.*;
 import javax.swing.*;
@@ -33,7 +33,7 @@ public class Tray {
 //    ArrayList<Client> listClients = new ArrayList<Client>();
 
 //    public void setTrayIcon(JFrame frame, ArrayList<Client> listClients, int conf) {
-    public void setTrayIcon(JFrame frame, MainPanel client, int conf) {     
+    public void setTrayIcon(JFrame frame, ClientPanel client, int conf) {     
 //        this.listClients = listClients;
         if (!SystemTray.isSupported()) {
             return;
@@ -134,13 +134,13 @@ public class Tray {
 
     private class Link extends Thread {
 
-        MainPanel client;
+        ClientPanel client;
         private boolean stoped = false;
 
         private String msg = "";
         private String oldMsg = "Нет сообщений";
 
-        public Link(MainPanel client) {
+        public Link(ClientPanel client) {
             this.client = client;
         }
 

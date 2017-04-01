@@ -1,9 +1,17 @@
 package connector.utils;
 
+import connector.view.ServerFrame;
 import java.awt.Dimension;
 import java.io.File;
 import java.io.IOException;
+import java.net.Inet4Address;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
@@ -119,6 +127,42 @@ public class Utils {
         }
         return s;
     }
+    
+    private static String getInterfaceInfo(NetworkInterface nif) throws IOException {
+//         final String NL = System.getProperty("line.separator");
+        String ipAddress = "";
+
+        Enumeration<InetAddress> inetAddresses = nif.getInetAddresses();
+
+        while (inetAddresses.hasMoreElements()) {
+            InetAddress inetAddr = inetAddresses.nextElement();
+
+            if (inetAddr instanceof Inet4Address) {
+                ipAddress = inetAddr.getHostAddress();
+            }
+        }
+        return ipAddress;
+    }
+
+    public static ArrayList<String> getMyLocalIP() {
+        ArrayList<String> listAddr = new ArrayList<>();
+        try {
+            Enumeration<NetworkInterface> interfaces
+                    = NetworkInterface.getNetworkInterfaces();
+
+            while (interfaces.hasMoreElements()) {
+                NetworkInterface nif = interfaces.nextElement();
+
+                if (!getInterfaceInfo(nif).equals("")) {
+                    listAddr.add(getInterfaceInfo(nif));
+                }
+            }
+        } catch (IOException ex) {
+            Logger.getLogger(ServerFrame.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return listAddr;
+    }    
+    
     // На данный момент не используется.
     public class StatusBar extends JLabel {
 

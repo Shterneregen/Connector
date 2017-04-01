@@ -1,9 +1,10 @@
 package connector.view;
 
-import connector.resources.Strings;
+import connector.resources.ControlLines;
 import connector.Tray;
 import static connector.constant.ClientType.CLIENT_WITHOUT_SERVER;
 import static connector.constant.ServerConfig.ONLY_SERVER;
+import connector.utils.ProjectProperties;
 import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.Toolkit;
@@ -11,6 +12,7 @@ import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
+import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JFrame;
@@ -19,20 +21,22 @@ import javax.swing.JPanel;
 public class ClientFrame extends javax.swing.JFrame {
 
     private static final int CLIENT = 0;
-    private MainPanel mainPanel;
+    private ClientPanel mainPanel;
     private String strChat;
     private static final String CLIENT_BACKGROUND = "../resources/images/fon33.jpg";
+    private Properties stringsFile;
     
 //    private static int numCl;
 //    private static ArrayList<Client> listClients = new ArrayList<Client>();
 //    Utils.StatusBar statusBar;
 
-    public MainPanel getMainPanel() {
+    public ClientPanel getMainPanel() {
         return mainPanel;
     }
     
     public ClientFrame(String s) {
         super(s);
+        stringsFile = ProjectProperties.getInstance().getStringsFile();
 //        numCl = 0;
 //        try { 
 //            icon = ImageIO.read(ClientFrame.class.getResourceAsStream("../resources/images/icon.png"));
@@ -46,9 +50,10 @@ public class ClientFrame extends javax.swing.JFrame {
 ////            getContentPane().add(statusBar,java.awt.BorderLayout.SOUTH);
 //            statusBar.setMessage("FUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUU");
 
-        mainPanel = new MainPanel(CLIENT_WITHOUT_SERVER);       
+        mainPanel = new ClientPanel(CLIENT_WITHOUT_SERVER);       
         
         initComponents();
+        setMenuItemsNames();
 //        jTabbedPane1.add(mainPanel);
 //        jpTop.add(mainPanel);
 
@@ -79,7 +84,7 @@ public class ClientFrame extends javax.swing.JFrame {
             public void windowClosing(WindowEvent event) {
                 if (mainPanel.getFlagGoodConn()) {
                     try {
-                        mainPanel.clientSendMsg(Strings.STR_EXIT);
+                        mainPanel.clientSendMsg(ControlLines.STR_EXIT);
                     } catch (UnsupportedEncodingException ex) {
 //                        tpOutput.append("\n --- Исключение из  windowClosing---");
                         Logger.getLogger(ClientFrame.class.getName()).log(Level.SEVERE, null, ex);
@@ -121,6 +126,23 @@ public class ClientFrame extends javax.swing.JFrame {
         return strChat;
     }
 
+    private void setMenuItemsNames() {
+        jmFile.setText(stringsFile.getProperty("clientFrame.jm.file"));
+        jmiExit.setText(stringsFile.getProperty("clientFrame.jmi.exit"));
+        
+        jmClient.setText(stringsFile.getProperty("clientFrame.jm.client"));
+        jmiNewClientWindow.setText(stringsFile.getProperty("clientFrame.jmi.newClientWindow"));
+        jmiStopCurrentClient.setText(stringsFile.getProperty("clientFrame.jmi.stopCurrentClient"));
+        jmiGetAllSessionMsgs.setText(stringsFile.getProperty("clientFrame.jmi.getAllSessionMsgs"));
+        
+        jmServer.setText(stringsFile.getProperty("clientFrame.jm.server"));
+        jmiNewServerWindow.setText(stringsFile.getProperty("clientFrame.jmi.newServerWindow"));
+        
+        jmHelp.setText(stringsFile.getProperty("clientFrame.jm.help"));
+        jmiAbout.setText(stringsFile.getProperty("clientFrame.jmi.about"));
+        jmiManual.setText(stringsFile.getProperty("clientFrame.jmi.manual"));
+    }
+
     class BgPanel extends JPanel {
         public void paintComponent(Graphics g) {
             Image im = null;
@@ -138,84 +160,84 @@ public class ClientFrame extends javax.swing.JFrame {
     private void initComponents() {
 
         jMenuBar1 = new javax.swing.JMenuBar();
-        jMenu4 = new javax.swing.JMenu();
-        jMenuItem7 = new javax.swing.JMenuItem();
-        jMenu3 = new javax.swing.JMenu();
-        jMenuItem3 = new javax.swing.JMenuItem();
-        jMenuItem4 = new javax.swing.JMenuItem();
-        jMenuItem6 = new javax.swing.JMenuItem();
-        jMenu1 = new javax.swing.JMenu();
-        jMenuItem2 = new javax.swing.JMenuItem();
-        jMenu2 = new javax.swing.JMenu();
-        jMenuItem1 = new javax.swing.JMenuItem();
-        jMenuItem5 = new javax.swing.JMenuItem();
+        jmFile = new javax.swing.JMenu();
+        jmiExit = new javax.swing.JMenuItem();
+        jmClient = new javax.swing.JMenu();
+        jmiNewClientWindow = new javax.swing.JMenuItem();
+        jmiStopCurrentClient = new javax.swing.JMenuItem();
+        jmiGetAllSessionMsgs = new javax.swing.JMenuItem();
+        jmServer = new javax.swing.JMenu();
+        jmiNewServerWindow = new javax.swing.JMenuItem();
+        jmHelp = new javax.swing.JMenu();
+        jmiAbout = new javax.swing.JMenuItem();
+        jmiManual = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
         setName("fClient"); // NOI18N
 
         jMenuBar1.setOpaque(false);
 
-        jMenu4.setText("Файл");
+        jmFile.setText("Файл");
 
-        jMenuItem7.setText("Выход");
-        jMenuItem7.addActionListener(new java.awt.event.ActionListener() {
+        jmiExit.setText("Выход");
+        jmiExit.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jMenuItem7ActionPerformed(evt);
+                jmiExitActionPerformed(evt);
             }
         });
-        jMenu4.add(jMenuItem7);
+        jmFile.add(jmiExit);
 
-        jMenuBar1.add(jMenu4);
+        jMenuBar1.add(jmFile);
 
-        jMenu3.setText("Клиент");
+        jmClient.setText("Клиент");
 
-        jMenuItem3.setText("Новое клиентское окно");
-        jMenuItem3.addActionListener(new java.awt.event.ActionListener() {
+        jmiNewClientWindow.setText("Новое клиентское окно");
+        jmiNewClientWindow.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jMenuItem3ActionPerformed(evt);
+                jmiNewClientWindowActionPerformed(evt);
             }
         });
-        jMenu3.add(jMenuItem3);
+        jmClient.add(jmiNewClientWindow);
 
-        jMenuItem4.setText("Остановить текущего");
-        jMenuItem4.addActionListener(new java.awt.event.ActionListener() {
+        jmiStopCurrentClient.setText("Остановить текущего");
+        jmiStopCurrentClient.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jMenuItem4ActionPerformed(evt);
+                jmiStopCurrentClientActionPerformed(evt);
             }
         });
-        jMenu3.add(jMenuItem4);
+        jmClient.add(jmiStopCurrentClient);
 
-        jMenuItem6.setText("Получить все сообщения сеанса");
-        jMenuItem6.addActionListener(new java.awt.event.ActionListener() {
+        jmiGetAllSessionMsgs.setText("Получить все сообщения сеанса");
+        jmiGetAllSessionMsgs.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jMenuItem6ActionPerformed(evt);
+                jmiGetAllSessionMsgsActionPerformed(evt);
             }
         });
-        jMenu3.add(jMenuItem6);
+        jmClient.add(jmiGetAllSessionMsgs);
 
-        jMenuBar1.add(jMenu3);
+        jMenuBar1.add(jmClient);
 
-        jMenu1.setText("Сервер");
+        jmServer.setText("Сервер");
 
-        jMenuItem2.setText("Новое серверное окно");
-        jMenuItem2.addActionListener(new java.awt.event.ActionListener() {
+        jmiNewServerWindow.setText("Новое серверное окно");
+        jmiNewServerWindow.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jMenuItem2ActionPerformed(evt);
+                jmiNewServerWindowActionPerformed(evt);
             }
         });
-        jMenu1.add(jMenuItem2);
+        jmServer.add(jmiNewServerWindow);
 
-        jMenuBar1.add(jMenu1);
+        jMenuBar1.add(jmServer);
 
-        jMenu2.setText("Справка");
+        jmHelp.setText("Справка");
 
-        jMenuItem1.setText("О программе");
-        jMenu2.add(jMenuItem1);
+        jmiAbout.setText("О программе");
+        jmHelp.add(jmiAbout);
 
-        jMenuItem5.setText("Инструкция");
-        jMenu2.add(jMenuItem5);
+        jmiManual.setText("Инструкция");
+        jmHelp.add(jmiManual);
 
-        jMenuBar1.add(jMenu2);
+        jMenuBar1.add(jmHelp);
 
         setJMenuBar(jMenuBar1);
 
@@ -233,12 +255,12 @@ public class ClientFrame extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void jMenuItem2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem2ActionPerformed
-        ServerFrame server = new ServerFrame(Strings.MAIN_NAME, ONLY_SERVER);
+    private void jmiNewServerWindowActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jmiNewServerWindowActionPerformed
+        ServerFrame server = new ServerFrame(ControlLines.MAIN_NAME, ONLY_SERVER);
         server.setVisible(true);
-    }//GEN-LAST:event_jMenuItem2ActionPerformed
+    }//GEN-LAST:event_jmiNewServerWindowActionPerformed
 
-    private void jMenuItem4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem4ActionPerformed
+    private void jmiStopCurrentClientActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jmiStopCurrentClientActionPerformed
 //        if (!errConn && flagGoodConn) {
 //            try {
 //                clientSendMsg(Utils.getSTR_EXIT());
@@ -248,14 +270,14 @@ public class ClientFrame extends javax.swing.JFrame {
 //        } else {
 //            tfInput.setText("Клиент не запущен");
 //        }
-    }//GEN-LAST:event_jMenuItem4ActionPerformed
+    }//GEN-LAST:event_jmiStopCurrentClientActionPerformed
 
-    private void jMenuItem3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem3ActionPerformed
-        ClientFrame client = new ClientFrame(Strings.MAIN_NAME);
+    private void jmiNewClientWindowActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jmiNewClientWindowActionPerformed
+        ClientFrame client = new ClientFrame(ControlLines.MAIN_NAME);
         client.setVisible(true);
-    }//GEN-LAST:event_jMenuItem3ActionPerformed
+    }//GEN-LAST:event_jmiNewClientWindowActionPerformed
 
-    private void jMenuItem6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem6ActionPerformed
+    private void jmiGetAllSessionMsgsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jmiGetAllSessionMsgsActionPerformed
 //        if(flagGoodConn){
 //        tpOutput.setText("");
 //        try {
@@ -266,24 +288,24 @@ public class ClientFrame extends javax.swing.JFrame {
 //        }else{
 //            tfInput.setText("Клиент не запущен");
 //        }
-    }//GEN-LAST:event_jMenuItem6ActionPerformed
+    }//GEN-LAST:event_jmiGetAllSessionMsgsActionPerformed
 
-    private void jMenuItem7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem7ActionPerformed
+    private void jmiExitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jmiExitActionPerformed
         System.exit(0);
-    }//GEN-LAST:event_jMenuItem7ActionPerformed
+    }//GEN-LAST:event_jmiExitActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JMenu jMenu1;
-    private javax.swing.JMenu jMenu2;
-    private javax.swing.JMenu jMenu3;
-    private javax.swing.JMenu jMenu4;
     private javax.swing.JMenuBar jMenuBar1;
-    private javax.swing.JMenuItem jMenuItem1;
-    private javax.swing.JMenuItem jMenuItem2;
-    private javax.swing.JMenuItem jMenuItem3;
-    private javax.swing.JMenuItem jMenuItem4;
-    private javax.swing.JMenuItem jMenuItem5;
-    private javax.swing.JMenuItem jMenuItem6;
-    private javax.swing.JMenuItem jMenuItem7;
+    private javax.swing.JMenu jmClient;
+    private javax.swing.JMenu jmFile;
+    private javax.swing.JMenu jmHelp;
+    private javax.swing.JMenu jmServer;
+    private javax.swing.JMenuItem jmiAbout;
+    private javax.swing.JMenuItem jmiExit;
+    private javax.swing.JMenuItem jmiGetAllSessionMsgs;
+    private javax.swing.JMenuItem jmiManual;
+    private javax.swing.JMenuItem jmiNewClientWindow;
+    private javax.swing.JMenuItem jmiNewServerWindow;
+    private javax.swing.JMenuItem jmiStopCurrentClient;
     // End of variables declaration//GEN-END:variables
 }

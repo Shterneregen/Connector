@@ -18,14 +18,14 @@ import java.util.logging.Logger;
  * @author Yura
  */
 public class ProjectProperties {
-
-    private static final String PATH_TO_PROPERTIES = "resources/config.properties";
-    private static final String sFileName = "config.properties";
-    private static String sDirSeparator = System.getProperty("file.separator");
-    private static Properties projProperties;
-
     private static ProjectProperties instance;
-
+//    private static final String PATH_TO_PROPERTIES = "resources/config.properties";
+    private static final String CONFIG_FILE_NAME = "config.properties";
+    private static final String DIR_SEPARATOR = System.getProperty("file.separator");
+    private Properties projProperties;
+    private Properties stringsFile;
+    public static String LANGUAGE_FILE_NAME;
+   
     public static synchronized ProjectProperties getInstance() {
         if (instance == null) {
             instance = new ProjectProperties();
@@ -33,34 +33,54 @@ public class ProjectProperties {
         return instance;
     }
 
-    public static Properties getProjProperties() {
+    public Properties getProjProperties() {
         return projProperties;
     }
 
-    public static void setProjProperties(Properties projProperties) {
-        ProjectProperties.projProperties = projProperties;
+    public void setProjProperties(Properties projProperties) {
+        this.projProperties = projProperties;
+    }
+    
+    public Properties getStringsFile() {
+        return stringsFile;
     }
 
+    public void setStringsFile(Properties stringsFile) {
+        this.stringsFile = stringsFile;
+    }    
+
     private ProjectProperties() {
-        projProperties = new Properties();
-//        FileInputStream fileInputStream;
-        
+        projProperties = new Properties();       
+        stringsFile = new Properties();       
 //      <editor-fold defaultstate="collapsed" desc="External file"> 
         // определяем текущий каталог
         File currentDir = new File(".");
 
         try {
             // определяем полный путь к файлу
-            String sFilePath = currentDir.getCanonicalPath() + sDirSeparator + sFileName;
-
+            String sFilePath = currentDir.getCanonicalPath() + DIR_SEPARATOR + CONFIG_FILE_NAME;
             // создаем поток для чтения из файла
             FileInputStream ins = new FileInputStream(sFilePath);
             // загружаем свойства
             projProperties.load(ins);
+            LANGUAGE_FILE_NAME = projProperties.getProperty("language_file");
         } catch (IOException ex) {
+            Logger.getLogger(ProjectProperties.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (Exception ex) {
+            Logger.getLogger(ProjectProperties.class.getName()).log(Level.SEVERE, null, ex);
+        } 
+        
+        try {
+            String sFilePath = currentDir.getCanonicalPath() + DIR_SEPARATOR + LANGUAGE_FILE_NAME;
+            FileInputStream ins = new FileInputStream(sFilePath);
+            stringsFile.load(ins);
+        } catch (IOException ex) {
+            Logger.getLogger(ProjectProperties.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (Exception ex) {
             Logger.getLogger(ProjectProperties.class.getName()).log(Level.SEVERE, null, ex);
         } 
 // </editor-fold>
+//        FileInputStream fileInputStream;
 //        try {
 //            //обращаемся к файлу и получаем данные
 //            fileInputStream = new FileInputStream(PATH_TO_PROPERTIES);
@@ -72,7 +92,5 @@ public class ProjectProperties {
 //            System.out.println("Ошибка в программе: файл " + PATH_TO_PROPERTIES + " не обнаружено");
 //            e.printStackTrace();
 //        }
-        System.out.println("language: " + projProperties.getProperty("language")
-        );
     }
 }

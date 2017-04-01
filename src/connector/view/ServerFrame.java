@@ -1,33 +1,36 @@
 package connector.view;
 
-import connector.resources.Strings;
+import connector.resources.ControlLines;
 import connector.Tray;
 import connector.utils.Utils;
 import static connector.constant.ServerConfig.*;
 import static connector.constant.TrayType.SERVER_TRAY;
 import connector.model.Server;
+import connector.utils.ProjectProperties;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.net.*;
 import java.util.Enumeration;
+import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.text.AbstractDocument;
 
 public class ServerFrame extends javax.swing.JFrame {
-    Server server;
+    private Server server;
+    private Properties stringsFile;
     
     public ServerFrame(String s, int conf) {
         super(s);
         server = new Server();
+        stringsFile = ProjectProperties.getInstance().getStringsFile();
 
         initComponents();
+        setItemsNames();
         ((AbstractDocument) tfPort.getDocument()).setDocumentFilter(new Utils().new DocumentFilterForPort());
-        btStopServer.setEnabled(false);
-
-        lb.setText(" Ваш локальный IP ");
+        btStopServer.setEnabled(false);     
 
 //        tfIP.setText(getMyLocalIP());
         lbNumUs.setText(" Пользователей: " + server.getUserNumber());
@@ -82,6 +85,21 @@ public class ServerFrame extends javax.swing.JFrame {
 
         });
     }
+    
+    private void setItemsNames() { 
+//        ArrayList<String> listAddr = new ArrayList<String>();
+        ArrayList<String> listAddr = Utils.getMyLocalIP();
+        for (int i = 0; i < listAddr.size(); i++) {
+            jcbIP.addItem(listAddr.get(i));
+        }        
+        jmClient.setText(stringsFile.getProperty("clientFrame.jm.client"));
+        jmiNewClientWindow.setText(stringsFile.getProperty("clientFrame.jmi.newClientWindow"));
+        
+        jmServer.setText(stringsFile.getProperty("clientFrame.jm.server"));
+        jmiNewServerWindow.setText(stringsFile.getProperty("clientFrame.jmi.newServerWindow"));
+        
+//        lbYourIP.setText(" Ваш локальный IP ");
+    }    
 
 //    public String getMyLocalIP(){
 //        InetAddress addr = null;
@@ -93,53 +111,19 @@ public class ServerFrame extends javax.swing.JFrame {
 //        String myLANIP = addr.getHostAddress();
 //        return myLANIP;
 //    }
-    private static String getInterfaceInfo(NetworkInterface nif) throws IOException {
-//         final String NL = System.getProperty("line.separator");
-        String ipAddress = "";
-
-        Enumeration<InetAddress> inetAddresses = nif.getInetAddresses();
-
-        while (inetAddresses.hasMoreElements()) {
-            InetAddress inetAddr = inetAddresses.nextElement();
-
-            if (inetAddr instanceof Inet4Address) {
-                ipAddress = inetAddr.getHostAddress();
-            }
-        }
-        return ipAddress;
-    }
-
-    public ArrayList<String> getMyLocalIP() {
-        ArrayList<String> listAddr = new ArrayList<>();
-        try {
-            Enumeration<NetworkInterface> interfaces
-                    = NetworkInterface.getNetworkInterfaces();
-
-            while (interfaces.hasMoreElements()) {
-                NetworkInterface nif = interfaces.nextElement();
-
-                if (!getInterfaceInfo(nif).equals("")) {
-                    listAddr.add(getInterfaceInfo(nif));
-                }
-            }
-        } catch (IOException ex) {
-            Logger.getLogger(ServerFrame.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return listAddr;
-    }
 
     public void setPort(String strPort) {
         if (Integer.parseInt(strPort) <= 0 || Integer.parseInt(strPort) > 65535) {
-            lbNumUs.setText(Strings.STR_WRONG_PORT);
+            lbNumUs.setText(stringsFile.getProperty("wrong_port"));
         } else {
             server.setPort(Integer.parseInt(strPort));
-            lbNumUs.setText(Strings.STR_SET_PORT + strPort);
+            lbNumUs.setText(stringsFile.getProperty("set_port"));
         }
     }
 
     public void setPas(String pas) {
         server.setPfStr(pas);
-        lbNumUs.setText(Strings.STR_SET_PASS);
+        lbNumUs.setText(stringsFile.getProperty("set_pass"));
     }
 
     public StringBuilder getBuffChat() {
@@ -185,16 +169,16 @@ public class ServerFrame extends javax.swing.JFrame {
         btSetPort = new javax.swing.JButton();
         btStartServer = new javax.swing.JButton();
         btStopServer = new javax.swing.JButton();
-        lb = new javax.swing.JLabel();
-        tfIP = new javax.swing.JTextField();
+        lbYourIP = new javax.swing.JLabel();
         lbNumUs = new javax.swing.JLabel();
         pfPas = new javax.swing.JPasswordField();
         btSetPas = new javax.swing.JButton();
+        jcbIP = new javax.swing.JComboBox<>();
         jMenuBar1 = new javax.swing.JMenuBar();
-        jMenu1 = new javax.swing.JMenu();
-        jMenuItem2 = new javax.swing.JMenuItem();
-        jMenu2 = new javax.swing.JMenu();
-        jMenuItem1 = new javax.swing.JMenuItem();
+        jmServer = new javax.swing.JMenu();
+        jmiNewServerWindow = new javax.swing.JMenuItem();
+        jmClient = new javax.swing.JMenu();
+        jmiNewClientWindow = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
@@ -227,9 +211,7 @@ public class ServerFrame extends javax.swing.JFrame {
             }
         });
 
-        lb.setText(" ");
-
-        tfIP.setEditable(false);
+        lbYourIP.setText(" ");
 
         lbNumUs.setText(" ");
 
@@ -247,29 +229,29 @@ public class ServerFrame extends javax.swing.JFrame {
             }
         });
 
-        jMenu1.setText("Сервер");
+        jmServer.setText("Сервер");
 
-        jMenuItem2.setText("Новое серверное окно");
-        jMenuItem2.addActionListener(new java.awt.event.ActionListener() {
+        jmiNewServerWindow.setText("Новое серверное окно");
+        jmiNewServerWindow.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jMenuItem2ActionPerformed(evt);
+                jmiNewServerWindowActionPerformed(evt);
             }
         });
-        jMenu1.add(jMenuItem2);
+        jmServer.add(jmiNewServerWindow);
 
-        jMenuBar1.add(jMenu1);
+        jMenuBar1.add(jmServer);
 
-        jMenu2.setText("Клиент");
+        jmClient.setText("Клиент");
 
-        jMenuItem1.setText("Новое клиентское окно");
-        jMenuItem1.addActionListener(new java.awt.event.ActionListener() {
+        jmiNewClientWindow.setText("Новое клиентское окно");
+        jmiNewClientWindow.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jMenuItem1ActionPerformed(evt);
+                jmiNewClientWindowActionPerformed(evt);
             }
         });
-        jMenu2.add(jMenuItem1);
+        jmClient.add(jmiNewClientWindow);
 
-        jMenuBar1.add(jMenu2);
+        jMenuBar1.add(jmClient);
 
         setJMenuBar(jMenuBar1);
 
@@ -280,25 +262,27 @@ public class ServerFrame extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                        .addComponent(lbNumUs, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
-                            .addComponent(pfPas, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                            .addComponent(btSetPas, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                        .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
-                            .addComponent(tfPort, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                            .addComponent(btSetPort, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                        .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
-                            .addComponent(btStartServer)
-                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                            .addComponent(btStopServer)))
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(lb, javax.swing.GroupLayout.PREFERRED_SIZE, 116, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                            .addComponent(lbNumUs, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
+                                .addComponent(pfPas, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(btSetPas, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
+                                .addComponent(tfPort, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(btSetPort, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
+                                .addComponent(btStartServer)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(btStopServer)))
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(lbYourIP, javax.swing.GroupLayout.PREFERRED_SIZE, 116, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(tfIP, javax.swing.GroupLayout.PREFERRED_SIZE, 117, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addComponent(jcbIP, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -316,9 +300,9 @@ public class ServerFrame extends javax.swing.JFrame {
                     .addComponent(btStartServer)
                     .addComponent(btStopServer))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(tfIP, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(lb, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(lbYourIP, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jcbIP, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(lbNumUs)
                 .addContainerGap())
@@ -357,30 +341,30 @@ public class ServerFrame extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_pfPasKeyPressed
 
-    private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem1ActionPerformed
-        ClientFrame client = new ClientFrame(Strings.MAIN_NAME);
+    private void jmiNewClientWindowActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jmiNewClientWindowActionPerformed
+        ClientFrame client = new ClientFrame(ControlLines.MAIN_NAME);
         client.setVisible(true);
-    }//GEN-LAST:event_jMenuItem1ActionPerformed
+    }//GEN-LAST:event_jmiNewClientWindowActionPerformed
 
-    private void jMenuItem2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem2ActionPerformed
-        ServerFrame server = new ServerFrame(Strings.MAIN_NAME, ONLY_SERVER);
+    private void jmiNewServerWindowActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jmiNewServerWindowActionPerformed
+        ServerFrame server = new ServerFrame(ControlLines.MAIN_NAME, ONLY_SERVER);
         server.setVisible(true);
-    }//GEN-LAST:event_jMenuItem2ActionPerformed
+    }//GEN-LAST:event_jmiNewServerWindowActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btSetPas;
     private javax.swing.JButton btSetPort;
     private javax.swing.JButton btStartServer;
     private javax.swing.JButton btStopServer;
-    private javax.swing.JMenu jMenu1;
-    private javax.swing.JMenu jMenu2;
     private javax.swing.JMenuBar jMenuBar1;
-    private javax.swing.JMenuItem jMenuItem1;
-    private javax.swing.JMenuItem jMenuItem2;
-    private javax.swing.JLabel lb;
+    private javax.swing.JComboBox<String> jcbIP;
+    private javax.swing.JMenu jmClient;
+    private javax.swing.JMenu jmServer;
+    private javax.swing.JMenuItem jmiNewClientWindow;
+    private javax.swing.JMenuItem jmiNewServerWindow;
     private javax.swing.JLabel lbNumUs;
+    private javax.swing.JLabel lbYourIP;
     private javax.swing.JPasswordField pfPas;
-    private javax.swing.JTextField tfIP;
     private javax.swing.JTextField tfPort;
     // End of variables declaration//GEN-END:variables
 
