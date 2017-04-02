@@ -62,18 +62,19 @@ public class ClientPanel extends javax.swing.JPanel {
         serverEncryption = new Encryption();
 
         initComponents();
+        setItemsNames();
         btSettings.setIcon(new javax.swing.ImageIcon(getClass().getResource("../resources/images/setting.png")));
-        btSettings.setToolTipText(stringsFile.getProperty("button.setting"));
+        btSettings.setToolTipText(stringsFile.getProperty("clientPanel.button.setting"));
         for (int i = 0; i < listAddr.size(); i++) {
             tfIP.addItem(listAddr.get(i));
         }
         if (conf == ClientType.CLIENT_WITH_SERVER) {
-            btStartClient.setText(stringsFile.getProperty("button.creat_conversation"));
-            btStopClient.setText(stringsFile.getProperty("button.stop_conversation"));
+            btStartClient.setText(stringsFile.getProperty("clientPanel.button.creat_conversation"));
+            btStopClient.setText(stringsFile.getProperty("clientPanel.button.stop_conversation"));
             tfIP.setEditable(false);
         } else if (conf == ClientType.CLIENT_WITHOUT_SERVER) {
-            btStartClient.setText(stringsFile.getProperty("button.join"));
-            btStopClient.setText(stringsFile.getProperty("button.exit"));
+            btStartClient.setText(stringsFile.getProperty("clientPanel.button.join"));
+            btStopClient.setText(stringsFile.getProperty("clientPanel.button.exit"));
         }
         ((AbstractDocument) tfPort.getDocument()).setDocumentFilter(new Utils().new DocumentFilterForPort());
 
@@ -91,8 +92,8 @@ public class ClientPanel extends javax.swing.JPanel {
             public void itemStateChanged(ItemEvent e) {
                 if (cbNewConversation.isSelected()) {
                     ClientPanel.this.conf = ClientType.CLIENT_WITH_SERVER;
-                    btStartClient.setText(stringsFile.getProperty("button.creat_conversation"));
-                    btStopClient.setText(stringsFile.getProperty("button.stop_conversation"));
+                    btStartClient.setText(stringsFile.getProperty("clientPanel.button.creat_conversation"));
+                    btStopClient.setText(stringsFile.getProperty("clientPanel.button.stop_conversation"));
                     tfIP.setEditable(false);
                     btSettings.setEnabled(true);
                     tfIP.removeAllItems();
@@ -101,8 +102,8 @@ public class ClientPanel extends javax.swing.JPanel {
                     }
                 } else {
                     ClientPanel.this.conf = ClientType.CLIENT_WITHOUT_SERVER;
-                    btStartClient.setText(stringsFile.getProperty("button.join"));
-                    btStopClient.setText(stringsFile.getProperty("button.exit"));                    
+                    btStartClient.setText(stringsFile.getProperty("clientPanel.button.join"));
+                    btStopClient.setText(stringsFile.getProperty("clientPanel.button.exit"));                    
                     tfIP.setEditable(true);
                     btSettings.setEnabled(false);
                     tfIP.removeAllItems();
@@ -285,6 +286,13 @@ public class ClientPanel extends javax.swing.JPanel {
         cbNewConversation.setEnabled(true);
     }
 
+    private void setItemsNames() {
+        lbIP.setText(stringsFile.getProperty("serverFrame.lb.ip"));
+        lbPort.setText(stringsFile.getProperty("serverFrame.lb.port"));
+        lbNic.setText(stringsFile.getProperty("lb.nic"));
+        lbPass.setText(stringsFile.getProperty("serverFrame.lb.pass"));
+    }
+
     private class Resender extends Thread {
 
         private boolean stoped = false;
@@ -420,10 +428,10 @@ public class ClientPanel extends javax.swing.JPanel {
         pfPas = new javax.swing.JPasswordField();
         tfNic = new javax.swing.JTextField();
         tfIP = new javax.swing.JComboBox<>();
-        jLabel1 = new javax.swing.JLabel();
-        jLabel2 = new javax.swing.JLabel();
-        jLabel3 = new javax.swing.JLabel();
-        jLabel4 = new javax.swing.JLabel();
+        lbIP = new javax.swing.JLabel();
+        lbPort = new javax.swing.JLabel();
+        lbNic = new javax.swing.JLabel();
+        lbPass = new javax.swing.JLabel();
         cbNewConversation = new javax.swing.JCheckBox();
         btSettings = new javax.swing.JButton();
         jPanel2 = new javax.swing.JPanel();
@@ -493,13 +501,13 @@ public class ClientPanel extends javax.swing.JPanel {
             }
         });
 
-        jLabel1.setText("Адрес:");
+        lbIP.setText("Адрес:");
 
-        jLabel2.setText("Порт:");
+        lbPort.setText("Порт:");
 
-        jLabel3.setText("Ник:");
+        lbNic.setText("Ник:");
 
-        jLabel4.setText("Пароль:");
+        lbPass.setText("Пароль:");
 
         cbNewConversation.setText("Новый диалог");
         cbNewConversation.setOpaque(false);
@@ -523,23 +531,23 @@ public class ClientPanel extends javax.swing.JPanel {
                     .addGroup(pSetConLayout.createSequentialGroup()
                         .addGroup(pSetConLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                             .addGroup(pSetConLayout.createSequentialGroup()
-                                .addComponent(jLabel1)
+                                .addComponent(lbIP)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(tfIP, 0, 0, Short.MAX_VALUE))
                             .addGroup(pSetConLayout.createSequentialGroup()
-                                .addComponent(jLabel3)
+                                .addComponent(lbNic)
                                 .addGap(18, 18, 18)
                                 .addComponent(tfNic, javax.swing.GroupLayout.PREFERRED_SIZE, 127, javax.swing.GroupLayout.PREFERRED_SIZE)))
                         .addGroup(pSetConLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(pSetConLayout.createSequentialGroup()
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jLabel4)
+                                .addComponent(lbPass)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(pfPas, javax.swing.GroupLayout.PREFERRED_SIZE, 127, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addGap(0, 0, Short.MAX_VALUE))
                             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pSetConLayout.createSequentialGroup()
                                 .addGap(20, 20, 20)
-                                .addComponent(jLabel2)
+                                .addComponent(lbPort)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(tfPort, javax.swing.GroupLayout.PREFERRED_SIZE, 127, javax.swing.GroupLayout.PREFERRED_SIZE))))
                     .addGroup(pSetConLayout.createSequentialGroup()
@@ -554,15 +562,15 @@ public class ClientPanel extends javax.swing.JPanel {
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(pSetConLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(pSetConLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(jLabel1)
-                        .addComponent(jLabel2)
+                        .addComponent(lbIP)
+                        .addComponent(lbPort)
                         .addComponent(tfPort, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addComponent(tfIP, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(pSetConLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel3)
+                    .addComponent(lbNic)
                     .addComponent(tfNic, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel4)
+                    .addComponent(lbPass)
                     .addComponent(pfPas, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(pSetConLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
@@ -678,7 +686,7 @@ public class ClientPanel extends javax.swing.JPanel {
     private void btStartClientActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btStartClientActionPerformed
         if (conf == ClientType.CLIENT_WITH_SERVER) {
             serverFrame.setPort(tfPort.getText());
-            serverFrame.setPas(String.valueOf(pfPas.getPassword()));
+            serverFrame.setPass(String.valueOf(pfPas.getPassword()));
             serverFrame.startServer();
         }
         String ip = getAndCheckIP((String) tfIP.getSelectedItem());
@@ -747,13 +755,13 @@ public class ClientPanel extends javax.swing.JPanel {
     private javax.swing.JButton btStartClient;
     private javax.swing.JButton btStopClient;
     private javax.swing.JCheckBox cbNewConversation;
-    private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel2;
-    private javax.swing.JLabel jLabel3;
-    private javax.swing.JLabel jLabel4;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JSplitPane jSplitPane1;
+    private javax.swing.JLabel lbIP;
+    private javax.swing.JLabel lbNic;
+    private javax.swing.JLabel lbPass;
+    private javax.swing.JLabel lbPort;
     private javax.swing.JPanel pSetCon;
     private javax.swing.JPasswordField pfPas;
     private javax.swing.JComboBox<String> tfIP;

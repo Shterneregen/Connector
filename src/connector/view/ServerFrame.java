@@ -9,13 +9,8 @@ import connector.model.Server;
 import connector.utils.ProjectProperties;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
-import java.io.IOException;
 import java.util.ArrayList;
-import java.net.*;
-import java.util.Enumeration;
 import java.util.Properties;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.text.AbstractDocument;
 
 public class ServerFrame extends javax.swing.JFrame {
@@ -30,10 +25,7 @@ public class ServerFrame extends javax.swing.JFrame {
         initComponents();
         setItemsNames();
         ((AbstractDocument) tfPort.getDocument()).setDocumentFilter(new Utils().new DocumentFilterForPort());
-        btStopServer.setEnabled(false);     
-
-//        tfIP.setText(getMyLocalIP());
-        lbNumUs.setText(" Пользователей: " + server.getUserNumber());
+        
 
         setResizable(false);
         setLocationRelativeTo(null);
@@ -86,8 +78,7 @@ public class ServerFrame extends javax.swing.JFrame {
         });
     }
     
-    private void setItemsNames() { 
-//        ArrayList<String> listAddr = new ArrayList<String>();
+    private void setItemsNames() {
         ArrayList<String> listAddr = Utils.getMyLocalIP();
         for (int i = 0; i < listAddr.size(); i++) {
             jcbIP.addItem(listAddr.get(i));
@@ -97,6 +88,15 @@ public class ServerFrame extends javax.swing.JFrame {
         
         jmServer.setText(stringsFile.getProperty("clientFrame.jm.server"));
         jmiNewServerWindow.setText(stringsFile.getProperty("clientFrame.jmi.newServerWindow"));
+        
+        lbNumUs.setText(stringsFile.getProperty("serverFrame.str.users") + server.getUserNumber());    
+        lbPort.setText(stringsFile.getProperty("serverFrame.lb.port"));
+        lbPass.setText(stringsFile.getProperty("serverFrame.lb.pass"));
+        lbIP.setText(stringsFile.getProperty("serverFrame.lb.ip"));
+        
+        btStartServer.setText(stringsFile.getProperty("serverFrame.button.startServer"));
+        btStopServer.setText(stringsFile.getProperty("serverFrame.button.stopServer"));
+        btStopServer.setEnabled(false);
         
 //        lbYourIP.setText(" Ваш локальный IP ");
     }    
@@ -117,13 +117,12 @@ public class ServerFrame extends javax.swing.JFrame {
             lbNumUs.setText(stringsFile.getProperty("wrong_port"));
         } else {
             server.setPort(Integer.parseInt(strPort));
-            lbNumUs.setText(stringsFile.getProperty("set_port"));
+//            lbNumUs.setText(stringsFile.getProperty("set_port"));
         }
     }
-
-    public void setPas(String pas) {
-        server.setPfStr(pas);
-        lbNumUs.setText(stringsFile.getProperty("set_pass"));
+    
+    public void setPass(String strPort) {
+        server.setPfStr(strPort);
     }
 
     public StringBuilder getBuffChat() {
@@ -137,8 +136,6 @@ public class ServerFrame extends javax.swing.JFrame {
 
         btStartServer.setEnabled(false);
         btStopServer.setEnabled(true);
-        btSetPort.setEnabled(false);
-        btSetPas.setEnabled(false);
 
         tfPort.setEditable(false);
         pfPas.setEditable(false);
@@ -151,8 +148,6 @@ public class ServerFrame extends javax.swing.JFrame {
 
         btStartServer.setEnabled(true);
         btStopServer.setEnabled(false);
-        btSetPort.setEnabled(true);
-        btSetPas.setEnabled(true);
 
         tfPort.setEditable(true);
         pfPas.setEditable(true);
@@ -166,14 +161,14 @@ public class ServerFrame extends javax.swing.JFrame {
     private void initComponents() {
 
         tfPort = new javax.swing.JTextField();
-        btSetPort = new javax.swing.JButton();
         btStartServer = new javax.swing.JButton();
         btStopServer = new javax.swing.JButton();
-        lbYourIP = new javax.swing.JLabel();
+        lbIP = new javax.swing.JLabel();
         lbNumUs = new javax.swing.JLabel();
         pfPas = new javax.swing.JPasswordField();
-        btSetPas = new javax.swing.JButton();
         jcbIP = new javax.swing.JComboBox<>();
+        lbPort = new javax.swing.JLabel();
+        lbPass = new javax.swing.JLabel();
         jMenuBar1 = new javax.swing.JMenuBar();
         jmServer = new javax.swing.JMenu();
         jmiNewServerWindow = new javax.swing.JMenuItem();
@@ -187,13 +182,6 @@ public class ServerFrame extends javax.swing.JFrame {
         tfPort.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyPressed(java.awt.event.KeyEvent evt) {
                 tfPortKeyPressed(evt);
-            }
-        });
-
-        btSetPort.setText("Установить порт");
-        btSetPort.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btSetPortActionPerformed(evt);
             }
         });
 
@@ -211,7 +199,7 @@ public class ServerFrame extends javax.swing.JFrame {
             }
         });
 
-        lbYourIP.setText(" ");
+        lbIP.setText("IP адрес:");
 
         lbNumUs.setText(" ");
 
@@ -222,12 +210,9 @@ public class ServerFrame extends javax.swing.JFrame {
             }
         });
 
-        btSetPas.setText("Установить пароль");
-        btSetPas.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btSetPasActionPerformed(evt);
-            }
-        });
+        lbPort.setText("Порт");
+
+        lbPass.setText("Пароль");
 
         jmServer.setText("Сервер");
 
@@ -263,45 +248,45 @@ public class ServerFrame extends javax.swing.JFrame {
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                            .addComponent(lbNumUs, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
-                                .addComponent(pfPas, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(btSetPas, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
-                                .addComponent(tfPort, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(btSetPort, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
-                                .addComponent(btStartServer)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(btStopServer)))
-                        .addGap(0, 0, Short.MAX_VALUE))
+                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addComponent(lbNumUs, javax.swing.GroupLayout.PREFERRED_SIZE, 260, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(lbYourIP, javax.swing.GroupLayout.PREFERRED_SIZE, 116, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jcbIP, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-                .addContainerGap())
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(lbIP, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                                .addComponent(lbPort, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(tfPort)
+                                .addComponent(btStartServer, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                    .addComponent(btStopServer, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(pfPas)
+                                    .addComponent(lbPass, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(11, 11, 11)
+                                .addComponent(jcbIP, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(tfPort)
-                    .addComponent(btSetPort))
-                .addGap(3, 3, 3)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(pfPas, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(btSetPas))
+                    .addComponent(lbPort)
+                    .addComponent(lbPass, javax.swing.GroupLayout.PREFERRED_SIZE, 14, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(tfPort)
+                    .addComponent(pfPas))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 12, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btStartServer)
                     .addComponent(btStopServer))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(lbYourIP, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(lbIP, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jcbIP, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(lbNumUs)
@@ -313,10 +298,6 @@ public class ServerFrame extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void btSetPortActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btSetPortActionPerformed
-        setPort(tfPort.getText());
-    }//GEN-LAST:event_btSetPortActionPerformed
-
     private void btStartServerActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btStartServerActionPerformed
         startServer();
     }//GEN-LAST:event_btStartServerActionPerformed
@@ -325,19 +306,25 @@ public class ServerFrame extends javax.swing.JFrame {
         stopServer();
     }//GEN-LAST:event_btStopServerActionPerformed
 
-    private void btSetPasActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btSetPasActionPerformed
-        setPas(String.valueOf(pfPas.getPassword()));
-    }//GEN-LAST:event_btSetPasActionPerformed
-
     private void tfPortKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_tfPortKeyPressed
         if (evt.getKeyCode() == 10) {
+            String strPort = tfPort.getText();
+            if (Integer.parseInt(strPort) <= 0 || Integer.parseInt(strPort) > 65535) {
+                lbNumUs.setText(stringsFile.getProperty("wrong_port"));
+                tfPort.setText(stringsFile.getProperty("wrong_port"));
+            } else {
+                server.setPort(Integer.parseInt(strPort));
+//                lbNumUs.setText(stringsFile.getProperty("set_port"));
+            }           
             setPort(tfPort.getText());
         }
     }//GEN-LAST:event_tfPortKeyPressed
 
     private void pfPasKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_pfPasKeyPressed
         if (evt.getKeyCode() == 10) {
-            setPas(btSetPas.getText());
+            server.setPfStr(String.valueOf(pfPas.getPassword()));
+//            server.setPfStr(String.valueOf(pfPas.getPassword()));
+//            lbNumUs.setText(stringsFile.getProperty("set_pass"));
         }
     }//GEN-LAST:event_pfPasKeyPressed
 
@@ -352,8 +339,6 @@ public class ServerFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_jmiNewServerWindowActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton btSetPas;
-    private javax.swing.JButton btSetPort;
     private javax.swing.JButton btStartServer;
     private javax.swing.JButton btStopServer;
     private javax.swing.JMenuBar jMenuBar1;
@@ -362,8 +347,10 @@ public class ServerFrame extends javax.swing.JFrame {
     private javax.swing.JMenu jmServer;
     private javax.swing.JMenuItem jmiNewClientWindow;
     private javax.swing.JMenuItem jmiNewServerWindow;
+    private javax.swing.JLabel lbIP;
     private javax.swing.JLabel lbNumUs;
-    private javax.swing.JLabel lbYourIP;
+    private javax.swing.JLabel lbPass;
+    private javax.swing.JLabel lbPort;
     private javax.swing.JPasswordField pfPas;
     private javax.swing.JTextField tfPort;
     // End of variables declaration//GEN-END:variables
