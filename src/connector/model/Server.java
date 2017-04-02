@@ -7,6 +7,7 @@ package connector.model;
 
 import connector.utils.Encryption;
 import connector.resources.ControlLines;
+import connector.utils.ProjectProperties;
 import connector.utils.Utils;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -18,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -35,12 +37,13 @@ public class Server {
     private Encryption serverEncryption;
     private int conf;
     private ArrayList<String> listNames;
+    private Properties stringsFile;
 
     private List<Connection> connections; 
 
     public Server() {
-        connections
-            = Collections.synchronizedList(new ArrayList<Connection>());    
+        stringsFile = ProjectProperties.getInstance().getStringsFile();
+        connections = Collections.synchronizedList(new ArrayList<Connection>());    
         buffChat = new StringBuilder("");
         listNames = new ArrayList<String>();
         serverEncryption = new Encryption();
@@ -156,8 +159,8 @@ public class Server {
                                 Iterator<Connection> iter = connections.iterator();
                                 while (iter.hasNext()) {
                                     Connection thisConnection = iter.next();
-                                    thisConnection.outputStream.writeObject(new Message(thisConnection.clientEncryption.encrypt("[" + getTime(false) + "] " + name + " присоединился к чату"), false));
-                                    buffChat.append("[" + getTime(false) + "] " + name + " присоединился к чату" + "\n");
+                                    thisConnection.outputStream.writeObject(new Message(thisConnection.clientEncryption.encrypt("[" + getTime(false) + "] " + name + " " + stringsFile.getProperty("server.msg.join")), false));
+                                    buffChat.append("[" + getTime(false) + "] " + name + " " + stringsFile.getProperty("server.msg.join") + "\n");
                                 }
                             }
                             String str = "";
@@ -179,9 +182,10 @@ public class Server {
                                         Iterator<Connection> iter = connections.iterator();
                                         while (iter.hasNext()) {
                                             Connection thisConnection = iter.next();                                           
-                                            thisConnection.outputStream.writeObject(new Message(thisConnection.clientEncryption.encrypt("[" + getTime(false) + "] " + name + " вышел из чата" + "\n"), false));                                      
+                                            thisConnection.outputStream.writeObject(new Message(thisConnection.clientEncryption.encrypt("[" + getTime(false) + "] " + name + " " + stringsFile.getProperty("server.msg.left")), false));                                      
+//                                            thisConnection.outputStream.writeObject(new Message(thisConnection.clientEncryption.encrypt("[" + getTime(false) + "] " + name + " вышел из чата" + "\n"), false));                                      
                                         }
-                                        buffChat.append("[" + getTime(false) + "] " + name + " вышел из чата" + "\n");
+                                        buffChat.append("[" + getTime(false) + "] " + name + " " + stringsFile.getProperty("server.msg.left") + "\n");
                                     }
                                     userNumber--;
 //                                    lbNumUs.setText(" Пользователей: " + userNumber);
@@ -194,7 +198,7 @@ public class Server {
                                 }
                                 if (str.equals(ControlLines.STR_GET_ALL_MSG)) {
                                     Connection.this.outputStream.writeObject(
-                                            new Message(clientEncryption.encrypt("----- Все сообщения -----" + new String(buffChat)
+                                            new Message(clientEncryption.encrypt("----- " + stringsFile.getProperty("server.msg.allMsg") + " -----" + new String(buffChat)
                                                     + "\n----------------------\n"), false));
                                     //break;
                                 }

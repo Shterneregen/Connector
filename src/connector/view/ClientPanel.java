@@ -281,7 +281,6 @@ public class ClientPanel extends javax.swing.JPanel {
 
         tfInput.setEditable(false);
         tfInput.setText(stringsFile.getProperty("no_conn"));
-//        tfInput.setText(ControlLines.no_conn);
 
         cbNewConversation.setEnabled(true);
     }
@@ -291,6 +290,7 @@ public class ClientPanel extends javax.swing.JPanel {
         lbPort.setText(stringsFile.getProperty("serverFrame.lb.port"));
         lbNic.setText(stringsFile.getProperty("lb.nic"));
         lbPass.setText(stringsFile.getProperty("serverFrame.lb.pass"));
+        cbNewConversation.setText(stringsFile.getProperty("clientPanel.cb.newConversation"));
     }
 
     private class Resender extends Thread {
