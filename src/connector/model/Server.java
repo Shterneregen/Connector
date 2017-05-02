@@ -250,8 +250,6 @@ public class Server {
             if (!closed) {
                 closed = true;
                 try {
-//                    this.in.close();
-//                    this.out.close();
                     this.outputStream.close();
                     this.inputStream.close();
                     this.outputStream.flush();                    

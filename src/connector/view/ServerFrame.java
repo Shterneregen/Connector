@@ -153,7 +153,7 @@ public class ServerFrame extends javax.swing.JFrame {
         pfPas.setEditable(true);
 
         server.setUserNumber(0);
-        lbNumUs.setText(" Пользователей: " + server.getUserNumber());
+        lbNumUs.setText(stringsFile.getProperty("serverFrame.str.users") + server.getUserNumber());
     }
 
     @SuppressWarnings("unchecked")

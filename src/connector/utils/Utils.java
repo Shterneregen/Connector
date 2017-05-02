@@ -2,7 +2,6 @@ package connector.utils;
 
 import connector.view.ServerFrame;
 import java.awt.Dimension;
-import java.io.File;
 import java.io.IOException;
 import java.net.Inet4Address;
 import java.net.InetAddress;
