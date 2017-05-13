@@ -3,14 +3,12 @@ package connector;
 import connector.utils.Utils;
 import connector.view.ClientPanel;
 import static connector.constant.TrayType.SERVER_TRAY;
-import connector.utils.ProjectProperties;
 import java.awt.*;
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.net.*;
-import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.sound.sampled.LineUnavailableException;
@@ -24,7 +22,6 @@ public class Tray {
     private TrayIcon trayIcon;
     private SystemTray tray;   
     private Link link;
-    private Properties stringsFile;
     
     
     public Tray(){
@@ -38,12 +35,11 @@ public class Tray {
 //    public void setTrayIcon(JFrame frame, ArrayList<Client> listClients, int conf) {
     public void setTrayIcon(JFrame frame, ClientPanel client, int conf) {     
 //        this.listClients = listClients;
-        stringsFile = ProjectProperties.getInstance().getStringsFile();
         if (!SystemTray.isSupported()) {
             return;
         }
         PopupMenu trayMenu = new PopupMenu();
-        MenuItem item = new MenuItem(stringsFile.getProperty("clientPanel.button.exit"));
+        MenuItem item = new MenuItem("Выйти");
         item.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
