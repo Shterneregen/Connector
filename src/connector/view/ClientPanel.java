@@ -655,26 +655,37 @@ public class ClientPanel extends javax.swing.JPanel {
 
     private void tfPortKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_tfPortKeyPressed
         if (evt.getKeyCode() == 10) {
-            Integer port = getAndCheckPort(tfPort.getText());
-            if (port != null) {
-                client.setPort(port);
-                tfInput.setText(stringsFile.getProperty("set_port"));
+            String sPort = tfPort.getText();
+            if (!sPort.equals("")) {
+                Integer port = getAndCheckPort(sPort);
+                if (port != null) {
+                    client.setPort(port);
+                    tfInput.setText(stringsFile.getProperty("set_port") + port);
+                } else {
+                    tfInput.setText(stringsFile.getProperty("wrong_port"));
+                }
             } else {
-                tfInput.setText(stringsFile.getProperty("wrong_port"));
+                tfInput.setText(stringsFile.getProperty("tf.enter_port"));
             }
         }
     }//GEN-LAST:event_tfPortKeyPressed
 
     private void pfPasKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_pfPasKeyPressed
         if (evt.getKeyCode() == 10) {
-            client.setPass(String.valueOf(pfPas.getPassword()));
+            String pass = pfPas.getText();
+            if (!pass.equals("")) {
+                client.setPass(String.valueOf(pass));
+                tfInput.setText(stringsFile.getProperty("set_pass"));
+            } else {
+                tfInput.setText(stringsFile.getProperty("tf.enter_pass"));
+            }
         }
     }//GEN-LAST:event_pfPasKeyPressed
 
     private void tfNicKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_tfNicKeyPressed
         if (evt.getKeyCode() == 10) {
             String nic = tfNic.getText();
-            if (nic != null) {
+            if (!nic.equals("")) {
                 client.setNicname(nic);
                 tfInput.setText(stringsFile.getProperty("set_nic") + nic);
             } else {
