@@ -159,9 +159,8 @@ public class Server {
                                 Iterator<Connection> iter = connections.iterator();
                                 while (iter.hasNext()) {
                                     Connection thisConnection = iter.next();
-                                    String msg = "[" + getTime(false) + "] " + name + " " + stringsFile.getProperty("server.msg.join");
-                                    thisConnection.outputStream.writeObject(new Message(thisConnection.clientEncryption.encrypt(msg), false));
-                                    buffChat.append(msg + "\n");
+                                    thisConnection.outputStream.writeObject(new Message(thisConnection.clientEncryption.encrypt("[" + getTime(false) + "] " + name + " " + stringsFile.getProperty("server.msg.join")), false));
+                                    buffChat.append("[" + getTime(false) + "] " + name + " " + stringsFile.getProperty("server.msg.join") + "\n");
                                 }
                             }
                             String str = "";
@@ -181,12 +180,12 @@ public class Server {
                                 if (str.equals(ControlLines.STR_EXIT)) {
                                     synchronized (connections) {
                                         Iterator<Connection> iter = connections.iterator();
-                                        String msg = "[" + getTime(false) + "] " + name + " " + stringsFile.getProperty("server.msg.left");
                                         while (iter.hasNext()) {
                                             Connection thisConnection = iter.next();                                           
-                                            thisConnection.outputStream.writeObject(new Message(thisConnection.clientEncryption.encrypt(msg), false));
+                                            thisConnection.outputStream.writeObject(new Message(thisConnection.clientEncryption.encrypt("[" + getTime(false) + "] " + name + " " + stringsFile.getProperty("server.msg.left")), false));                                      
+//                                            thisConnection.outputStream.writeObject(new Message(thisConnection.clientEncryption.encrypt("[" + getTime(false) + "] " + name + " вышел из чата" + "\n"), false));                                      
                                         }
-                                        buffChat.append(msg + "\n");
+                                        buffChat.append("[" + getTime(false) + "] " + name + " " + stringsFile.getProperty("server.msg.left") + "\n");
                                     }
                                     userNumber--;
 //                                    lbNumUs.setText(" Пользователей: " + userNumber);
@@ -208,12 +207,12 @@ public class Server {
                                 if (!str.equals(ControlLines.STR_GET_ALL_MSG)) {
                                     synchronized (connections) {
                                         Iterator<Connection> iter = connections.iterator();
-                                        String msg = "[" + getTime(false) + "] " + name + ": " + str;
+
                                         while (iter.hasNext()) {
                                             Connection thisConnection = iter.next();
-                                            thisConnection.outputStream.writeObject(new Message(thisConnection.clientEncryption.encrypt(msg), false));                                         
+                                            thisConnection.outputStream.writeObject(new Message(thisConnection.clientEncryption.encrypt("[" + getTime(false) + "] " + name + ": " + str), false));                                         
                                         }
-                                        buffChat.append(msg + "\n");
+                                        buffChat.append("[" + getTime(false) + "] " + name + ": " + str + "\n");
                                     }
                                 }
                             }
@@ -237,6 +236,9 @@ public class Server {
         private String getTime(boolean ch) {
             //Date calendar = Calendar.getInstance().getTime();
             long curTime = System.currentTimeMillis();
+            // Хотите значение типа Date, с этим временем?
+            //Date curDate = new Date(curTime);
+            // Хотите строку в формате, удобном Вам?
             String curStringDate = ch ? new SimpleDateFormat("dd.MM.yyyy").format(curTime) : new SimpleDateFormat("kk:mm:ss").format(curTime);
             return curStringDate;
         }
