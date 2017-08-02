@@ -40,7 +40,7 @@ public class ClientPanel extends javax.swing.JPanel {
 
     private Encryption serverEncryption;
     private Encryption clientEncryption;
-    
+
     private Properties stringsFile;
 
     private ArrayList<String> listAddr;
@@ -51,7 +51,7 @@ public class ClientPanel extends javax.swing.JPanel {
         listAddr = new ArrayList<String>();
         this.conf = conf;
         client = new Client();
-        
+
         serverFrame = new ServerFrame(ControlLines.MAIN_NAME, SERVER_FROM_CLIENT);
         flagGoodConn = false;
         errConn = false;
@@ -103,7 +103,7 @@ public class ClientPanel extends javax.swing.JPanel {
                 } else {
                     ClientPanel.this.conf = ClientType.CLIENT_WITHOUT_SERVER;
                     btStartClient.setText(stringsFile.getProperty("clientPanel.button.join"));
-                    btStopClient.setText(stringsFile.getProperty("clientPanel.button.exit"));                    
+                    btStopClient.setText(stringsFile.getProperty("clientPanel.button.exit"));
                     tfIP.setEditable(true);
                     btSettings.setEnabled(false);
                     tfIP.removeAllItems();
@@ -292,7 +292,12 @@ public class ClientPanel extends javax.swing.JPanel {
         lbPass.setText(stringsFile.getProperty("serverFrame.lb.pass"));
         cbNewConversation.setText(stringsFile.getProperty("clientPanel.cb.newConversation"));
     }
+    
+    private void setSettings() {
+        
+    }
 
+    //<editor-fold defaultstate="collapsed" desc="class Resender">
     private class Resender extends Thread {
 
         private boolean stoped = false;
@@ -328,20 +333,20 @@ public class ClientPanel extends javax.swing.JPanel {
                         break;
                     }
                     ///////////////////////////////////////////////////////// 
-                    switch(receiveStr) {
-                        case ControlLines.STR_WRONG_PASS: 
-                                commandToMsg = stringsFile.getProperty("wrong_pass");
-                                    break;
-                            case ControlLines.STR_SAME_NIC: 
-                                commandToMsg = stringsFile.getProperty("same_nic");
-                                    break;
-                            case ControlLines.STR_STOP_SERVER: 
-                                commandToMsg = stringsFile.getProperty("stop_server");
-                                    break;
-                            default: 
+                    switch (receiveStr) {
+                        case ControlLines.STR_WRONG_PASS:
+                            commandToMsg = stringsFile.getProperty("wrong_pass");
+                            break;
+                        case ControlLines.STR_SAME_NIC:
+                            commandToMsg = stringsFile.getProperty("same_nic");
+                            break;
+                        case ControlLines.STR_STOP_SERVER:
+                            commandToMsg = stringsFile.getProperty("stop_server");
+                            break;
+                        default:
 //                                оператор;
-                                break;
-                    }                    
+                            break;
+                    }
                     ///////////////////////////////////////////////////////// 
                     if (receiveStr.equals(ControlLines.STR_WRONG_PASS)
                             || receiveStr.equals(ControlLines.STR_SAME_NIC)
@@ -385,6 +390,7 @@ public class ClientPanel extends javax.swing.JPanel {
             }
         }
     }
+    //</editor-fold>
 
     public String getStrChat() {
         return strChat;
@@ -655,26 +661,37 @@ public class ClientPanel extends javax.swing.JPanel {
 
     private void tfPortKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_tfPortKeyPressed
         if (evt.getKeyCode() == 10) {
-            Integer port = getAndCheckPort(tfPort.getText());
-            if (port != null) {
-                client.setPort(port);
-                tfInput.setText(stringsFile.getProperty("set_port"));
+            String sPort = tfPort.getText();
+            if (!sPort.equals("")) {
+                Integer port = getAndCheckPort(sPort);
+                if (port != null) {
+                    client.setPort(port);
+                    tfInput.setText(stringsFile.getProperty("set_port") + port);
+                } else {
+                    tfInput.setText(stringsFile.getProperty("wrong_port"));
+                }
             } else {
-                tfInput.setText(stringsFile.getProperty("wrong_port"));
+                tfInput.setText(stringsFile.getProperty("tf.enter_port"));
             }
         }
     }//GEN-LAST:event_tfPortKeyPressed
 
     private void pfPasKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_pfPasKeyPressed
         if (evt.getKeyCode() == 10) {
-            client.setPass(String.valueOf(pfPas.getPassword()));
+            String pass = pfPas.getText();
+            if (!pass.equals("")) {
+                client.setPass(String.valueOf(pass));
+                tfInput.setText(stringsFile.getProperty("set_pass"));
+            } else {
+                tfInput.setText(stringsFile.getProperty("tf.enter_pass"));
+            }
         }
     }//GEN-LAST:event_pfPasKeyPressed
 
     private void tfNicKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_tfNicKeyPressed
         if (evt.getKeyCode() == 10) {
             String nic = tfNic.getText();
-            if (nic != null) {
+            if (!nic.equals("")) {
                 client.setNicname(nic);
                 tfInput.setText(stringsFile.getProperty("set_nic") + nic);
             } else {
