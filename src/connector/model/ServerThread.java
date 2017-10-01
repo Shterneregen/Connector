@@ -1,0 +1,286 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package connector.model;
+
+import connector.resources.ControlLines;
+import connector.utils.Encryption;
+import connector.utils.ProjectProperties;
+import connector.utils.Utils;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+/**
+ *
+ * @author Yura
+ */
+class ServerThread extends Thread {
+
+    private boolean stoped = false;
+    private ServerSocket serverSocket = null;
+    private Socket socket;
+    private int port;
+    private ArrayList<String> listNames;
+    private List<Connection> connections;
+    private int userNumber;
+    private Encryption serverEncryption;
+    private StringBuilder buffChat;
+
+    ServerThread(int port) {
+        this.port = port;
+        connections = Collections.synchronizedList(new ArrayList<Connection>());
+        serverEncryption = new Encryption();
+        serverEncryption.prepare();
+        buffChat = new StringBuilder("");
+    }
+
+    //Прекращает пересылку сообщений
+    public void setStop() {
+        stoped = true;
+    }
+
+    @Override
+    public void run() {
+        try {
+            serverSocket = new ServerSocket(port);
+
+            while (!stoped) {
+                socket = serverSocket.accept();
+                if (stoped) {
+                    break;
+                }
+                Connection con = new Connection(socket);
+                connections.add(con);
+
+                con.start();
+            }
+        } catch (IOException e) {
+        } finally {
+            try {
+                if (serverSocket != null) {
+                    serverSocket.close();
+                }
+                if (socket != null) {
+                    socket.close();
+                }
+            } catch (IOException ex) {
+                Logger.getLogger(connector.view.ServerFrame.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+    }
+
+    protected void closeAll() {
+        try {
+            if (connections != null && !connections.isEmpty()) {
+                synchronized (connections) {
+                    for (Connection thisConnection : connections) {
+                        thisConnection.getOutputStream().writeObject(new Message(thisConnection.getClientEncryption().encrypt(ControlLines.STR_EXIT_ALL), true));
+                    }
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Потоки не были закрыты! (closeAll)");
+            e.printStackTrace();
+        }
+    }
+
+    private class Connection extends Thread {
+
+        private Socket socket;
+        private Boolean flagWrongNic = false;
+        private boolean stoped = false;
+        private boolean closed = false;
+        private ObjectInputStream inputStream;
+        private ObjectOutputStream outputStream;
+        private Message message;
+        private Encryption clientEncryption;
+        private String name = "";
+        private String pfStr;
+        private Properties stringsFile;
+
+        public Connection(Socket soc) {
+            this.socket = soc;
+            clientEncryption = new Encryption();
+
+            try {
+                inputStream = new ObjectInputStream(this.socket.getInputStream());
+                outputStream = new ObjectOutputStream(this.socket.getOutputStream());
+            } catch (IOException e) {
+                e.printStackTrace();
+                close();
+            }
+            stringsFile = ProjectProperties.getInstance().getStringsFile();
+        }
+
+        public void setStop() {
+            stoped = true;
+        }
+
+        @Override
+        public void run() {
+            try {
+                while (!stoped) {
+                    message = (Message) inputStream.readObject();
+                    String pass = Encryption.decode(message.getPass(), pfStr);
+                    name = Encryption.decode(message.getName(), pfStr);
+
+                    clientEncryption.createPair(message.getPublicKey());
+                    Connection.this.outputStream.writeObject(new Message(clientEncryption.encrypt(ControlLines.STR_SEND_PUB_KEY), true, serverEncryption.getPublicKeyFromKeypair()));
+
+                    if (stoped) {
+                        break;
+                    }
+                    if (pass.equals(pfStr)) {
+                        if (stoped) {
+                            break;
+                        }
+                        for (int i = 0; i < listNames.size(); i++) {
+                            if (name.equals(listNames.get(i))) {
+                                Connection.this.outputStream.writeObject(new Message(clientEncryption.encrypt(ControlLines.STR_SAME_NIC), false));
+                                flagWrongNic = true;
+                                stoped = true;
+                                break;
+                            } else {
+                                flagWrongNic = false;
+                            }
+                        }
+
+                        if (!flagWrongNic) {
+                            userNumber++;
+
+                            synchronized (listNames) {
+                                listNames.add(name);
+                            }
+                            synchronized (connections) {
+                                for (Connection thisConnection : connections) {
+                                    String msg = "[" + getTime(false) + "] " + name + " " + stringsFile.getProperty("server.msg.join");
+                                    thisConnection.outputStream.writeObject(new Message(thisConnection.clientEncryption.encrypt(msg), false));
+                                    buffChat.append(msg + "\n");
+                                }
+                            }
+                            String str = "";
+                            while (!stoped) {
+                                try {
+                                    message = (Message) inputStream.readObject();
+                                    str = Utils.removeTheTrash(serverEncryption.decrypt(message.getMessage()));
+//                                    System.out.println("ServerFrame enc message: " + message.getMessage());
+//                                    System.out.println("ServerFrame dec message: " + str);
+                                } catch (Exception e) {
+                                    setStop();
+                                    break;
+                                }
+                                if (stoped) {
+                                    break;
+                                }
+                                if (str.equals(ControlLines.STR_EXIT)) {
+                                    synchronized (connections) {
+                                        String msg = "[" + getTime(false) + "] " + name + " " + stringsFile.getProperty("server.msg.left");
+                                        for (Connection thisConnection : connections) {
+                                            thisConnection.outputStream.writeObject(new Message(thisConnection.clientEncryption.encrypt(msg), false));
+                                        }
+                                        buffChat.append(msg).append("\n");
+                                    }
+                                    userNumber--;
+                                    stoped = true;
+                                    break;
+                                }
+                                if (str.equals(ControlLines.STR_EXIT_ALL)) {
+                                    setStop();
+                                    break;
+                                }
+                                if (str.equals(ControlLines.STR_GET_ALL_MSG)) {
+                                    Connection.this.outputStream.writeObject(
+                                            new Message(clientEncryption.encrypt("----- " + stringsFile.getProperty("server.msg.allMsg") + " -----" + new String(buffChat)
+                                                    + "\n----------------------\n"), false));
+                                    //break;
+                                }
+
+                                // Отправляем всем клиентам очередное сообщение
+                                if (!str.equals(ControlLines.STR_GET_ALL_MSG)) {
+                                    synchronized (connections) {
+                                        String msg = "[" + getTime(false) + "] " + name + ": " + str;
+                                        for (Connection thisConnection : connections) {
+                                            thisConnection.outputStream.writeObject(new Message(thisConnection.clientEncryption.encrypt(msg), false));
+                                        }
+                                        buffChat.append(msg + "\n");
+                                    }
+                                }
+                            }
+                        }
+                    } else {
+//                        Connection.this.out.println(Encryption.encode(Utils.getSTR_WRONG_PASS(), pfStr)); 
+//                        Connection.this.out.println(Encryption.encode("--- Сервер не отвечает --- 3"+"\n", pfStr));
+                        this.setStop();
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                //closeAll();
+            } finally {
+                close();
+            }
+        }
+
+        // Возвращает дату (ch == 1) или время (ch == 0)
+        private String getTime(boolean ch) {
+            //Date calendar = Calendar.getInstance().getTime();
+            long curTime = System.currentTimeMillis();
+            String curStringDate = ch ? new SimpleDateFormat("dd.MM.yyyy").format(curTime) : new SimpleDateFormat("kk:mm:ss").format(curTime);
+            return curStringDate;
+        }
+
+        /**
+         * Закрывает входной и выходной потоки и сокет
+         */
+        public void close() {
+            if (!closed) {
+                closed = true;
+                try {
+                    this.outputStream.close();
+                    this.inputStream.close();
+                    this.outputStream.flush();
+                    this.socket.close();
+
+                    synchronized (connections) {
+                        connections.remove(Connection.this);
+                    }
+                    if (!flagWrongNic) {
+                        synchronized (listNames) {
+                            listNames.remove(name);
+                        }
+                    }
+                } catch (Exception e) {
+                    System.err.println("Потоки не были закрыты! (close)");
+                }
+            }
+        }
+
+        public ObjectOutputStream getOutputStream() {
+            return outputStream;
+        }
+
+        public void setOutputStream(ObjectOutputStream outputStream) {
+            this.outputStream = outputStream;
+        }
+
+        public Encryption getClientEncryption() {
+            return clientEncryption;
+        }
+
+        public void setClientEncryption(Encryption clientEncryption) {
+            this.clientEncryption = clientEncryption;
+        }
+    }
+}

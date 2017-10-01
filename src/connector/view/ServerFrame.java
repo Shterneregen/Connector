@@ -26,13 +26,10 @@ public class ServerFrame extends javax.swing.JFrame {
         initComponents();
         setItemsNames();
         ((AbstractDocument) tfPort.getDocument()).setDocumentFilter(new Utils().new DocumentFilterForPort());
-
         setResizable(false);
         setLocationRelativeTo(null);
         //setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
-
         addWindowListener(new WindowListener() {
 
             public void windowActivated(WindowEvent event) {
@@ -89,7 +86,7 @@ public class ServerFrame extends javax.swing.JFrame {
         jmServer.setText(stringsFile.getProperty("clientFrame.jm.server"));
         jmiNewServerWindow.setText(stringsFile.getProperty("clientFrame.jmi.newServerWindow"));
 
-        lbNumUs.setText(stringsFile.getProperty("serverFrame.str.users") + server.getUserNumber());
+//        lbNumUs.setText(stringsFile.getProperty("serverFrame.str.users") + server.getUserNumber());
         lbPort.setText(stringsFile.getProperty("serverFrame.lb.port"));
         lbPass.setText(stringsFile.getProperty("serverFrame.lb.pass"));
         lbIP.setText(stringsFile.getProperty("serverFrame.lb.ip"));
@@ -124,14 +121,13 @@ public class ServerFrame extends javax.swing.JFrame {
         server.setPfStr(strPort);
     }
 
-    public StringBuilder getBuffChat() {
-        return server.getBuffChat();
-    }
+//    public StringBuilder getBuffChat() {
+//        return server.getBuffChat();
+//    }
 
     public void startServer() {
-        server.setIsStartServer(true);
-        server.createServerThread();
-        server.startServer();
+        setPort(tfPort.getText());
+        server.createServerThreadAndStart();
 
         btStartServer.setEnabled(false);
         btStopServer.setEnabled(true);
@@ -151,8 +147,8 @@ public class ServerFrame extends javax.swing.JFrame {
         tfPort.setEditable(true);
         pfPas.setEditable(true);
 
-        server.setUserNumber(0);
-        lbNumUs.setText(stringsFile.getProperty("serverFrame.str.users") + server.getUserNumber());
+//        server.setUserNumber(0);
+//        lbNumUs.setText(stringsFile.getProperty("serverFrame.str.users") + server.getUserNumber());
     }
 
     @SuppressWarnings("unchecked")
@@ -307,14 +303,6 @@ public class ServerFrame extends javax.swing.JFrame {
 
     private void tfPortKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_tfPortKeyPressed
         if (evt.getKeyCode() == 10) {
-            String strPort = tfPort.getText();
-            if (Integer.parseInt(strPort) <= 0 || Integer.parseInt(strPort) > 65535) {
-                lbNumUs.setText(stringsFile.getProperty("wrong_port"));
-                tfPort.setText(stringsFile.getProperty("wrong_port"));
-            } else {
-                server.setPort(Integer.parseInt(strPort));
-//                lbNumUs.setText(stringsFile.getProperty("set_port"));
-            }
             setPort(tfPort.getText());
         }
     }//GEN-LAST:event_tfPortKeyPressed
