@@ -22,11 +22,13 @@ import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DocumentFilter;
 // Класс с дополнительными функциями. Вынесены сюда, чтобы не засорять основной код.
+
 public class Utils {
 
     private static final String SOUND_MSG = "resources/sounds/Blocked.wav";
-     private static final URL soundURL = Utils.class.getResource(SOUND_MSG);
-     // Фильтр для поля IP, на данный момент не используется.
+    private static final URL soundURL = Utils.class.getResource(SOUND_MSG);
+
+    // Фильтр для поля IP, на данный момент не используется.
     public class DocumentFilterForIP extends DocumentFilter {
 
         @Override
@@ -61,6 +63,7 @@ public class Utils {
             super.replace(fb, offset, length, string, attrs);
         }
     }
+
     // Фильтр для поля порта, позволяет вводить только цифры.
     public class DocumentFilterForPort extends DocumentFilter {
 
@@ -95,6 +98,7 @@ public class Utils {
             super.replace(fb, offset, length, string, attrs);
         }
     }
+
     // Воспроизводит звук.
     public static void PlaySound() throws UnsupportedAudioFileException, IOException, LineUnavailableException {
         // процедура проигрывающая один заранее заданный файл
@@ -106,7 +110,7 @@ public class Utils {
         clip.open(stream); // воспроизводим файл
         clip.start(); // закрываем проигрыватель
     }
-    
+
     // Удаляет управляющие символы из строки.
     public static String removeTheTrash(String s) {
         char[] buf = new char[1024];
@@ -126,7 +130,7 @@ public class Utils {
         }
         return s;
     }
-    
+
     private static String getInterfaceInfo(NetworkInterface nif) throws IOException {
 //         final String NL = System.getProperty("line.separator");
         String ipAddress = "";
@@ -160,8 +164,8 @@ public class Utils {
             Logger.getLogger(ServerFrame.class.getName()).log(Level.SEVERE, null, ex);
         }
         return listAddr;
-    }    
-    
+    }
+
     // На данный момент не используется.
     public class StatusBar extends JLabel {
 

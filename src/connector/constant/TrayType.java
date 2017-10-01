@@ -11,6 +11,7 @@ package connector.constant;
  * @author Yura
  */
 public class TrayType {
+
     public static int SERVER_TRAY = 1;  // Трей сервера
     public static int CLIENT_TRAY = 0;  // Трей клиента
 }

@@ -15,25 +15,25 @@ import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
 public class Tray {
+
     public static final String APPLICATION_NAME_SERVER = "Server";
     public static final String APPLICATION_NAME_CLIENT = "Client";
     public static final String ICON_SERVER = "resources/images/save.png";
     public static final String ICON_CLIENT = "resources/images/icon.png";
     private TrayIcon trayIcon;
-    private SystemTray tray;   
+    private SystemTray tray;
     private Link link;
-    
-    
-    public Tray(){
+
+    public Tray() {
         trayIcon = null;
         tray = SystemTray.getSystemTray();
         link = null;
-        
+
     }
 //    ArrayList<Client> listClients = new ArrayList<Client>();
 
 //    public void setTrayIcon(JFrame frame, ArrayList<Client> listClients, int conf) {
-    public void setTrayIcon(JFrame frame, ClientPanel client, int conf) {     
+    public void setTrayIcon(JFrame frame, ClientPanel client, int conf) {
 //        this.listClients = listClients;
         if (!SystemTray.isSupported()) {
             return;
@@ -58,8 +58,8 @@ public class Tray {
 ////                    if (conf == 0 & listClients !=null) {
 //                    link.setStop();
 //                }
-                
-                if (client !=null) {
+
+                if (client != null) {
                     link.setStop();
                 }
 
@@ -111,7 +111,6 @@ public class Tray {
 //            }
 //        });
 
-        
 //        if (listClients !=null) {
 ////            if (conf == 0 & listClients !=null) {
 //            for (int i = 0; i < listClients.size(); i++) {
@@ -119,12 +118,11 @@ public class Tray {
 //                link.start();
 //            }
 //        }
-        
-        if (client !=null) {
-                link = new Link(client);
-                link.start();
+        if (client != null) {
+            link = new Link(client);
+            link.start();
         }
-        
+
         try {
             tray.add(trayIcon);
         } catch (AWTException e) {

@@ -5,21 +5,20 @@
  */
 package connector.tab;
 
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
- 
-public class TabComponents extends JFrame {    
- 
+
+public class TabComponents extends JFrame {
+
     private final int tabNumber = 5;
     private final JTabbedPane pane = new JTabbedPane();
     private JMenuItem tabComponentsItem;
     private JMenuItem scrollLayoutItem;
-     
+
 //    public static void main(String[] args) {
 //        //Schedule a job for the event dispatch thread:
 //        //creating and showing this application's GUI.
@@ -31,14 +30,13 @@ public class TabComponents extends JFrame {
 //            }
 //        });
 //    }
-     
     public TabComponents(String title) {
         super(title);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        initMenu();        
-        add(pane);        
+        initMenu();
+        add(pane);
     }
-     
+
 //    public void runTest() {
 //        pane.removeAll();
 //        for (int i = 0; i < tabNumber; i++) {
@@ -53,15 +51,12 @@ public class TabComponents extends JFrame {
 //        setLocationRelativeTo(null);
 //        setVisible(true);
 //    }
-     
-     
     private void initTabComponent(int i) {
         pane.setTabComponentAt(i,
-                 new ButtonTabComponent(pane));
-    }    
- 
+                new ButtonTabComponent(pane));
+    }
+
     //Setting menu
-     
     private void initMenu() {
         JMenuBar menuBar = new JMenuBar();
         //create Options menu
@@ -96,7 +91,7 @@ public class TabComponents extends JFrame {
                 //runTest();
             }
         });
-        
+
         JMenu optionsMenu = new JMenu("Options");
         optionsMenu.add(tabComponentsItem);
         optionsMenu.add(scrollLayoutItem);
@@ -105,5 +100,3 @@ public class TabComponents extends JFrame {
         setJMenuBar(menuBar);
     }
 }
-	
-

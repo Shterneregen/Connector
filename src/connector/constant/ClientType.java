@@ -11,7 +11,8 @@ package connector.constant;
  * @author Yura
  */
 public class ClientType {
+
     public static int CLIENT_WITHOUT_SERVER = 0;    // Сторона клиента
     public static int CLIENT_WITH_SERVER = 1;       // Сторона сервера
-    
+
 }

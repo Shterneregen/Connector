@@ -43,7 +43,7 @@ public class ClientPanel extends javax.swing.JPanel {
 
     private Properties stringsFile;
 
-    private ArrayList<String> listAddr;
+    private ArrayList<String> listAddr; // Массив локальных IP адресов
 //    private final JTabbedPane pane;
 
     public ClientPanel(int conf) {
@@ -58,7 +58,7 @@ public class ClientPanel extends javax.swing.JPanel {
         listAddr = Utils.getMyLocalIP();
         bRsa = false;
         clientEncryption = new Encryption();
-        clientEncryption.doThis();
+        clientEncryption.prepare();
         serverEncryption = new Encryption();
 
         initComponents();
@@ -292,9 +292,9 @@ public class ClientPanel extends javax.swing.JPanel {
         lbPass.setText(stringsFile.getProperty("serverFrame.lb.pass"));
         cbNewConversation.setText(stringsFile.getProperty("clientPanel.cb.newConversation"));
     }
-    
+
     private void setSettings() {
-        
+
     }
 
     //<editor-fold defaultstate="collapsed" desc="class Resender">

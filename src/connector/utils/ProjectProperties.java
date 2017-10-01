@@ -18,6 +18,7 @@ import java.util.logging.Logger;
  * @author Yura
  */
 public class ProjectProperties {
+
     private static ProjectProperties instance;
 //    private static final String PATH_TO_PROPERTIES = "resources/config.properties";
     private static final String CONFIG_FILE_NAME = "config.properties";
@@ -25,7 +26,7 @@ public class ProjectProperties {
     private Properties projProperties;
     private Properties stringsFile;
     public static String LANGUAGE_FILE_NAME;
-   
+
     public static synchronized ProjectProperties getInstance() {
         if (instance == null) {
             instance = new ProjectProperties();
@@ -40,18 +41,19 @@ public class ProjectProperties {
     public void setProjProperties(Properties projProperties) {
         this.projProperties = projProperties;
     }
-    
+
     public Properties getStringsFile() {
         return stringsFile;
     }
 
     public void setStringsFile(Properties stringsFile) {
         this.stringsFile = stringsFile;
-    }    
+    }
 
     private ProjectProperties() {
-        projProperties = new Properties();       
-        stringsFile = new Properties();       
+        projProperties = new Properties();
+        stringsFile = new Properties();
+
 //      <editor-fold defaultstate="collapsed" desc="External file"> 
         // определяем текущий каталог
         File currentDir = new File(".");
@@ -68,8 +70,8 @@ public class ProjectProperties {
             Logger.getLogger(ProjectProperties.class.getName()).log(Level.SEVERE, null, ex);
         } catch (Exception ex) {
             Logger.getLogger(ProjectProperties.class.getName()).log(Level.SEVERE, null, ex);
-        } 
-        
+        }
+
         try {
             String sFilePath = currentDir.getCanonicalPath() + DIR_SEPARATOR + LANGUAGE_FILE_NAME;
             FileInputStream ins = new FileInputStream(sFilePath);
@@ -78,8 +80,9 @@ public class ProjectProperties {
             Logger.getLogger(ProjectProperties.class.getName()).log(Level.SEVERE, null, ex);
         } catch (Exception ex) {
             Logger.getLogger(ProjectProperties.class.getName()).log(Level.SEVERE, null, ex);
-        } 
+        }
 // </editor-fold>
+
 //        FileInputStream fileInputStream;
 //        try {
 //            //обращаемся к файлу и получаем данные

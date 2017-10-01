@@ -25,15 +25,14 @@ public class ClientFrame extends javax.swing.JFrame {
     private String strChat;
     private static final String CLIENT_BACKGROUND = "../resources/images/fon33.jpg";
     private Properties stringsFile;
-    
+
 //    private static int numCl;
 //    private static ArrayList<Client> listClients = new ArrayList<Client>();
 //    Utils.StatusBar statusBar;
-
     public ClientPanel getMainPanel() {
         return mainPanel;
     }
-    
+
     public ClientFrame(String s) {
         super(s);
         stringsFile = ProjectProperties.getInstance().getStringsFile();
@@ -50,8 +49,8 @@ public class ClientFrame extends javax.swing.JFrame {
 ////            getContentPane().add(statusBar,java.awt.BorderLayout.SOUTH);
 //            statusBar.setMessage("FUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUU");
 
-        mainPanel = new ClientPanel(CLIENT_WITHOUT_SERVER);       
-        
+        mainPanel = new ClientPanel(CLIENT_WITHOUT_SERVER);
+
         initComponents();
         setMenuItemsNames();
 //        jTabbedPane1.add(mainPanel);
@@ -59,14 +58,11 @@ public class ClientFrame extends javax.swing.JFrame {
 
 //        jPanel1.setLayout(new FlowLayout());
 //        jPanel1.add(mainPanel);
-
         BgPanel bgPanel = new BgPanel();
         bgPanel.add(mainPanel);
         this.setContentPane(bgPanel);
-        
 
 //        listClients.add(mainPanel);        
-        
         setResizable(false);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
@@ -106,7 +102,7 @@ public class ClientFrame extends javax.swing.JFrame {
 
 //                if (numCl != 0) {
 //                    new Tray().setTrayIcon(ClientFrame.this, listClients, CLIENT);
-                    new Tray().setTrayIcon(ClientFrame.this, mainPanel, CLIENT);
+                new Tray().setTrayIcon(ClientFrame.this, mainPanel, CLIENT);
 //                } else {
 //                    new Tray().setTrayIcon(ClientFrame.this, null, CLIENT);
 //                }
@@ -129,21 +125,22 @@ public class ClientFrame extends javax.swing.JFrame {
     private void setMenuItemsNames() {
         jmFile.setText(stringsFile.getProperty("clientFrame.jm.file"));
         jmiExit.setText(stringsFile.getProperty("clientFrame.jmi.exit"));
-        
+
         jmClient.setText(stringsFile.getProperty("clientFrame.jm.client"));
         jmiNewClientWindow.setText(stringsFile.getProperty("clientFrame.jmi.newClientWindow"));
         jmiStopCurrentClient.setText(stringsFile.getProperty("clientFrame.jmi.stopCurrentClient"));
         jmiGetAllSessionMsgs.setText(stringsFile.getProperty("clientFrame.jmi.getAllSessionMsgs"));
-        
+
         jmServer.setText(stringsFile.getProperty("clientFrame.jm.server"));
         jmiNewServerWindow.setText(stringsFile.getProperty("clientFrame.jmi.newServerWindow"));
-        
+
         jmHelp.setText(stringsFile.getProperty("clientFrame.jm.help"));
         jmiAbout.setText(stringsFile.getProperty("clientFrame.jmi.about"));
         jmiManual.setText(stringsFile.getProperty("clientFrame.jmi.manual"));
     }
 
     class BgPanel extends JPanel {
+
         public void paintComponent(Graphics g) {
             Image im = null;
 
@@ -155,6 +152,7 @@ public class ClientFrame extends javax.swing.JFrame {
             repaint();
         }
     }
+
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {

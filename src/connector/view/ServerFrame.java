@@ -14,9 +14,10 @@ import java.util.Properties;
 import javax.swing.text.AbstractDocument;
 
 public class ServerFrame extends javax.swing.JFrame {
+
     private Server server;
     private Properties stringsFile;
-    
+
     public ServerFrame(String s, int conf) {
         super(s);
         server = new Server();
@@ -25,7 +26,6 @@ public class ServerFrame extends javax.swing.JFrame {
         initComponents();
         setItemsNames();
         ((AbstractDocument) tfPort.getDocument()).setDocumentFilter(new Utils().new DocumentFilterForPort());
-        
 
         setResizable(false);
         setLocationRelativeTo(null);
@@ -77,29 +77,29 @@ public class ServerFrame extends javax.swing.JFrame {
 
         });
     }
-    
+
     private void setItemsNames() {
         ArrayList<String> listAddr = Utils.getMyLocalIP();
         for (int i = 0; i < listAddr.size(); i++) {
             jcbIP.addItem(listAddr.get(i));
-        }        
+        }
         jmClient.setText(stringsFile.getProperty("clientFrame.jm.client"));
         jmiNewClientWindow.setText(stringsFile.getProperty("clientFrame.jmi.newClientWindow"));
-        
+
         jmServer.setText(stringsFile.getProperty("clientFrame.jm.server"));
         jmiNewServerWindow.setText(stringsFile.getProperty("clientFrame.jmi.newServerWindow"));
-        
-        lbNumUs.setText(stringsFile.getProperty("serverFrame.str.users") + server.getUserNumber());    
+
+        lbNumUs.setText(stringsFile.getProperty("serverFrame.str.users") + server.getUserNumber());
         lbPort.setText(stringsFile.getProperty("serverFrame.lb.port"));
         lbPass.setText(stringsFile.getProperty("serverFrame.lb.pass"));
         lbIP.setText(stringsFile.getProperty("serverFrame.lb.ip"));
-        
+
         btStartServer.setText(stringsFile.getProperty("serverFrame.button.startServer"));
         btStopServer.setText(stringsFile.getProperty("serverFrame.button.stopServer"));
         btStopServer.setEnabled(false);
-        
+
 //        lbYourIP.setText(" Ваш локальный IP ");
-    }    
+    }
 
 //    public String getMyLocalIP(){
 //        InetAddress addr = null;
@@ -111,7 +111,6 @@ public class ServerFrame extends javax.swing.JFrame {
 //        String myLANIP = addr.getHostAddress();
 //        return myLANIP;
 //    }
-
     public void setPort(String strPort) {
         if (Integer.parseInt(strPort) <= 0 || Integer.parseInt(strPort) > 65535) {
             lbNumUs.setText(stringsFile.getProperty("wrong_port"));
@@ -120,7 +119,7 @@ public class ServerFrame extends javax.swing.JFrame {
 //            lbNumUs.setText(stringsFile.getProperty("set_port"));
         }
     }
-    
+
     public void setPass(String strPort) {
         server.setPfStr(strPort);
     }
@@ -315,7 +314,7 @@ public class ServerFrame extends javax.swing.JFrame {
             } else {
                 server.setPort(Integer.parseInt(strPort));
 //                lbNumUs.setText(stringsFile.getProperty("set_port"));
-            }           
+            }
             setPort(tfPort.getText());
         }
     }//GEN-LAST:event_tfPortKeyPressed

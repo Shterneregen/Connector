@@ -17,11 +17,12 @@ import java.util.logging.Logger;
  * @author Yura
  */
 public class Client {
+
     private Socket socket;
     private int port;
     private String ip;
     private String nicname;
-    private String pass;    
+    private String pass;
 
     private ObjectInputStream inputStream;
     private ObjectOutputStream outputStream;
@@ -32,16 +33,16 @@ public class Client {
         nicname = "";
         pass = "";
     }
-    
-    public void initSocket(){
+
+    public void initSocket() {
         try {
             this.socket = new Socket(ip, port);
         } catch (IOException ex) {
             Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    
-    public void setStreams(){          
+
+    public void setStreams() {
         try {
             outputStream = new ObjectOutputStream(this.getSocket().getOutputStream());
             inputStream = new ObjectInputStream(this.getSocket().getInputStream());
@@ -49,24 +50,24 @@ public class Client {
             Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    
+
     public void closeStreams() {
         try {
-            if(inputStream != null){
+            if (inputStream != null) {
                 inputStream.close();
             }
-            if(outputStream != null){
+            if (outputStream != null) {
                 outputStream.flush();
-                outputStream.close(); 
+                outputStream.close();
             }
-            if(socket != null){
+            if (socket != null) {
                 socket.close();
             }
         } catch (IOException ex) {
             Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    
+
     public Socket getSocket() {
         return socket;
     }
@@ -97,15 +98,15 @@ public class Client {
 
     public void setNicname(String nicname) {
         this.nicname = nicname;
-    }    
-    
+    }
+
     public String getPass() {
         return pass;
     }
 
     public void setPass(String pass) {
         this.pass = pass;
-    }    
+    }
 
     public ObjectInputStream getInputStream() {
         return inputStream;

@@ -28,6 +28,7 @@ import java.util.logging.Logger;
  * @author Yura
  */
 public class Server {
+
     private int port;
     private int userNumber;
     private ServerThread serverThread;
@@ -39,42 +40,41 @@ public class Server {
     private ArrayList<String> listNames;
     private Properties stringsFile;
 
-    private List<Connection> connections; 
+    private List<Connection> connections;
 
     public Server() {
         stringsFile = ProjectProperties.getInstance().getStringsFile();
-        connections = Collections.synchronizedList(new ArrayList<Connection>());    
+        connections = Collections.synchronizedList(new ArrayList<Connection>());
         buffChat = new StringBuilder("");
-        listNames = new ArrayList<String>();
+        listNames = new ArrayList<>();
         serverEncryption = new Encryption();
-        serverEncryption.doThis();
+        serverEncryption.prepare();
         port = 9988;
         userNumber = 0;
-        pfStr = "9988";        
+        pfStr = "9988";
     }
-    
-    public void createServerThread(){
+
+    public void createServerThread() {
         serverThread = new ServerThread();
     }
-    
-    public void startServer(){
+
+    public void startServer() {
         serverThread.start();
     }
-    
-    public void setStopServerThread(){
+
+    public void setStopServerThread() {
         serverThread.setStop();
     }
-    
-    public void closeAllServerConnection(){
+
+    public void closeAllServerConnection() {
         closeAll();
     }
-    
+
     private void closeAll() {
         try {
-            if (connections.size() != 0) {
+            if (connections != null && !connections.isEmpty()) {
                 synchronized (connections) {
-                    Iterator<Connection> iter = connections.iterator();
-                    while (iter.hasNext()) {Connection thisConnection = iter.next();
+                    for (Connection thisConnection : connections) {
                         thisConnection.outputStream.writeObject(new Message(thisConnection.clientEncryption.encrypt(ControlLines.STR_EXIT_ALL), true));
                     }
                 }
@@ -86,6 +86,7 @@ public class Server {
     }
 
     private class Connection extends Thread {
+
         private Socket socket;
         private Boolean flagWrongNic = false;
         private boolean stoped = false;
@@ -102,9 +103,7 @@ public class Server {
 
             try {
                 inputStream = new ObjectInputStream(this.socket.getInputStream());
-//                System.out.println("ServerFrame: inputStream");
                 outputStream = new ObjectOutputStream(this.socket.getOutputStream());
-//                System.out.println("ServerFrame: outputStream");
             } catch (IOException e) {
                 e.printStackTrace();
                 close();
@@ -128,7 +127,6 @@ public class Server {
 
                     clientEncryption.createPair(message.getPublicKey());
                     Connection.this.outputStream.writeObject(new Message(clientEncryption.encrypt(ControlLines.STR_SEND_PUB_KEY), true, serverEncryption.getPublicKeyFromKeypair()));
-//                    System.out.println("ServerFrame got key: "/* + message.getPublicKey()*/);
 
                     if (stoped) {
                         break;
@@ -138,7 +136,7 @@ public class Server {
                             break;
                         }
                         for (int i = 0; i < listNames.size(); i++) {
-                            if (name.equals(listNames.get(i))) {                                              
+                            if (name.equals(listNames.get(i))) {
                                 Connection.this.outputStream.writeObject(new Message(clientEncryption.encrypt(ControlLines.STR_SAME_NIC), false));
                                 flagWrongNic = true;
                                 stoped = true;
@@ -150,15 +148,12 @@ public class Server {
 
                         if (!flagWrongNic) {
                             userNumber++;
-//                            lbNumUs.setText(" Пользователей: " + userNumber);
 
                             synchronized (listNames) {
                                 listNames.add(name);
                             }
                             synchronized (connections) {
-                                Iterator<Connection> iter = connections.iterator();
-                                while (iter.hasNext()) {
-                                    Connection thisConnection = iter.next();
+                                for (Connection thisConnection : connections) {
                                     String msg = "[" + getTime(false) + "] " + name + " " + stringsFile.getProperty("server.msg.join");
                                     thisConnection.outputStream.writeObject(new Message(thisConnection.clientEncryption.encrypt(msg), false));
                                     buffChat.append(msg + "\n");
@@ -180,16 +175,13 @@ public class Server {
                                 }
                                 if (str.equals(ControlLines.STR_EXIT)) {
                                     synchronized (connections) {
-                                        Iterator<Connection> iter = connections.iterator();
                                         String msg = "[" + getTime(false) + "] " + name + " " + stringsFile.getProperty("server.msg.left");
-                                        while (iter.hasNext()) {
-                                            Connection thisConnection = iter.next();                                           
+                                        for (Connection thisConnection : connections) {
                                             thisConnection.outputStream.writeObject(new Message(thisConnection.clientEncryption.encrypt(msg), false));
                                         }
-                                        buffChat.append(msg + "\n");
+                                        buffChat.append(msg).append("\n");
                                     }
                                     userNumber--;
-//                                    lbNumUs.setText(" Пользователей: " + userNumber);
                                     stoped = true;
                                     break;
                                 }
@@ -207,11 +199,9 @@ public class Server {
                                 // Отправляем всем клиентам очередное сообщение
                                 if (!str.equals(ControlLines.STR_GET_ALL_MSG)) {
                                     synchronized (connections) {
-                                        Iterator<Connection> iter = connections.iterator();
                                         String msg = "[" + getTime(false) + "] " + name + ": " + str;
-                                        while (iter.hasNext()) {
-                                            Connection thisConnection = iter.next();
-                                            thisConnection.outputStream.writeObject(new Message(thisConnection.clientEncryption.encrypt(msg), false));                                         
+                                        for (Connection thisConnection : connections) {
+                                            thisConnection.outputStream.writeObject(new Message(thisConnection.clientEncryption.encrypt(msg), false));
                                         }
                                         buffChat.append(msg + "\n");
                                     }
@@ -222,8 +212,6 @@ public class Server {
 //                        Connection.this.out.println(Encryption.encode(Utils.getSTR_WRONG_PASS(), pfStr)); 
 //                        Connection.this.out.println(Encryption.encode("--- Сервер не отвечает --- 3"+"\n", pfStr));
                         this.setStop();
-                        //close();
-                        //Connection.this.out.println(Utils.getSTR_WRONG_PASS());
                     }
                 }
             } catch (Exception e) {
@@ -233,6 +221,7 @@ public class Server {
                 close();
             }
         }
+
         // Возвращает дату (ch == 1) или время (ch == 0)
         private String getTime(boolean ch) {
             //Date calendar = Calendar.getInstance().getTime();
@@ -250,7 +239,7 @@ public class Server {
                 try {
                     this.outputStream.close();
                     this.inputStream.close();
-                    this.outputStream.flush();                    
+                    this.outputStream.flush();
                     this.socket.close();
 
                     synchronized (connections) {
@@ -266,8 +255,8 @@ public class Server {
                 }
             }
         }
-    } 
-    
+    }
+
     private class ServerThread extends Thread {
 
         private boolean stoped = false;
@@ -317,8 +306,8 @@ public class Server {
                 }
             }
         }
-    }    
-    
+    }
+
     public int getPort() {
         return port;
     }
@@ -397,5 +386,5 @@ public class Server {
 
     public void setConnections(List<Connection> connections) {
         this.connections = connections;
-    }    
+    }
 }
