@@ -27,20 +27,13 @@ public class Client {
     private ObjectInputStream inputStream;
     private ObjectOutputStream outputStream;
 
-    public Client() {
-        port = 0;
-        ip = "";
-        nicname = "";
-        psw = "";
-    }
-
     public Client(int port, String ip, String nicname, String psw) {
         this.port = port;
         this.ip = ip;
         this.nicname = nicname;
         this.psw = psw;
         try {
-            this.socket = new Socket(ip, port);
+            socket = new Socket(ip, port);
             outputStream = new ObjectOutputStream(socket.getOutputStream());
             inputStream = new ObjectInputStream(socket.getInputStream());
         } catch (IOException ex) {
@@ -53,18 +46,27 @@ public class Client {
             if (inputStream != null) {
                 inputStream.close();
             }
+        } catch (IOException ioe) {
+            Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ioe);
+        }
+        try {
             if (outputStream != null) {
                 outputStream.close();
                 outputStream.flush();
             }
+        } catch (IOException ioe) {
+            Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ioe);
+        }
+        try {
             if (socket != null) {
                 socket.close();
             }
-        } catch (IOException ex) {
-            Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ioe) {
+            Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ioe);
         }
     }
 
+    //<editor-fold defaultstate="collapsed" desc="get-set">
     public Socket getSocket() {
         return socket;
     }
@@ -120,4 +122,6 @@ public class Client {
     public void setOutputStream(ObjectOutputStream outputStream) {
         this.outputStream = outputStream;
     }
+    //</editor-fold>
+
 }

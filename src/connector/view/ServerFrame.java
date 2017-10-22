@@ -116,13 +116,12 @@ public class ServerFrame extends javax.swing.JFrame {
 ////            lbNumUs.setText(stringsFile.getProperty("set_port"));
 //        }
 //    }
-
 //    public void setPass(String strPort) {
 //        server.setPfStr(strPort);
 //    }
 //    public StringBuilder getBuffChat() {
 //        return server.getBuffChat();
-//    }port,
+//    }
     public void startServer(String port, String psw) {
         int intPort = checkServerConfig(port, psw);
         if (intPort > 0) {
@@ -152,10 +151,10 @@ public class ServerFrame extends javax.swing.JFrame {
 
     private int checkServerConfig(String strPort, String psw) {
         Integer port = Utils.getAndCheckPort(strPort);
-        if (psw == null|| (psw!= null&&!psw.equals(""))) {
+        if (psw == null || (psw != null && !psw.equals(""))) {
             lbNumUs.setText(stringsFile.getProperty("tf.enter_pass"));
         }
-        if (port <0) {
+        if (port < 0) {
             lbNumUs.setText(stringsFile.getProperty("wrong_port"));
         }
         return port;

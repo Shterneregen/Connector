@@ -15,7 +15,6 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Properties;
 import java.util.logging.Level;
@@ -48,7 +47,7 @@ public class ClientPanel extends javax.swing.JPanel {
 
     public ClientPanel(int conf) {
         stringsFile = ProjectProperties.getInstance().getStringsFile();
-        listAddr = new ArrayList<String>();
+        listAddr = new ArrayList<>();
         this.conf = conf;
 
         flagGoodConn = false;
@@ -181,8 +180,6 @@ public class ClientPanel extends javax.swing.JPanel {
             strChat = "";
             String pfStr = client.getPsw();
             client.getOutputStream().writeObject(new Message(Encryption.encode(pfStr, pfStr), Encryption.encode(client.getNicname(), pfStr), clientEncryption.getPublicKeyFromKeypair()));
-//            System.out.println("Encrypted from client to server: "+Encryption.encode(nicname, pfStr));
-//            System.out.println(Encryption.decode(Encryption.encode("Decrypted from client to server: "+nicname, pfStr), pfStr));         
             flagGoodConn = true;
             setButtonAfterStart();
         } catch (IOException ex) {
@@ -195,7 +192,7 @@ public class ClientPanel extends javax.swing.JPanel {
         }
     }
 
-    public void clientSendMsg(String message) throws UnsupportedEncodingException {
+    public void clientSendMsg(String message) {
         //if (!message.equals("") && flagGoodConn) {
         if (!message.equals("")) {
             if (message.equals(ControlLines.STR_EXIT)) {
@@ -209,7 +206,6 @@ public class ClientPanel extends javax.swing.JPanel {
             }
             try {
                 client.getOutputStream().writeObject(new Message(serverEncryption.encrypt(message)));
-//                outputStream.writeObject(new Message(serverEncryption.encrypt(message)));
 //                    System.out.println("Client send message: "+serverEncryption.encrypt(message));
             } catch (IOException ex) {
                 Logger.getLogger(ClientPanel.class.getName()).log(Level.SEVERE, null, ex);
@@ -223,7 +219,6 @@ public class ClientPanel extends javax.swing.JPanel {
 
     private void exit() {
         setButtonBeforeStart();
-
         client.closeStreams();
         flagGoodConn = false;
         errConn = false;
@@ -668,11 +663,7 @@ public class ClientPanel extends javax.swing.JPanel {
     }//GEN-LAST:event_btStartClientActionPerformed
 
     private void btStopClientActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btStopClientActionPerformed
-        try {
-            clientSendMsg(ControlLines.STR_EXIT);
-        } catch (UnsupportedEncodingException ex) {
-            Logger.getLogger(ClientFrame.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        clientSendMsg(ControlLines.STR_EXIT);
         if (conf == ClientType.CLIENT_WITH_SERVER) {
             serverFrame.stopServer();
         }
@@ -683,11 +674,7 @@ public class ClientPanel extends javax.swing.JPanel {
 
     private void btSentActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btSentActionPerformed
         String message = tfInput.getText();
-        try {
-            clientSendMsg(message);
-        } catch (UnsupportedEncodingException ex) {
-            Logger.getLogger(ClientFrame.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        clientSendMsg(message);
         tfInput.setText("");
     }//GEN-LAST:event_btSentActionPerformed
 

@@ -11,10 +11,9 @@ package connector.model;
  */
 public class Server {
 
-    private int port;
     private ServerThread serverThread;
     private Boolean isStartServer = false;
-    private int conf;
+//    private int conf;
 
     public void createServerThreadAndStart(int port, String psw) {
         serverThread = new ServerThread(port, psw);
@@ -30,13 +29,13 @@ public class Server {
         serverThread.closeAll();
     }
 
-    public int getPort() {
-        return port;
-    }
-
-    public void setPort(int port) {
-        this.port = port;
-    }
+//    public int getPort() {
+//        return port;
+//    }
+//
+//    public void setPort(int port) {
+//        this.port = port;
+//    }
 
     public ServerThread getServerThread() {
         return serverThread;
@@ -50,11 +49,11 @@ public class Server {
         this.isStartServer = isStartServer;
     }
 
-    public int getConf() {
-        return conf;
-    }
-
-    public void setConf(int conf) {
-        this.conf = conf;
-    }
+//    public int getConf() {
+//        return conf;
+//    }
+//
+//    public void setConf(int conf) {
+//        this.conf = conf;
+//    }
 }

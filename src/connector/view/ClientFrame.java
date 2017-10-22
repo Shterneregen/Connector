@@ -10,11 +10,8 @@ import java.awt.Image;
 import java.awt.Toolkit;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
-import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.util.Properties;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
@@ -26,8 +23,6 @@ public class ClientFrame extends javax.swing.JFrame {
     private static final String CLIENT_BACKGROUND = "../resources/images/fon33.jpg";
     private Properties stringsFile;
 
-//    private static int numCl;
-//    private static ArrayList<Client> listClients = new ArrayList<Client>();
 //    Utils.StatusBar statusBar;
     public ClientPanel getMainPanel() {
         return mainPanel;
@@ -36,7 +31,6 @@ public class ClientFrame extends javax.swing.JFrame {
     public ClientFrame(String s) {
         super(s);
         stringsFile = ProjectProperties.getInstance().getStringsFile();
-//        numCl = 0;
 //        try { 
 //            icon = ImageIO.read(ClientFrame.class.getResourceAsStream("../resources/images/icon.png"));
 //        } catch (IOException ex) {
@@ -68,34 +62,24 @@ public class ClientFrame extends javax.swing.JFrame {
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
 
         addWindowListener(new WindowListener() {
-
             public void windowActivated(WindowEvent event) {
-
             }
 
             public void windowClosed(WindowEvent event) {
-
             }
 
             public void windowClosing(WindowEvent event) {
                 if (mainPanel.getFlagGoodConn()) {
-                    try {
-                        mainPanel.clientSendMsg(ControlLines.STR_EXIT);
-                    } catch (UnsupportedEncodingException ex) {
-//                        tpOutput.append("\n --- Исключение из  windowClosing---");
-                        Logger.getLogger(ClientFrame.class.getName()).log(Level.SEVERE, null, ex);
-                    }
+                    mainPanel.clientSendMsg(ControlLines.STR_EXIT);
                 }
                 setVisible(false);
                 dispose();
             }
 
             public void windowDeactivated(WindowEvent event) {
-
             }
 
             public void windowDeiconified(WindowEvent event) {
-
             }
 
             public void windowIconified(WindowEvent event) {
@@ -108,11 +92,9 @@ public class ClientFrame extends javax.swing.JFrame {
 //                }
                 setState(JFrame.ICONIFIED);
                 setVisible(false);
-
             }
 
             public void windowOpened(WindowEvent event) {
-
             }
         });
         pack();
