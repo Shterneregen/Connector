@@ -13,24 +13,14 @@ public class Server {
 
     private int port;
     private ServerThread serverThread;
-    private String pfStr;
     private Boolean isStartServer = false;
     private int conf;
 
-//    public Server() {
-////        port = 9988;
-////        pfStr = "9988";
-//    }
-
-    public void createServerThreadAndStart() {
-        serverThread = new ServerThread(port);
+    public void createServerThreadAndStart(int port, String psw) {
+        serverThread = new ServerThread(port, psw);
         isStartServer = true;
         serverThread.start();
     }
-
-//    public void startServer() {
-//        serverThread.start();
-//    }
 
     public void setStopServerThread() {
         serverThread.setStop();
@@ -50,18 +40,6 @@ public class Server {
 
     public ServerThread getServerThread() {
         return serverThread;
-    }
-
-//    public void setServerThread(ServerThread serverThread) {
-//        this.serverThread = serverThread;
-//    }
-
-    public String getPfStr() {
-        return pfStr;
-    }
-
-    public void setPfStr(String pfStr) {
-        this.pfStr = pfStr;
     }
 
     public Boolean getIsStartServer() {

@@ -181,4 +181,13 @@ public class Utils {
 
     }
 
+    public static int getAndCheckPort(String strPort) {
+        int port = -1;
+        try {
+            port = Integer.parseInt(strPort);
+            port = (port <= 0 || port > 65535) ? -1 : port;
+        } catch (Exception e) {
+        }
+        return port;
+    }
 }

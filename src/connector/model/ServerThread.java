@@ -37,12 +37,13 @@ class ServerThread extends Thread {
     private int userNumber;
     private Encryption serverEncryption;
     private StringBuilder buffChat;
+    private String psw;
 
-    ServerThread(int port) {
+    ServerThread(int port, String psw) {
         this.port = port;
+        this.psw = psw;
         connections = Collections.synchronizedList(new ArrayList<Connection>());
         serverEncryption = new Encryption();
-        serverEncryption.prepare();
         buffChat = new StringBuilder("");
     }
 
@@ -107,7 +108,6 @@ class ServerThread extends Thread {
         private Message message;
         private Encryption clientEncryption;
         private String name = "";
-        private String pfStr;
         private Properties stringsFile;
 
         public Connection(Socket soc) {
@@ -119,6 +119,7 @@ class ServerThread extends Thread {
                 outputStream = new ObjectOutputStream(this.socket.getOutputStream());
             } catch (IOException e) {
                 e.printStackTrace();
+            } finally {
                 close();
             }
             stringsFile = ProjectProperties.getInstance().getStringsFile();
@@ -133,8 +134,8 @@ class ServerThread extends Thread {
             try {
                 while (!stoped) {
                     message = (Message) inputStream.readObject();
-                    String pass = Encryption.decode(message.getPass(), pfStr);
-                    name = Encryption.decode(message.getName(), pfStr);
+                    String pass = Encryption.decode(message.getPass(), psw);
+                    name = Encryption.decode(message.getName(), psw);
 
                     clientEncryption.createPair(message.getPublicKey());
                     Connection.this.outputStream.writeObject(new Message(clientEncryption.encrypt(ControlLines.STR_SEND_PUB_KEY), true, serverEncryption.getPublicKeyFromKeypair()));
@@ -142,12 +143,13 @@ class ServerThread extends Thread {
                     if (stoped) {
                         break;
                     }
-                    if (pass.equals(pfStr)) {
+                    if (pass.equals(psw)) {
                         if (stoped) {
                             break;
                         }
-                        for (int i = 0; i < listNames.size(); i++) {
-                            if (name.equals(listNames.get(i))) {
+
+                        for (String name : listNames) {
+                            if (name.equals(name)) {
                                 Connection.this.outputStream.writeObject(new Message(clientEncryption.encrypt(ControlLines.STR_SAME_NIC), false));
                                 flagWrongNic = true;
                                 stoped = true;
@@ -155,6 +157,7 @@ class ServerThread extends Thread {
                             } else {
                                 flagWrongNic = false;
                             }
+
                         }
 
                         if (!flagWrongNic) {
@@ -225,12 +228,11 @@ class ServerThread extends Thread {
                         this.setStop();
                     }
                 }
-            } catch (Exception e) {
-                e.printStackTrace();
-                //closeAll();
-            } finally {
-                close();
+            } catch (IOException | ClassNotFoundException e) {
             }
+//            finally {
+//                close();
+//            }
         }
 
         // Возвращает дату (ch == 1) или время (ch == 0)
@@ -248,11 +250,16 @@ class ServerThread extends Thread {
             if (!closed) {
                 closed = true;
                 try {
-                    this.outputStream.close();
-                    this.inputStream.close();
-                    this.outputStream.flush();
-                    this.socket.close();
-
+                    if (this.outputStream != null) {
+                        this.outputStream.close();
+                        this.outputStream.flush();
+                    }
+                    if (this.inputStream != null) {
+                        this.inputStream.close();
+                    }
+                    if (socket != null) {
+                        this.socket.close();
+                    }
                     synchronized (connections) {
                         connections.remove(Connection.this);
                     }

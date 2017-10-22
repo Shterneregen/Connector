@@ -50,15 +50,12 @@ public class ClientPanel extends javax.swing.JPanel {
         stringsFile = ProjectProperties.getInstance().getStringsFile();
         listAddr = new ArrayList<String>();
         this.conf = conf;
-        client = new Client();
 
-        serverFrame = new ServerFrame(ControlLines.MAIN_NAME, SERVER_FROM_CLIENT);
         flagGoodConn = false;
         errConn = false;
         listAddr = Utils.getMyLocalIP();
         bRsa = false;
         clientEncryption = new Encryption();
-        clientEncryption.prepare();
         serverEncryption = new Encryption();
 
         initComponents();
@@ -124,21 +121,9 @@ public class ClientPanel extends javax.swing.JPanel {
         return true;
     }
 
-    public Integer getAndCheckPort(String strPort) {
-        if (Integer.parseInt(strPort) <= 0 || Integer.parseInt(strPort) > 65535) {
-            return null;
-        } else {
-            return Integer.parseInt(strPort);
-        }
-    }
-
     private boolean checkIP(String string) {
         if (checkString(string)) {
-            if (!(Integer.parseInt(string) >= 0) || !(Integer.parseInt(string) < 256)) {
-                return false;
-            } else {
-                return true;
-            }
+            return !(!(Integer.parseInt(string) >= 0) || !(Integer.parseInt(string) < 256));
         } else {
             return false;
         }
@@ -191,17 +176,15 @@ public class ClientPanel extends javax.swing.JPanel {
 
     private void setConnection() {
         try {
-            client.setStreams();
             resender = new Resender();
             resender.start();
             strChat = "";
-            String pfStr = client.getPass();
+            String pfStr = client.getPsw();
             client.getOutputStream().writeObject(new Message(Encryption.encode(pfStr, pfStr), Encryption.encode(client.getNicname(), pfStr), clientEncryption.getPublicKeyFromKeypair()));
 //            System.out.println("Encrypted from client to server: "+Encryption.encode(nicname, pfStr));
 //            System.out.println(Encryption.decode(Encryption.encode("Decrypted from client to server: "+nicname, pfStr), pfStr));         
             flagGoodConn = true;
             setButtonAfterStart();
-
         } catch (IOException ex) {
             //Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
             tpOutput.append(stringsFile.getProperty("STR_NON_ACK") + "\n");
@@ -218,14 +201,12 @@ public class ClientPanel extends javax.swing.JPanel {
             if (message.equals(ControlLines.STR_EXIT)) {
                 if (!errConn) {
                     tpOutput.append(stringsFile.getProperty("STR_YOU_EXIT") + "\n");
-//                    tpOutput.append(ControlLines.STR_YOU_EXIT + "\n");
                     resender.setStop();
                 }
                 if (errConn && flagGoodConn) {
                     resender.setStop();
                 }
             }
-
             try {
                 client.getOutputStream().writeObject(new Message(serverEncryption.encrypt(message)));
 //                outputStream.writeObject(new Message(serverEncryption.encrypt(message)));
@@ -233,7 +214,6 @@ public class ClientPanel extends javax.swing.JPanel {
             } catch (IOException ex) {
                 Logger.getLogger(ClientPanel.class.getName()).log(Level.SEVERE, null, ex);
             }
-//            tpOutput.append("\n"+Encryption.encode(message, pfStr)+"\n");
             if (message.equals(ControlLines.STR_EXIT)) {
                 //errConn = false;
                 exit();
@@ -475,6 +455,11 @@ public class ClientPanel extends javax.swing.JPanel {
         tfPort.setText("9988");
         tfPort.setMinimumSize(new java.awt.Dimension(0, 0));
         tfPort.setOpaque(false);
+        tfPort.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                tfPortActionPerformed(evt);
+            }
+        });
         tfPort.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyPressed(java.awt.event.KeyEvent evt) {
                 tfPortKeyPressed(evt);
@@ -660,62 +645,26 @@ public class ClientPanel extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     private void tfPortKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_tfPortKeyPressed
-        if (evt.getKeyCode() == 10) {
-            String sPort = tfPort.getText();
-            if (!sPort.equals("")) {
-                Integer port = getAndCheckPort(sPort);
-                if (port != null) {
-                    client.setPort(port);
-                    tfInput.setText(stringsFile.getProperty("set_port") + port);
-                } else {
-                    tfInput.setText(stringsFile.getProperty("wrong_port"));
-                }
-            } else {
-                tfInput.setText(stringsFile.getProperty("tf.enter_port"));
-            }
-        }
     }//GEN-LAST:event_tfPortKeyPressed
 
     private void pfPasKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_pfPasKeyPressed
-        if (evt.getKeyCode() == 10) {
-            String pass = pfPas.getText();
-            if (!pass.equals("")) {
-                client.setPass(String.valueOf(pass));
-                tfInput.setText(stringsFile.getProperty("set_pass"));
-            } else {
-                tfInput.setText(stringsFile.getProperty("tf.enter_pass"));
-            }
-        }
     }//GEN-LAST:event_pfPasKeyPressed
 
     private void tfNicKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_tfNicKeyPressed
-        if (evt.getKeyCode() == 10) {
-            String nic = tfNic.getText();
-            if (!nic.equals("")) {
-                client.setNicname(nic);
-                tfInput.setText(stringsFile.getProperty("set_nic") + nic);
-            } else {
-                tfInput.setText(stringsFile.getProperty("tf.enter_nic"));
-            }
-        }
     }//GEN-LAST:event_tfNicKeyPressed
 
     private void btStartClientActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btStartClientActionPerformed
         if (conf == ClientType.CLIENT_WITH_SERVER) {
-            serverFrame.setPort(tfPort.getText());
-            serverFrame.setPass(String.valueOf(pfPas.getPassword()));
-            serverFrame.startServer();
+            serverFrame = new ServerFrame(ControlLines.MAIN_NAME, SERVER_FROM_CLIENT);
+            serverFrame.startServer(tfPort.getText(), String.valueOf(pfPas.getPassword()));
         }
         String ip = getAndCheckIP((String) tfIP.getSelectedItem());
-        Integer port = getAndCheckPort(tfPort.getText());
+        int port = Utils.getAndCheckPort(tfPort.getText());
 
-        client.setPort(port);
-        client.setIp(ip);
-        client.setNicname(tfNic.getText());
-        client.setPass(String.valueOf(pfPas.getPassword()));
-        client.initSocket();
-
-        setConnection();
+        if (ip != null && port > 0) {
+            client = new Client(port, ip, tfNic.getText(), String.valueOf(pfPas.getPassword()));
+            setConnection();
+        }
     }//GEN-LAST:event_btStartClientActionPerformed
 
     private void btStopClientActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btStopClientActionPerformed
@@ -730,14 +679,6 @@ public class ClientPanel extends javax.swing.JPanel {
     }//GEN-LAST:event_btStopClientActionPerformed
 
     private void tfInputKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_tfInputKeyPressed
-        if (evt.getKeyCode() == 10) {
-            try {
-                clientSendMsg(tfInput.getText());
-            } catch (UnsupportedEncodingException ex) {
-                Logger.getLogger(ClientFrame.class.getName()).log(Level.SEVERE, null, ex);
-            }
-            tfInput.setText("");
-        }
     }//GEN-LAST:event_tfInputKeyPressed
 
     private void btSentActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btSentActionPerformed
@@ -751,19 +692,16 @@ public class ClientPanel extends javax.swing.JPanel {
     }//GEN-LAST:event_btSentActionPerformed
 
     private void tfIPKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_tfIPKeyPressed
-        if (evt.getKeyCode() == 10) {
-            String ip = getAndCheckIP((String) tfIP.getSelectedItem());
-            if (ip != null) {
-                client.setIp(ip);
-            } else {
-                tfInput.setText(stringsFile.getProperty("wrong_ip"));
-            }
-        }
+//        if (evt.getKeyCode() == 10) {
+//        }
     }//GEN-LAST:event_tfIPKeyPressed
 
     private void btSettingsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btSettingsActionPerformed
         serverFrame.setVisible(true);
     }//GEN-LAST:event_btSettingsActionPerformed
+
+    private void tfPortActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tfPortActionPerformed
+    }//GEN-LAST:event_tfPortActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

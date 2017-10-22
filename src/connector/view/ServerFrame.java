@@ -108,32 +108,31 @@ public class ServerFrame extends javax.swing.JFrame {
 //        String myLANIP = addr.getHostAddress();
 //        return myLANIP;
 //    }
-    public void setPort(String strPort) {
-        if (Integer.parseInt(strPort) <= 0 || Integer.parseInt(strPort) > 65535) {
-            lbNumUs.setText(stringsFile.getProperty("wrong_port"));
-        } else {
-            server.setPort(Integer.parseInt(strPort));
-//            lbNumUs.setText(stringsFile.getProperty("set_port"));
-        }
-    }
-
-    public void setPass(String strPort) {
-        server.setPfStr(strPort);
-    }
-
-//    public StringBuilder getBuffChat() {
-//        return server.getBuffChat();
+//    public void setPort(String strPort) {
+//        if (Integer.parseInt(strPort) <= 0 || Integer.parseInt(strPort) > 65535) {
+//            lbNumUs.setText(stringsFile.getProperty("wrong_port"));
+//        } else {
+//            server.setPort(Integer.parseInt(strPort));
+////            lbNumUs.setText(stringsFile.getProperty("set_port"));
+//        }
 //    }
 
-    public void startServer() {
-        setPort(tfPort.getText());
-        server.createServerThreadAndStart();
+//    public void setPass(String strPort) {
+//        server.setPfStr(strPort);
+//    }
+//    public StringBuilder getBuffChat() {
+//        return server.getBuffChat();
+//    }port,
+    public void startServer(String port, String psw) {
+        int intPort = checkServerConfig(port, psw);
+        if (intPort > 0) {
+            server.createServerThreadAndStart(intPort, String.valueOf(pfPas.getPassword()));
+            btStartServer.setEnabled(false);
+            btStopServer.setEnabled(true);
 
-        btStartServer.setEnabled(false);
-        btStopServer.setEnabled(true);
-
-        tfPort.setEditable(false);
-        pfPas.setEditable(false);
+            tfPort.setEditable(false);
+            pfPas.setEditable(false);
+        }
     }
 
     public void stopServer() {
@@ -149,6 +148,17 @@ public class ServerFrame extends javax.swing.JFrame {
 
 //        server.setUserNumber(0);
 //        lbNumUs.setText(stringsFile.getProperty("serverFrame.str.users") + server.getUserNumber());
+    }
+
+    private int checkServerConfig(String strPort, String psw) {
+        Integer port = Utils.getAndCheckPort(strPort);
+        if (psw == null|| (psw!= null&&!psw.equals(""))) {
+            lbNumUs.setText(stringsFile.getProperty("tf.enter_pass"));
+        }
+        if (port <0) {
+            lbNumUs.setText(stringsFile.getProperty("wrong_port"));
+        }
+        return port;
     }
 
     @SuppressWarnings("unchecked")
@@ -174,6 +184,11 @@ public class ServerFrame extends javax.swing.JFrame {
 
         tfPort.setText("9988");
         tfPort.setToolTipText("");
+        tfPort.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                tfPortActionPerformed(evt);
+            }
+        });
         tfPort.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyPressed(java.awt.event.KeyEvent evt) {
                 tfPortKeyPressed(evt);
@@ -199,6 +214,11 @@ public class ServerFrame extends javax.swing.JFrame {
         lbNumUs.setText(" ");
 
         pfPas.setText("9988");
+        pfPas.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                pfPasActionPerformed(evt);
+            }
+        });
         pfPas.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyPressed(java.awt.event.KeyEvent evt) {
                 pfPasKeyPressed(evt);
@@ -248,10 +268,9 @@ public class ServerFrame extends javax.swing.JFrame {
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                             .addComponent(lbIP, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                                .addComponent(lbPort, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(tfPort)
-                                .addComponent(btStartServer, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                            .addComponent(lbPort, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(tfPort, javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(btStartServer, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(layout.createSequentialGroup()
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
@@ -294,7 +313,7 @@ public class ServerFrame extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btStartServerActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btStartServerActionPerformed
-        startServer();
+        startServer(tfPort.getText(), String.valueOf(pfPas.getPassword()));
     }//GEN-LAST:event_btStartServerActionPerformed
 
     private void btStopServerActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btStopServerActionPerformed
@@ -302,17 +321,9 @@ public class ServerFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_btStopServerActionPerformed
 
     private void tfPortKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_tfPortKeyPressed
-        if (evt.getKeyCode() == 10) {
-            setPort(tfPort.getText());
-        }
     }//GEN-LAST:event_tfPortKeyPressed
 
     private void pfPasKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_pfPasKeyPressed
-        if (evt.getKeyCode() == 10) {
-            server.setPfStr(String.valueOf(pfPas.getPassword()));
-//            server.setPfStr(String.valueOf(pfPas.getPassword()));
-//            lbNumUs.setText(stringsFile.getProperty("set_pass"));
-        }
     }//GEN-LAST:event_pfPasKeyPressed
 
     private void jmiNewClientWindowActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jmiNewClientWindowActionPerformed
@@ -324,6 +335,12 @@ public class ServerFrame extends javax.swing.JFrame {
         ServerFrame server = new ServerFrame(ControlLines.MAIN_NAME, ONLY_SERVER);
         server.setVisible(true);
     }//GEN-LAST:event_jmiNewServerWindowActionPerformed
+
+    private void tfPortActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tfPortActionPerformed
+    }//GEN-LAST:event_tfPortActionPerformed
+
+    private void pfPasActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_pfPasActionPerformed
+    }//GEN-LAST:event_pfPasActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btStartServer;

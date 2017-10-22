@@ -22,7 +22,7 @@ public class Client {
     private int port;
     private String ip;
     private String nicname;
-    private String pass;
+    private String psw;
 
     private ObjectInputStream inputStream;
     private ObjectOutputStream outputStream;
@@ -31,21 +31,18 @@ public class Client {
         port = 0;
         ip = "";
         nicname = "";
-        pass = "";
+        psw = "";
     }
 
-    public void initSocket() {
+    public Client(int port, String ip, String nicname, String psw) {
+        this.port = port;
+        this.ip = ip;
+        this.nicname = nicname;
+        this.psw = psw;
         try {
             this.socket = new Socket(ip, port);
-        } catch (IOException ex) {
-            Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
-
-    public void setStreams() {
-        try {
-            outputStream = new ObjectOutputStream(this.getSocket().getOutputStream());
-            inputStream = new ObjectInputStream(this.getSocket().getInputStream());
+            outputStream = new ObjectOutputStream(socket.getOutputStream());
+            inputStream = new ObjectInputStream(socket.getInputStream());
         } catch (IOException ex) {
             Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -57,8 +54,8 @@ public class Client {
                 inputStream.close();
             }
             if (outputStream != null) {
-                outputStream.flush();
                 outputStream.close();
+                outputStream.flush();
             }
             if (socket != null) {
                 socket.close();
@@ -100,12 +97,12 @@ public class Client {
         this.nicname = nicname;
     }
 
-    public String getPass() {
-        return pass;
+    public String getPsw() {
+        return psw;
     }
 
-    public void setPass(String pass) {
-        this.pass = pass;
+    public void setPsw(String psw) {
+        this.psw = psw;
     }
 
     public ObjectInputStream getInputStream() {

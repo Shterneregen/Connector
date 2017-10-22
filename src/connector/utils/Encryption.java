@@ -15,6 +15,10 @@ import javax.crypto.NoSuchPaddingException;
 
 public class Encryption {
 
+    public Encryption() {
+        prepare();
+    }
+
     public static String encode(String pText, String pKey) throws UnsupportedEncodingException {
         ////////////////////////////////////////////////////////////////
 
@@ -152,7 +156,7 @@ public class Encryption {
 
     }
 
-    public void prepare() {
+    public final void prepare() {
         try {
             //throws NoSuchAlgorithmException, NoSuchPaddingException
             KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA");
