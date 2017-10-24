@@ -5,10 +5,16 @@
  */
 package connector.model;
 
+import connector.utils.Utils;
+import java.util.List;
+
 /**
  *
  * @author Yura
  */
 public class ClientManager {
-    Client client;
+    private Client client;
+    // Массив локальных IP адресов
+    private List<String> listAddr = Utils.getMyLocalIP();
+    
 }

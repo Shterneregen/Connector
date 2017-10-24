@@ -26,12 +26,13 @@ public class Client {
 
     private ObjectInputStream inputStream;
     private ObjectOutputStream outputStream;
-
+    
     public Client(int port, String ip, String nicname, String psw) {
         this.port = port;
         this.ip = ip;
         this.nicname = nicname;
         this.psw = psw;
+        
         try {
             socket = new Socket(ip, port);
             outputStream = new ObjectOutputStream(socket.getOutputStream());

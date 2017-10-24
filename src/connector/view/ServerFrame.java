@@ -33,21 +33,12 @@ public class ServerFrame extends javax.swing.JFrame {
         addWindowListener(new WindowListener() {
 
             public void windowActivated(WindowEvent event) {
-
             }
 
             public void windowClosed(WindowEvent event) {
-
             }
 
             public void windowClosing(WindowEvent event) {
-//                stopServer();
-//                try {
-//                    serverThread.setStop();
-//                } catch (Exception e) {
-//
-//                    //e.printStackTrace();
-//                }
                 if (server.getIsStartServer() && conf == ONLY_SERVER) {
                     stopServer();
                 }
@@ -56,11 +47,9 @@ public class ServerFrame extends javax.swing.JFrame {
             }
 
             public void windowDeactivated(WindowEvent event) {
-
             }
 
             public void windowDeiconified(WindowEvent event) {
-
             }
 
             public void windowIconified(WindowEvent event) {
@@ -95,6 +84,8 @@ public class ServerFrame extends javax.swing.JFrame {
         btStopServer.setText(stringsFile.getProperty("serverFrame.button.stopServer"));
         btStopServer.setEnabled(false);
 
+        tfPort.setText(stringsFile.getProperty("str.defaultPort"));
+        pfPas.setText(stringsFile.getProperty("str.defaultPsw"));
 //        lbYourIP.setText(" Ваш локальный IP ");
     }
 
@@ -181,7 +172,6 @@ public class ServerFrame extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
-        tfPort.setText("9988");
         tfPort.setToolTipText("");
         tfPort.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {

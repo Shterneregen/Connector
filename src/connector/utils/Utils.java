@@ -190,4 +190,65 @@ public class Utils {
         }
         return port;
     }
+
+    public static boolean checkString(String string) {
+        try {
+            Integer.parseInt(string);
+        } catch (Exception e) {
+            return false;
+        }
+        return true;
+    }
+
+    private static boolean checkIP(String string) {
+        if (checkString(string)) {
+            return !(!(Integer.parseInt(string) >= 0) || !(Integer.parseInt(string) < 256));
+        } else {
+            return false;
+        }
+    }
+
+    public static String getAndCheckIP(String ip) {
+        char[] chArr = ip.toCharArray();
+        String ip_1 = "", ip_2 = "", ip_3 = "", ip_4 = "";
+        int i = 0;
+        for (; i < chArr.length; i++) {
+            if (chArr[i] == '.') {
+                break;
+            }
+            ip_1 += chArr[i];
+        }
+        if (!checkIP(ip_1)) {
+            return null;
+        }
+        i++;
+        for (; i < chArr.length; i++) {
+            if (chArr[i] == '.') {
+                break;
+            }
+            ip_2 += chArr[i];
+        }
+        if (!checkIP(ip_2)) {
+            return null;
+        }
+        i++;
+        for (; i < chArr.length; i++) {
+            if (chArr[i] == '.') {
+                break;
+            }
+            ip_3 += chArr[i];
+        }
+        if (!checkIP(ip_3)) {
+            return null;
+        }
+        i++;
+        for (; i < chArr.length; i++) {
+            ip_4 += chArr[i];
+        }
+        if (!checkIP(ip_4)) {
+            return null;
+        }
+        return ip;
+    }
+
 }
