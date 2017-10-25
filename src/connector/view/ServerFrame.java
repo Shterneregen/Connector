@@ -5,7 +5,7 @@ import connector.Tray;
 import connector.utils.Utils;
 import static connector.constant.ServerConfig.*;
 import static connector.constant.TrayType.SERVER_TRAY;
-import connector.model.Server;
+import connector.model.ServerManager;
 import connector.utils.ProjectProperties;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
@@ -15,12 +15,12 @@ import javax.swing.text.AbstractDocument;
 
 public class ServerFrame extends javax.swing.JFrame {
 
-    private Server server;
+    private ServerManager server;
     private Properties stringsFile;
 
     public ServerFrame(String s, int conf) {
         super(s);
-        server = new Server();
+        server = new ServerManager();
         stringsFile = ProjectProperties.getInstance().getStringsFile();
 
         initComponents();

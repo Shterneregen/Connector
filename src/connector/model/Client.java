@@ -38,6 +38,7 @@ public class Client {
             outputStream = new ObjectOutputStream(socket.getOutputStream());
             inputStream = new ObjectInputStream(socket.getInputStream());
         } catch (IOException ex) {
+            closeStreams();
             Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
         }
     }

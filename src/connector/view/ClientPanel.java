@@ -546,14 +546,14 @@ public class ClientPanel extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btStartClientActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btStartClientActionPerformed
-        if (conf == ClientType.CLIENT_WITH_SERVER) {
-            serverFrame = new ServerFrame(ControlLines.MAIN_NAME, ServerConfig.SERVER_FROM_CLIENT);
-            serverFrame.startServer(tfPort.getText(), String.valueOf(pfPas.getPassword()));
-        }
         String ip = Utils.getAndCheckIP((String) tfIP.getSelectedItem());
         int port = Utils.getAndCheckPort(tfPort.getText());
-
         if (ip != null && port > 0) {
+            if (conf == ClientType.CLIENT_WITH_SERVER) {
+                serverFrame = new ServerFrame(ControlLines.MAIN_NAME, ServerConfig.SERVER_FROM_CLIENT);
+                serverFrame.startServer(tfPort.getText(), String.valueOf(pfPas.getPassword()));
+            }
+
             client = new Client(port, ip, tfNic.getText(), String.valueOf(pfPas.getPassword()));
             setConnection();
         }

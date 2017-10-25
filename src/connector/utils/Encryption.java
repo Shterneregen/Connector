@@ -20,92 +20,26 @@ public class Encryption {
     }
 
     public static String encode(String pText, String pKey) throws UnsupportedEncodingException {
-        ////////////////////////////////////////////////////////////////
-
-//        int[] iMsg = msgToInt(pText);
-//        int[] iPsw = msgToInt(pKey);
-//        byte[] iMsg = pText.getBytes("UTF-8");
-//        final byte[] iPsw = pKey.getBytes("UTF-8");
         byte[] iMsg = pText.getBytes("Cp1251");
         byte[] iPsw = pKey.getBytes("Cp1251");
-//        byte[] iMsg = pText.getBytes();
-//        byte[] iPsw = pKey.getBytes();
-//        byte[] iMsg = new BigInteger(pText, 16).toByteArray();
-//        byte[] iPsw = new BigInteger(pText, 16).toByteArray();
-//
         for (int i = 0, j = 0; i < iMsg.length; i++, j++) {
-            //iMsg[i] = iMsg[i] ^ (iPsw[i % iPsw.length] & 0xff);
-            //iMsg[i] = (iMsg[i] ^ iPsw[i % iPsw.length]);
             if (j == iPsw.length - 1) {
                 j = 0;
             }
-//            iMsg[i] = (byte) (iMsg[i] ^ iPsw[j]);
-//            iMsg[i] = (byte) ((iMsg[i] & 0xff) ^ (iPsw[j] & 0xf));
-//            iMsg[i] = (byte) (iMsg[i] ^ iPsw[j]);
-//            iMsg[i] = (byte) (iMsg[i] ^ (iPsw[j] & 0xf));
-//            iMsg[i] = (byte) (iMsg[i] ^ (2));
-//            iMsg[i] ^= (iPsw[j] & 0xf);
-//            iMsg[i] ^= (byte) iPsw[j];
-//            iMsg[i] = (byte) (iMsg[i] ^ 10);
             iMsg[i] ^= (byte) (iPsw[j] & 0xf);
         }
-
-        ////////////////////////////////////////////////////////////////
-//        return new String(intToMsg(iMsg), "UTF-8");
-//        return new String(intToMsg(iMsg));
-//        return pText;
-//         return new String(iMsg, "UTF-8"); // this works  
-//         return new BigInteger(1, iMsg).toString(16);
         return new String(iMsg, "Cp1251");
     }
 
     public static String decode(String pText, String pKey) throws UnsupportedEncodingException {
-        ////////////////////////////////////////////////////////////////
-//        int[] iMsg = msgToInt(pText);
-//        int[] iPsw = msgToInt(pKey);
-//        byte[] iMsg = pText.getBytes("UTF-8");
-//        final byte[] iPsw = pKey.getBytes("UTF-8");
-//        byte[] iMsg = pText.getBytes();
-//        byte[] iPsw = pKey.getBytes();
         byte[] iMsg = pText.getBytes("Cp1251");
         byte[] iPsw = pKey.getBytes("Cp1251");
-//        byte[] iMsg = new BigInteger(pText, 16).toByteArray();
-//        byte[] iPsw = new BigInteger(pText, 16).toByteArray();
-
-        //int sum=0;
-//        for (int i = 0; i < iPsw.length; i++) {
-//            sum += iPsw[i];
-//        }
         for (int i = 0, j = 0; i < iMsg.length; i++, j++) {
             if (j == iPsw.length - 1) {
                 j = 0;
             }
-//            iMsg[i] = (byte) (iMsg[i] ^ iPsw[j]);
-//            iMsg[i] = (byte) ((iMsg[i] & 0xff) ^ (iPsw[j] & 0xf));
-//            iMsg[i] = (byte) (iMsg[i] ^ (iPsw[j] & 0xf));
-//                iMsg[i] = (byte) (iMsg[i] ^ iPsw[j]);
-//            iMsg[i] = (byte) (iMsg[i] ^ (2));
-//            iMsg[i] ^= (iPsw[j] & 0xf);
-//            iMsg[i] ^= (byte) iPsw[j];
-//            iMsg[i] = (byte) (iMsg[i] ^ 10);
             iMsg[i] ^= (byte) (iPsw[j] & 0xf);
         }
-
-        ////////////////////////////////////////////////////////////////
-//        for (int i = 0; i < iMsg.length; i++) {
-//            iMsg[i] = (byte) (txt[i] ^ key[i % key.length]);
-//        }
-//        for (int i = 0; i < iMsg.length; i++) {
-//            //iMsg[i] = iMsg[i] ^ (iPsw[i % iPsw.length] & 0xff);            
-//            //iMsg[i] = (iMsg[i] ^ iPsw[i % iPsw.length]);
-//            
-//            //iMsg[i] = iMsg[i] ^ 3;
-//        }
-//        return new String(intToMsg(iMsg), "UTF-8");
-//        return new String(intToMsg(iMsg));
-//        return pText;
-//return new String(iMsg, "UTF-8"); // this works
-//return new BigInteger(1, iMsg).toString(16);
         return new String(iMsg, "Cp1251");
     }
 
@@ -137,9 +71,6 @@ public class Encryption {
         return keypair.getPublic();
     }
 
-    /**
-     * @param args the command line arguments
-     */
     public void createPair(PublicKey publicKey) {
         try {
             //throws NoSuchAlgorithmException, NoSuchPaddingException
@@ -176,7 +107,6 @@ public class Encryption {
         char[] encryptedTranspherable = null;
         String encryptedStrTranspherable = "";//
         try {
-            //throws Exception
             this.cipher.init(Cipher.ENCRYPT_MODE, this.keypair.getPublic());
 
             bytes = plaintext.getBytes("UTF-8");
@@ -189,8 +119,7 @@ public class Encryption {
         } catch (Exception ex) {
             Logger.getLogger(Encryption.class.getName()).log(Level.SEVERE, null, ex);
         }
-//        return new String(encryptedTranspherable);
-        return new String(encryptedStrTranspherable);//
+        return encryptedStrTranspherable;//
     }
 
     public String decrypt(String encrypted) {
@@ -198,10 +127,7 @@ public class Encryption {
         byte[] decrypted;
         String s = "";
         try {
-            //        throws Exception
             this.cipher.init(Cipher.DECRYPT_MODE, this.keypair.getPrivate());
-
-//	bts = Hex.decodeHex(encrypted.toCharArray());
             bts = hex2Byte(encrypted);
 
             decrypted = blockCipher(bts, Cipher.DECRYPT_MODE);
