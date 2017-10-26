@@ -26,19 +26,37 @@ public class Client {
 
     private ObjectInputStream inputStream;
     private ObjectOutputStream outputStream;
-    
+
     public Client(int port, String ip, String nicname, String psw) {
         this.port = port;
         this.ip = ip;
         this.nicname = nicname;
         this.psw = psw;
-        
+        initSocket();
+
+//        try {
+//            socket = new Socket(ip, port);
+//            outputStream = new ObjectOutputStream(socket.getOutputStream());
+//            inputStream = new ObjectInputStream(socket.getInputStream());
+//        } catch (IOException ex) {
+//            closeStreams();
+//            Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+//        }
+    }
+
+    public void initSocket() {
         try {
-            socket = new Socket(ip, port);
-            outputStream = new ObjectOutputStream(socket.getOutputStream());
-            inputStream = new ObjectInputStream(socket.getInputStream());
+            this.socket = new Socket(ip, port);
         } catch (IOException ex) {
-            closeStreams();
+            Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    public void setStreams() {
+        try {
+            outputStream = new ObjectOutputStream(this.getSocket().getOutputStream());
+            inputStream = new ObjectInputStream(this.getSocket().getInputStream());
+        } catch (IOException ex) {
             Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
         }
     }

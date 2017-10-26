@@ -108,6 +108,7 @@ public class ClientPanel extends javax.swing.JPanel {
 
     private void setConnection() {
         try {
+            client.setStreams();
             resender = new Resender();
             resender.start();
             strChat = "";

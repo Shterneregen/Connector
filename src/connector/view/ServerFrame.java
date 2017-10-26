@@ -116,12 +116,12 @@ public class ServerFrame extends javax.swing.JFrame {
     public void startServer(String port, String psw) {
         int intPort = checkServerConfig(port, psw);
         if (intPort > 0) {
-            server.createServerThreadAndStart(intPort, String.valueOf(pfPas.getPassword()));
             btStartServer.setEnabled(false);
             btStopServer.setEnabled(true);
 
             tfPort.setEditable(false);
             pfPas.setEditable(false);
+            server.createServerThreadAndStart(intPort, String.valueOf(pfPas.getPassword()));
         }
     }
 
