@@ -91,22 +91,17 @@ public class ClientPanel extends javax.swing.JPanel {
                     btStopClient.setText(stringsFile.getProperty("clientPanel.button.stop_conversation"));
                     tfIP.setEditable(false);
                     btSettings.setEnabled(true);
-                    tfIP.removeAllItems();
-                    listAddr.stream().forEach((address) -> {
-                        tfIP.addItem(address);
-                    });
                 } else {
                     ClientPanel.this.conf = ClientType.CLIENT_WITHOUT_SERVER;
                     btStartClient.setText(stringsFile.getProperty("clientPanel.button.join"));
                     btStopClient.setText(stringsFile.getProperty("clientPanel.button.exit"));
                     tfIP.setEditable(true);
                     btSettings.setEnabled(false);
-                    tfIP.removeAllItems();
-
-                    listAddr.stream().forEach((address) -> {
-                        tfIP.addItem(address);
-                    });
                 }
+                tfIP.removeAllItems();
+                listAddr.stream().forEach((address) -> {
+                    tfIP.addItem(address);
+                });
             }
         });
     }
@@ -567,6 +562,10 @@ public class ClientPanel extends javax.swing.JPanel {
     }//GEN-LAST:event_btStopClientActionPerformed
 
     private void tfInputKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_tfInputKeyPressed
+        if (evt.getKeyCode() == 10) {
+            clientSendMsg(tfInput.getText());
+            tfInput.setText("");
+        }
     }//GEN-LAST:event_tfInputKeyPressed
 
     private void btSentActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btSentActionPerformed
