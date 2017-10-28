@@ -44,7 +44,7 @@ public class Client {
 //        }
     }
 
-    public void initSocket() {
+    private void initSocket() {
         try {
             this.socket = new Socket(ip, port);
         } catch (IOException ex) {

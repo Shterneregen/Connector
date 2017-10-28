@@ -140,7 +140,6 @@ public class ClientPanel extends javax.swing.JPanel {
             }
             try {
                 client.getOutputStream().writeObject(new Message(serverEncryption.encrypt(message)));
-//                    System.out.println("Client send message: "+serverEncryption.encrypt(message));
             } catch (IOException ex) {
                 Logger.getLogger(ClientPanel.class.getName()).log(Level.SEVERE, null, ex);
             }

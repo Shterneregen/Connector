@@ -2,9 +2,9 @@ package connector.view;
 
 import connector.resources.ControlLines;
 import connector.Tray;
+import connector.constant.ServerConfig;
 import connector.utils.Utils;
-import static connector.constant.ServerConfig.*;
-import static connector.constant.TrayType.SERVER_TRAY;
+import connector.constant.TrayType;
 import connector.model.ServerManager;
 import connector.utils.ProjectProperties;
 import java.awt.event.WindowEvent;
@@ -39,7 +39,7 @@ public class ServerFrame extends javax.swing.JFrame {
             }
 
             public void windowClosing(WindowEvent event) {
-                if (server.getIsStartServer() && conf == ONLY_SERVER) {
+                if (server.getIsStartServer() && conf == ServerConfig.ONLY_SERVER) {
                     stopServer();
                 }
                 setVisible(false);
@@ -53,7 +53,7 @@ public class ServerFrame extends javax.swing.JFrame {
             }
 
             public void windowIconified(WindowEvent event) {
-                new Tray().setTrayIcon(ServerFrame.this, null, SERVER_TRAY);
+                new Tray().setTrayIcon(ServerFrame.this, null, TrayType.SERVER_TRAY);
                 setVisible(false);
             }
 
@@ -121,7 +121,7 @@ public class ServerFrame extends javax.swing.JFrame {
 
             tfPort.setEditable(false);
             pfPas.setEditable(false);
-            server.createServerThreadAndStart(intPort, String.valueOf(pfPas.getPassword()));
+            server.createServerThreadAndStart(intPort, psw);
         }
     }
 
@@ -321,7 +321,7 @@ public class ServerFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_jmiNewClientWindowActionPerformed
 
     private void jmiNewServerWindowActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jmiNewServerWindowActionPerformed
-        ServerFrame server = new ServerFrame(ControlLines.MAIN_NAME, ONLY_SERVER);
+        ServerFrame server = new ServerFrame(ControlLines.MAIN_NAME, ServerConfig.ONLY_SERVER);
         server.setVisible(true);
     }//GEN-LAST:event_jmiNewServerWindowActionPerformed
 
