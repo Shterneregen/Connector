@@ -6,7 +6,7 @@ import java.security.PublicKey;
 public class Message implements Serializable {
 
     private boolean fSystemMessage;
-    private String pass;
+    private String psw;
     private String name;
     private String message;
     private PublicKey publicKey;
@@ -15,8 +15,8 @@ public class Message implements Serializable {
         return fSystemMessage;
     }
 
-    public String getPass() {
-        return pass;
+    public String getPsw() {
+        return psw;
     }
 
     public String getName() {
@@ -32,8 +32,8 @@ public class Message implements Serializable {
     }
 
     // От клиента
-    public Message(String pass, String name, PublicKey publicKey) {
-        this.pass = pass;
+    public Message(String psw, String name, PublicKey publicKey) {
+        this.psw = psw;
         this.name = name;
         this.publicKey = publicKey;
     }

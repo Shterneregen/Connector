@@ -108,7 +108,6 @@ public class ClientPanel extends javax.swing.JPanel {
 
     private void setConnection() {
         try {
-            client.setStreams();
             resender = new Resender();
             resender.start();
             strChat = "";
@@ -127,25 +126,11 @@ public class ClientPanel extends javax.swing.JPanel {
     }
 
     public void clientSendMsg(String message) {
-        //if (!message.equals("") && flagGoodConn) {
         if (!message.equals("")) {
-            if (message.equals(ControlLines.STR_EXIT)) {
-                if (!errConn) {
-                    tpOutput.append(stringsFile.getProperty("STR_YOU_EXIT") + "\n");
-                    resender.setStop();
-                }
-                if (errConn && flagGoodConn) {
-                    resender.setStop();
-                }
-            }
             try {
                 client.getOutputStream().writeObject(new Message(serverEncryption.encrypt(message)));
             } catch (IOException ex) {
                 Logger.getLogger(ClientPanel.class.getName()).log(Level.SEVERE, null, ex);
-            }
-            if (message.equals(ControlLines.STR_EXIT)) {
-                //errConn = false;
-                exit();
             }
         }
     }
@@ -555,7 +540,10 @@ public class ClientPanel extends javax.swing.JPanel {
     }//GEN-LAST:event_btStartClientActionPerformed
 
     private void btStopClientActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btStopClientActionPerformed
+        tpOutput.append(stringsFile.getProperty("STR_YOU_EXIT") + "\n");
+        resender.setStop();
         clientSendMsg(ControlLines.STR_EXIT);
+        exit();
         if (conf == ClientType.CLIENT_WITH_SERVER) {
             serverFrame.stopServer();
         }

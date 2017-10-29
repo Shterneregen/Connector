@@ -126,12 +126,28 @@ class ServerThread extends Thread {
             stoped = true;
         }
 
+        /*Проверяет, есть ли такой же ник в чате*/
+        private boolean checkNicname(String nicname) throws IOException {
+            boolean res = false;
+            for (String userName : listNames) {
+                if (nicname.equals(userName)) {
+                    res = true;
+                    Connection.this.outputStream.writeObject(new Message(clientEncryption.encrypt(ControlLines.STR_SAME_NIC), false));
+                    stoped = true;
+                    break;
+                } else {
+                    res = false;
+                }
+            }
+            return res;
+        }
+
         @Override
         public void run() {
             try {
                 while (!stoped) {
                     message = (Message) inputStream.readObject();
-                    String pass = Encryption.decode(message.getPass(), psw);
+                    String pass = Encryption.decode(message.getPsw(), psw);
                     name = Encryption.decode(message.getName(), psw);
 
                     clientEncryption.createPair(message.getPublicKey());
@@ -145,16 +161,8 @@ class ServerThread extends Thread {
                             break;
                         }
 
-                        for (String userName : listNames) {
-                            if (name.equals(userName)) {
-                                Connection.this.outputStream.writeObject(new Message(clientEncryption.encrypt(ControlLines.STR_SAME_NIC), false));
-                                flagWrongNic = true;
-                                stoped = true;
-                                break;
-                            } else {
-                                flagWrongNic = false;
-                            }
-                        }
+                        // Проверяет, есть ли такой же ник в чате
+                        flagWrongNic = checkNicname(name);
 
                         if (!flagWrongNic) {
                             userNumber++;
@@ -213,7 +221,7 @@ class ServerThread extends Thread {
                                         for (Connection thisConnection : connections) {
                                             thisConnection.outputStream.writeObject(new Message(thisConnection.clientEncryption.encrypt(msg), false));
                                         }
-                                        buffChat.append(msg + "\n");
+                                        buffChat.append(msg).append("\n");
                                     }
                                 }
                             }
@@ -246,17 +254,17 @@ class ServerThread extends Thread {
 //            if (!closed) {
 //                closed = true;
             try {
-                if (this.outputStream != null) {
-                    this.outputStream.close();
-                    this.outputStream.flush();
+                if (this.inputStream != null) {
+                    this.inputStream.close();
                 }
             } catch (Exception e) {
                 Logger.getLogger(ServerThread.class.getName()).log(Level.SEVERE, null, e);
                 System.err.println("Потоки не были закрыты! (close)");
             }
             try {
-                if (this.inputStream != null) {
-                    this.inputStream.close();
+                if (this.outputStream != null) {
+                    this.outputStream.close();
+                    this.outputStream.flush();
                 }
             } catch (Exception e) {
                 Logger.getLogger(ServerThread.class.getName()).log(Level.SEVERE, null, e);
