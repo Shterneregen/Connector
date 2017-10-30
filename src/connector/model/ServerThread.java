@@ -157,10 +157,6 @@ class ServerThread extends Thread {
                         break;
                     }
                     if (pass.equals(psw)) {
-                        if (stoped) {
-                            break;
-                        }
-
                         // Проверяет, есть ли такой же ник в чате
                         flagWrongNic = checkNicname(name);
 
@@ -170,59 +166,38 @@ class ServerThread extends Thread {
                             synchronized (listNames) {
                                 listNames.add(name);
                             }
-                            synchronized (connections) {
-                                for (Connection thisConnection : connections) {
-                                    String msg = "[" + getTime(false) + "] " + name + " " + stringsFile.getProperty("server.msg.join");
-                                    thisConnection.outputStream.writeObject(new Message(thisConnection.clientEncryption.encrypt(msg), false));
-                                    buffChat.append(msg + "\n");
-                                }
-                            }
-                            String str = "";
-                            while (!stoped) {
-                                try {
-                                    message = (Message) inputStream.readObject();
-                                    str = Utils.removeTheTrash(serverEncryption.decrypt(message.getMessage()));
-//                                    System.out.println("ServerFrame enc message: " + message.getMessage());
-//                                    System.out.println("ServerFrame dec message: " + str);
-                                } catch (Exception e) {
-                                    setStop();
-                                    break;
-                                }
-                                if (stoped) {
-                                    break;
-                                }
-                                if (str.equals(ControlLines.STR_EXIT)) {
-                                    synchronized (connections) {
-                                        String msg = "[" + getTime(false) + "] " + name + " " + stringsFile.getProperty("server.msg.left");
-                                        for (Connection thisConnection : connections) {
-                                            thisConnection.outputStream.writeObject(new Message(thisConnection.clientEncryption.encrypt(msg), false));
-                                        }
-                                        buffChat.append(msg).append("\n");
-                                    }
-                                    userNumber--;
-                                    stoped = true;
-                                    break;
-                                }
-                                if (str.equals(ControlLines.STR_EXIT_ALL)) {
-                                    setStop();
-                                    break;
-                                }
-                                if (str.equals(ControlLines.STR_GET_ALL_MSG)) {
-                                    Connection.this.outputStream.writeObject(
-                                            new Message(clientEncryption.encrypt("----- " + stringsFile.getProperty("server.msg.allMsg") + " -----" + new String(buffChat)
-                                                    + "\n----------------------\n"), false));
-                                    //break;
-                                }
+                            // Оповещаем всех, что вошел новый участник
+                            sendMsgToAllMembers(name + " " + stringsFile.getProperty("server.msg.join"));
 
-                                // Отправляем всем клиентам очередное сообщение
-                                if (!str.equals(ControlLines.STR_GET_ALL_MSG)) {
-                                    synchronized (connections) {
-                                        String msg = "[" + getTime(false) + "] " + name + ": " + str;
-                                        for (Connection thisConnection : connections) {
-                                            thisConnection.outputStream.writeObject(new Message(thisConnection.clientEncryption.encrypt(msg), false));
-                                        }
-                                        buffChat.append(msg).append("\n");
-                                    }
+                            // В цикле получаем очередное сообщение от данного клиента и рассылаем остальным
+                            while (!stoped) {
+                                message = (Message) inputStream.readObject();
+                                String msgFromClient = Utils.removeTheTrash(serverEncryption.decrypt(message.getMessage()));
+
+                                switch (msgFromClient) {
+                                    // Оповещаем всех, что данный клиент вышел
+                                    case ControlLines.STR_EXIT:
+//                                        connections.remove(Connection.this);
+                                        sendMsgToAllMembers(name + " " + stringsFile.getProperty("server.msg.left"));
+                                        userNumber--;
+                                        setStop();
+                                        break;
+                                    case ControlLines.STR_EXIT_ALL:
+                                        setStop();
+                                        break;
+                                    // Отправляем все сообщения сессии
+                                    case ControlLines.STR_GET_ALL_MSG:
+                                        String msg = "----- "
+                                                + stringsFile.getProperty("server.msg.allMsg")
+                                                + " -----"
+                                                + new String(buffChat)
+                                                + "\n----------------------\n";
+                                        writeMsgToStream(Connection.this, msg);
+                                        break;
+                                    // Отправляем всем клиентам очередное сообщение
+                                    default:
+                                        sendMsgToAllMembers(name + ": " + msgFromClient);
+                                        break;
                                 }
                             }
                         }
@@ -237,6 +212,22 @@ class ServerThread extends Thread {
             } finally {
                 close();
             }
+        }
+
+        /*Отправляет сообщение всем участникам*/
+        private void sendMsgToAllMembers(String broadcastMsg) throws IOException {
+            synchronized (connections) {
+                for (Connection thisConnection : connections) {
+                    String msg = "[" + getTime(false) + "] " + broadcastMsg;
+                    writeMsgToStream(thisConnection, msg);
+                    buffChat.append(msg).append("\n");
+                }
+            }
+        }
+
+        /*Отправляем сообщение определенному участнику*/
+        private void writeMsgToStream(Connection connection, String msg) throws IOException {
+            connection.getOutputStream().writeObject(new Message(connection.getClientEncryption().encrypt(msg), false));
         }
 
         // Возвращает дату (ch == 1) или время (ch == 0)
