@@ -127,13 +127,11 @@ class ServerThread extends Thread {
         }
 
         /*Проверяет, есть ли такой же ник в чате*/
-        private boolean checkNicname(String nicname) throws IOException {
+        private boolean checkNicname(String nicname, List<String> listNames) throws IOException {
             boolean res = false;
             for (String userName : listNames) {
                 if (nicname.equals(userName)) {
                     res = true;
-                    Connection.this.outputStream.writeObject(new Message(clientEncryption.encrypt(ControlLines.STR_SAME_NIC), false));
-                    stoped = true;
                     break;
                 } else {
                     res = false;
@@ -158,7 +156,7 @@ class ServerThread extends Thread {
                     }
                     if (pass.equals(psw)) {
                         // Проверяет, есть ли такой же ник в чате
-                        flagWrongNic = checkNicname(name);
+                        flagWrongNic = stoped = checkNicname(name, listNames);
 
                         if (!flagWrongNic) {
                             userNumber++;
@@ -177,7 +175,7 @@ class ServerThread extends Thread {
                                 switch (msgFromClient) {
                                     // Оповещаем всех, что данный клиент вышел
                                     case ControlLines.STR_EXIT:
-//                                        connections.remove(Connection.this);
+                                        connections.remove(Connection.this);
                                         sendMsgToAllMembers(name + " " + stringsFile.getProperty("server.msg.left"));
                                         userNumber--;
                                         setStop();
@@ -200,6 +198,8 @@ class ServerThread extends Thread {
                                         break;
                                 }
                             }
+                        } else {
+                            writeMsgToStream(Connection.this, ControlLines.STR_SAME_NIC);
                         }
                     } else {
 //                        Connection.this.out.println(Encryption.encode(Utils.getSTR_WRONG_PASS(), pfStr)); 

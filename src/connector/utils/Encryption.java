@@ -4,7 +4,6 @@ import java.io.UnsupportedEncodingException;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
-import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -13,12 +12,26 @@ import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 
+/**
+ * Класс отвечающий за шифрование
+ *
+ * @author Yura
+ */
 public class Encryption {
 
     public Encryption() {
         prepare();
     }
 
+    //<editor-fold defaultstate="collapsed" desc="Симметричное шифрование">
+    /**
+     * Шифрует строку методом xor
+     *
+     * @param pText шифруемый текст
+     * @param pKey ключ шифрования
+     * @return
+     * @throws UnsupportedEncodingException
+     */
     public static String encode(String pText, String pKey) throws UnsupportedEncodingException {
         byte[] iMsg = pText.getBytes("Cp1251");
         byte[] iPsw = pKey.getBytes("Cp1251");
@@ -31,6 +44,14 @@ public class Encryption {
         return new String(iMsg, "Cp1251");
     }
 
+    /**
+     * Расшифровывает строку методом xor
+     *
+     * @param pText зашифрованная строка
+     * @param pKey ключ шифрования
+     * @return
+     * @throws UnsupportedEncodingException
+     */
     public static String decode(String pText, String pKey) throws UnsupportedEncodingException {
         byte[] iMsg = pText.getBytes("Cp1251");
         byte[] iPsw = pKey.getBytes("Cp1251");
@@ -42,35 +63,26 @@ public class Encryption {
         }
         return new String(iMsg, "Cp1251");
     }
+    //</editor-fold>
 
-    // Преобразует строку в целочисленный массив
-    public static int[] msgToInt(String message) throws UnsupportedEncodingException {
-        byte[] msgToByte = message.getBytes("UTF-8");
-        int[] imsg = new int[msgToByte.length];
-        for (int i = 0; i < msgToByte.length; i++) {
-            imsg[i] = (0xfff & msgToByte[i]);
-        }
-        return imsg;
-    }
-
-    // Преобразует целочисленный массив в байтовый
-    public static byte[] intToMsg(int[] imsg) {
-        byte[] intToByte = new byte[imsg.length];
-        for (int i = 0; i < imsg.length; i++) {
-            intToByte[i] = (byte) (imsg[i]);
-        }
-        return intToByte;
-    }
-    //////////////////////////////////////////////////////////////////////////////////////
+    //<editor-fold defaultstate="collapsed" desc="Ассиметричное шифрование">
     private KeyPair keypair;
     private Cipher cipher;
-    private PrivateKey privateKey;
-    private PublicKey publicKey;
 
+    /**
+     * Возвращает открытый ключ из существующей пары открытый/закрытый ключ
+     *
+     * @return
+     */
     public PublicKey getPublicKeyFromKeypair() {
         return keypair.getPublic();
     }
 
+    /**
+     * Формирует пару открытый/закрытый ключ по заданному открытому ключу
+     *
+     * @param publicKey открытый ключ
+     */
     public void createPair(PublicKey publicKey) {
         try {
             //throws NoSuchAlgorithmException, NoSuchPaddingException
@@ -87,6 +99,9 @@ public class Encryption {
 
     }
 
+    /**
+     * Формирует пару открытый/закрытый ключ
+     */
     public final void prepare() {
         try {
             //throws NoSuchAlgorithmException, NoSuchPaddingException
@@ -98,44 +113,49 @@ public class Encryption {
         } catch (NoSuchAlgorithmException | NoSuchPaddingException ex) {
             Logger.getLogger(Encryption.class.getName()).log(Level.SEVERE, null, ex);
         }
-
     }
 
+    /**
+     * Шифрует сообщение открытым ключом
+     *
+     * @param plaintext
+     * @return
+     */
     public String encrypt(String plaintext) {
         byte[] bytes;
         byte[] encrypted;
-        char[] encryptedTranspherable = null;
         String encryptedStrTranspherable = "";//
         try {
             this.cipher.init(Cipher.ENCRYPT_MODE, this.keypair.getPublic());
-
             bytes = plaintext.getBytes("UTF-8");
-
             encrypted = blockCipher(bytes, Cipher.ENCRYPT_MODE);
-
 //	encryptedTranspherable = Hex.encodeHex(encrypted);
             encryptedStrTranspherable = byte2Hex(encrypted);//
-
         } catch (Exception ex) {
             Logger.getLogger(Encryption.class.getName()).log(Level.SEVERE, null, ex);
         }
         return encryptedStrTranspherable;//
     }
 
-    public String decrypt(String encrypted) {
+    /**
+     * Расшифровывает строку закрытым ключом
+     *
+     * @param encryptedStr зашифрованая строка
+     * @return
+     */
+    public String decrypt(String encryptedStr) {
         byte[] bts;
         byte[] decrypted;
-        String s = "";
+        String resStr = "";
         try {
             this.cipher.init(Cipher.DECRYPT_MODE, this.keypair.getPrivate());
-            bts = hex2Byte(encrypted);
-
+            bts = hex2Byte(encryptedStr);
             decrypted = blockCipher(bts, Cipher.DECRYPT_MODE);
-            s = new String(decrypted, "UTF-8");
+            resStr = new String(decrypted, "UTF-8");
         } catch (Exception ex) {
             Logger.getLogger(Encryption.class.getName()).log(Level.SEVERE, null, ex);
         }
-        return s;
+        return resStr;
     }
 
     private byte[] blockCipher(byte[] bytes, int mode) throws IllegalBlockSizeException, BadPaddingException {
@@ -245,5 +265,38 @@ public class Encryption {
         }
         return r;
     }
+    //</editor-fold>
+
+    //<editor-fold defaultstate="collapsed" desc="Не используется">
+    /**
+     * Преобразует строку в целочисленный массив
+     *
+     * @param message
+     * @return
+     * @throws UnsupportedEncodingException
+     */
+    public static int[] msgToInt(String message) throws UnsupportedEncodingException {
+        byte[] msgToByte = message.getBytes("UTF-8");
+        int[] imsg = new int[msgToByte.length];
+        for (int i = 0; i < msgToByte.length; i++) {
+            imsg[i] = (0xfff & msgToByte[i]);
+        }
+        return imsg;
+    }
+
+    /**
+     * Преобразует целочисленный массив в байтовый
+     *
+     * @param imsg
+     * @return
+     */
+    public static byte[] intToMsg(int[] imsg) {
+        byte[] intToByte = new byte[imsg.length];
+        for (int i = 0; i < imsg.length; i++) {
+            intToByte[i] = (byte) (imsg[i]);
+        }
+        return intToByte;
+    }
+    //</editor-fold>
 
 }

@@ -126,7 +126,7 @@ public class ClientPanel extends javax.swing.JPanel {
     }
 
     public void clientSendMsg(String message) {
-        if (!message.equals("")) {
+        if (!message.replaceAll("\\s+", "").equals("")) {
             try {
                 client.getOutputStream().writeObject(new Message(serverEncryption.encrypt(message)));
             } catch (IOException ex) {
