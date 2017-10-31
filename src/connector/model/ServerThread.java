@@ -151,9 +151,9 @@ class ServerThread extends Thread {
                     clientEncryption.createPair(message.getPublicKey());
                     Connection.this.outputStream.writeObject(new Message(clientEncryption.encrypt(ControlLines.STR_SEND_PUB_KEY), true, serverEncryption.getPublicKeyFromKeypair()));
 
-                    if (stoped) {
-                        break;
-                    }
+//                    if (stoped) {
+//                        break;
+//                    }
                     if (pass.equals(psw)) {
                         // Проверяет, есть ли такой же ник в чате
                         flagWrongNic = stoped = checkNicname(name, listNames);
@@ -230,7 +230,7 @@ class ServerThread extends Thread {
             connection.getOutputStream().writeObject(new Message(connection.getClientEncryption().encrypt(msg), false));
         }
 
-        // Возвращает дату (ch == 1) или время (ch == 0)
+        /*Возвращает дату (ch == 1) или время (ch == 0)*/
         private String getTime(boolean ch) {
             //Date calendar = Calendar.getInstance().getTime();
             long curTime = System.currentTimeMillis();
@@ -238,9 +238,7 @@ class ServerThread extends Thread {
             return curStringDate;
         }
 
-        /**
-         * Закрывает входной и выходной потоки и сокет
-         */
+        /* Закрывает входной и выходной потоки и сокет*/
         private void close() {
 //            if (!closed) {
 //                closed = true;

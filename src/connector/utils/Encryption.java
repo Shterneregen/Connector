@@ -29,7 +29,7 @@ public class Encryption {
      *
      * @param pText шифруемый текст
      * @param pKey ключ шифрования
-     * @return
+     * @return зашифрованная строка
      * @throws UnsupportedEncodingException
      */
     public static String encode(String pText, String pKey) throws UnsupportedEncodingException {
@@ -49,7 +49,7 @@ public class Encryption {
      *
      * @param pText зашифрованная строка
      * @param pKey ключ шифрования
-     * @return
+     * @return расшифрованная строка
      * @throws UnsupportedEncodingException
      */
     public static String decode(String pText, String pKey) throws UnsupportedEncodingException {
@@ -118,8 +118,8 @@ public class Encryption {
     /**
      * Шифрует сообщение открытым ключом
      *
-     * @param plaintext
-     * @return
+     * @param plaintext исходная строка
+     * @return зашифрованная строка
      */
     public String encrypt(String plaintext) {
         byte[] bytes;
@@ -141,7 +141,7 @@ public class Encryption {
      * Расшифровывает строку закрытым ключом
      *
      * @param encryptedStr зашифрованая строка
-     * @return
+     * @return расшифрованная строка
      */
     public String decrypt(String encryptedStr) {
         byte[] bts;

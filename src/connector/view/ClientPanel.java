@@ -22,6 +22,11 @@ import java.util.logging.Logger;
 import javax.swing.AbstractButton;
 import javax.swing.text.AbstractDocument;
 
+/**
+ * Панель клиента
+ *
+ * @author Yura
+ */
 public class ClientPanel extends javax.swing.JPanel {
 
     private Client client;
@@ -137,7 +142,6 @@ public class ClientPanel extends javax.swing.JPanel {
 
     private void exit() {
         setButtonBeforeStart();
-        client.closeStreams();
         flagGoodConn = false;
         errConn = false;
     }
@@ -165,7 +169,7 @@ public class ClientPanel extends javax.swing.JPanel {
         btStopClient.setEnabled(false);
         btSent.setEnabled(false);
 
-        if (!(conf == ClientType.CLIENT_WITH_SERVER)) {
+        if (conf != ClientType.CLIENT_WITH_SERVER) {
             tfIP.setEditable(true);
         }
         tfPort.setEditable(true);
@@ -213,7 +217,6 @@ public class ClientPanel extends javax.swing.JPanel {
                 while (!stoped) {
                     try {
                         message = (Message) client.getInputStream().readObject();
-
                         if (bFirst) {
                             bFirst = false;
                             serverEncryption.createPair(message.getPublicKey());
@@ -222,11 +225,7 @@ public class ClientPanel extends javax.swing.JPanel {
                     } catch (IOException | ClassNotFoundException e) {
                         break;
                     }
-                    count++;
-                    if (stoped) {
-                        break;
-                    }
-                    ///////////////////////////////////////////////////////// 
+//                    count++;
                     switch (receiveStr) {
                         case ControlLines.STR_WRONG_PASS:
                             commandToMsg = stringsFile.getProperty("wrong_pass");
@@ -238,44 +237,73 @@ public class ClientPanel extends javax.swing.JPanel {
                             commandToMsg = stringsFile.getProperty("stop_server");
                             break;
                         default:
-//                                оператор;
                             break;
                     }
-                    ///////////////////////////////////////////////////////// 
-                    if (receiveStr.equals(ControlLines.STR_WRONG_PASS)
-                            || receiveStr.equals(ControlLines.STR_SAME_NIC)
-                            || receiveStr.equals(ControlLines.STR_STOP_SERVER)
-                            || receiveStr.equals("")) {
-                        strChat = strChat + "\n" + receiveStr;
-                        tpOutput.append(commandToMsg + "\n");
-                        tpOutput.setCaretPosition(tpOutput.getText().length());
-                        errConn = true;
 
-                        if (receiveStr.equals(ControlLines.STR_STOP_SERVER)) {
-                            resender.setStop();
-                        }
-                        exit();
-                        break;
-                    }
-                    if (receiveStr.equals(ControlLines.STR_EXIT_ALL)) {
-                        client.getOutputStream().writeObject(new Message(serverEncryption.encrypt(ControlLines.STR_EXIT_ALL)));
-                        strChat = strChat + "\n" + ControlLines.STR_STOP_SERVER;
-                        tpOutput.append(commandToMsg + "\n");
-                        tpOutput.setCaretPosition(tpOutput.getText().length());
-                        resender.setStop();
-                        exit();
-                        break;
-                    } /////////////////////////////////////////////////////////
-                    else {
-                        strChat = strChat + "\n" + receiveStr;
-                        if (!message.isfSystemMessage()) {
-                            tpOutput.append(receiveStr + "\n");
+                    switch (receiveStr) {
+                        case ControlLines.STR_WRONG_PASS:
+                        case ControlLines.STR_SAME_NIC:
+                        case ControlLines.STR_STOP_SERVER:
+                            strChat = strChat + "\n" + receiveStr;
+                            tpOutput.append(commandToMsg + "\n");
                             tpOutput.setCaretPosition(tpOutput.getText().length());
-                        }
+                            errConn = true;
+                            if (receiveStr.equals(ControlLines.STR_STOP_SERVER)) {
+                                resender.setStop();
+                            }
+                            exit();
+                            break;
+                        case ControlLines.STR_EXIT_ALL:
+                            client.getOutputStream().writeObject(new Message(serverEncryption.encrypt(ControlLines.STR_EXIT_ALL)));
+                            strChat = strChat + "\n" + ControlLines.STR_STOP_SERVER;
+                            tpOutput.append(commandToMsg + "\n");
+                            tpOutput.setCaretPosition(tpOutput.getText().length());
+                            resender.setStop();
+                            exit();
+                        default:
+                            strChat = strChat + "\n" + receiveStr;
+                            if (!message.isfSystemMessage()) {
+                                tpOutput.append(receiveStr + "\n");
+                                tpOutput.setCaretPosition(tpOutput.getText().length());
+                            }
+                            break;
                     }
+
+//                    if (receiveStr.equals(ControlLines.STR_WRONG_PASS)
+//                            || receiveStr.equals(ControlLines.STR_SAME_NIC)
+//                            || receiveStr.equals(ControlLines.STR_STOP_SERVER)
+//                            || receiveStr.equals("")) {
+//                        strChat = strChat + "\n" + receiveStr;
+//                        tpOutput.append(commandToMsg + "\n");
+//                        tpOutput.setCaretPosition(tpOutput.getText().length());
+//                        errConn = true;
+//
+//                        if (receiveStr.equals(ControlLines.STR_STOP_SERVER)) {
+//                            resender.setStop();
+//                        }
+//                        exit();
+//                        break;
+//                    }
+//                    if (receiveStr.equals(ControlLines.STR_EXIT_ALL)) {
+//                        client.getOutputStream().writeObject(new Message(serverEncryption.encrypt(ControlLines.STR_EXIT_ALL)));
+//                        strChat = strChat + "\n" + ControlLines.STR_STOP_SERVER;
+//                        tpOutput.append(commandToMsg + "\n");
+//                        tpOutput.setCaretPosition(tpOutput.getText().length());
+//                        resender.setStop();
+//                        exit();
+//                        break;
+//                    } else {
+//                        strChat = strChat + "\n" + receiveStr;
+//                        if (!message.isfSystemMessage()) {
+//                            tpOutput.append(receiveStr + "\n");
+//                            tpOutput.setCaretPosition(tpOutput.getText().length());
+//                        }
+//                    }
                 }
             } catch (IOException e) {
                 tpOutput.append(stringsFile.getProperty("error_retrieving_message") + "\n");
+            } finally {
+                client.closeStreams();
             }
         }
     }
@@ -533,7 +561,6 @@ public class ClientPanel extends javax.swing.JPanel {
                 serverFrame = new ServerFrame(ControlLines.MAIN_NAME, ServerConfig.SERVER_FROM_CLIENT);
                 serverFrame.startServer(tfPort.getText(), String.valueOf(pfPas.getPassword()));
             }
-
             client = new Client(port, ip, tfNic.getText(), String.valueOf(pfPas.getPassword()));
             setConnection();
         }
@@ -541,8 +568,8 @@ public class ClientPanel extends javax.swing.JPanel {
 
     private void btStopClientActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btStopClientActionPerformed
         tpOutput.append(stringsFile.getProperty("STR_YOU_EXIT") + "\n");
-        resender.setStop();
         clientSendMsg(ControlLines.STR_EXIT);
+        resender.setStop();
         exit();
         if (conf == ClientType.CLIENT_WITH_SERVER) {
             serverFrame.stopServer();
@@ -557,8 +584,7 @@ public class ClientPanel extends javax.swing.JPanel {
     }//GEN-LAST:event_tfInputKeyPressed
 
     private void btSentActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btSentActionPerformed
-        String message = tfInput.getText();
-        clientSendMsg(message);
+        clientSendMsg(tfInput.getText());
         tfInput.setText("");
     }//GEN-LAST:event_btSentActionPerformed
 

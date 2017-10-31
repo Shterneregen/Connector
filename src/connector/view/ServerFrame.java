@@ -13,13 +13,24 @@ import java.util.ArrayList;
 import java.util.Properties;
 import javax.swing.text.AbstractDocument;
 
+/**
+ * Окно сервера
+ *
+ * @author Yura
+ */
 public class ServerFrame extends javax.swing.JFrame {
 
     private ServerManager server;
     private Properties stringsFile;
 
-    public ServerFrame(String s, int conf) {
-        super(s);
+    /**
+     * Окно сервера
+     *
+     * @param frameName название окна
+     * @param conf ServerConfig
+     */
+    public ServerFrame(String frameName, int conf) {
+        super(frameName);
         server = new ServerManager();
         stringsFile = ProjectProperties.getInstance().getStringsFile();
 
@@ -28,7 +39,6 @@ public class ServerFrame extends javax.swing.JFrame {
         ((AbstractDocument) tfPort.getDocument()).setDocumentFilter(new Utils().new DocumentFilterForPort());
         setResizable(false);
         setLocationRelativeTo(null);
-        //setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
         addWindowListener(new WindowListener() {
 
@@ -60,7 +70,6 @@ public class ServerFrame extends javax.swing.JFrame {
             public void windowOpened(WindowEvent event) {
 
             }
-
         });
     }
 
@@ -98,17 +107,6 @@ public class ServerFrame extends javax.swing.JFrame {
 //        }
 //        String myLANIP = addr.getHostAddress();
 //        return myLANIP;
-//    }
-//    public void setPort(String strPort) {
-//        if (Integer.parseInt(strPort) <= 0 || Integer.parseInt(strPort) > 65535) {
-//            lbNumUs.setText(stringsFile.getProperty("wrong_port"));
-//        } else {
-//            server.setPort(Integer.parseInt(strPort));
-////            lbNumUs.setText(stringsFile.getProperty("set_port"));
-//        }
-//    }
-//    public void setPass(String strPort) {
-//        server.setPfStr(strPort);
 //    }
 //    public StringBuilder getBuffChat() {
 //        return server.getBuffChat();
@@ -321,8 +319,8 @@ public class ServerFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_jmiNewClientWindowActionPerformed
 
     private void jmiNewServerWindowActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jmiNewServerWindowActionPerformed
-        ServerFrame server = new ServerFrame(ControlLines.MAIN_NAME, ServerConfig.ONLY_SERVER);
-        server.setVisible(true);
+        ServerFrame newServer = new ServerFrame(ControlLines.MAIN_NAME, ServerConfig.ONLY_SERVER);
+        newServer.setVisible(true);
     }//GEN-LAST:event_jmiNewServerWindowActionPerformed
 
     private void tfPortActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tfPortActionPerformed
