@@ -151,7 +151,7 @@ public class ClientPanel extends javax.swing.JPanel {
         btStopClient.setEnabled(true);
         btSent.setEnabled(true);
 
-        if (!(conf == ClientType.CLIENT_WITH_SERVER)) {
+        if (conf != ClientType.CLIENT_WITH_SERVER) {
             tfIP.setEditable(false);
         }
         tfPort.setEditable(false);
@@ -194,15 +194,10 @@ public class ClientPanel extends javax.swing.JPanel {
         pfPas.setText(stringsFile.getProperty("str.defaultPsw"));
     }
 
-    private void setSettings() {
-
-    }
-
     //<editor-fold defaultstate="collapsed" desc="class Resender">
     private class Resender extends Thread {
 
         private boolean stoped = false;
-        private int count = 0;
         private boolean bFirst = true;
         private Message message;
         private String commandToMsg;
@@ -225,7 +220,6 @@ public class ClientPanel extends javax.swing.JPanel {
                     } catch (IOException | ClassNotFoundException e) {
                         break;
                     }
-//                    count++;
                     switch (receiveStr) {
                         case ControlLines.STR_WRONG_PASS:
                             commandToMsg = stringsFile.getProperty("wrong_pass");
@@ -268,37 +262,6 @@ public class ClientPanel extends javax.swing.JPanel {
                             }
                             break;
                     }
-
-//                    if (receiveStr.equals(ControlLines.STR_WRONG_PASS)
-//                            || receiveStr.equals(ControlLines.STR_SAME_NIC)
-//                            || receiveStr.equals(ControlLines.STR_STOP_SERVER)
-//                            || receiveStr.equals("")) {
-//                        strChat = strChat + "\n" + receiveStr;
-//                        tpOutput.append(commandToMsg + "\n");
-//                        tpOutput.setCaretPosition(tpOutput.getText().length());
-//                        errConn = true;
-//
-//                        if (receiveStr.equals(ControlLines.STR_STOP_SERVER)) {
-//                            resender.setStop();
-//                        }
-//                        exit();
-//                        break;
-//                    }
-//                    if (receiveStr.equals(ControlLines.STR_EXIT_ALL)) {
-//                        client.getOutputStream().writeObject(new Message(serverEncryption.encrypt(ControlLines.STR_EXIT_ALL)));
-//                        strChat = strChat + "\n" + ControlLines.STR_STOP_SERVER;
-//                        tpOutput.append(commandToMsg + "\n");
-//                        tpOutput.setCaretPosition(tpOutput.getText().length());
-//                        resender.setStop();
-//                        exit();
-//                        break;
-//                    } else {
-//                        strChat = strChat + "\n" + receiveStr;
-//                        if (!message.isfSystemMessage()) {
-//                            tpOutput.append(receiveStr + "\n");
-//                            tpOutput.setCaretPosition(tpOutput.getText().length());
-//                        }
-//                    }
                 }
             } catch (IOException e) {
                 tpOutput.append(stringsFile.getProperty("error_retrieving_message") + "\n");
@@ -567,9 +530,9 @@ public class ClientPanel extends javax.swing.JPanel {
     }//GEN-LAST:event_btStartClientActionPerformed
 
     private void btStopClientActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btStopClientActionPerformed
-        tpOutput.append(stringsFile.getProperty("STR_YOU_EXIT") + "\n");
-        clientSendMsg(ControlLines.STR_EXIT);
         resender.setStop();
+        tpOutput.append(stringsFile.getProperty("you_exit") + "\n");
+        clientSendMsg(ControlLines.STR_EXIT);
         exit();
         if (conf == ClientType.CLIENT_WITH_SERVER) {
             serverFrame.stopServer();

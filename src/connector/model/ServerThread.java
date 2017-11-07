@@ -151,9 +151,6 @@ class ServerThread extends Thread {
                     clientEncryption.createPair(message.getPublicKey());
                     Connection.this.outputStream.writeObject(new Message(clientEncryption.encrypt(ControlLines.STR_SEND_PUB_KEY), true, serverEncryption.getPublicKeyFromKeypair()));
 
-//                    if (stoped) {
-//                        break;
-//                    }
                     if (pass.equals(psw)) {
                         // Проверяет, есть ли такой же ник в чате
                         flagWrongNic = stoped = checkNicname(name, listNames);
