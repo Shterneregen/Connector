@@ -98,16 +98,6 @@ public class ServerFrame extends javax.swing.JFrame {
 //        lbYourIP.setText(" Ваш локальный IP ");
     }
 
-//    public String getMyLocalIP(){
-//        InetAddress addr = null;
-//        try {
-//            addr = InetAddress.getLocalHost();
-//        } catch (UnknownHostException ex) {
-//            Logger.getLogger(ServerFrame.class.getName()).log(Level.SEVERE, null, ex);
-//        }
-//        String myLANIP = addr.getHostAddress();
-//        return myLANIP;
-//    }
 //    public StringBuilder getBuffChat() {
 //        return server.getBuffChat();
 //    }
@@ -124,7 +114,6 @@ public class ServerFrame extends javax.swing.JFrame {
     }
 
     public void stopServer() {
-        server.setIsStartServer(false);
         server.setStopServerThread();
         server.closeAllServerConnection();
 

@@ -21,6 +21,7 @@ public class ServerManager {
     }
 
     public void setStopServerThread() {
+        isStartServer = false;
         serverThread.setStop();
     }
 

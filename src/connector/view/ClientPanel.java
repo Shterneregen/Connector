@@ -117,7 +117,8 @@ public class ClientPanel extends javax.swing.JPanel {
             resender.start();
             strChat = "";
             String pfStr = client.getPsw();
-            client.getOutputStream().writeObject(new Message(Encryption.encode(pfStr, pfStr), Encryption.encode(client.getNicname(), pfStr), clientEncryption.getPublicKeyFromKeypair()));
+            client.getOutputStream().writeObject(new Message(Encryption.encode(pfStr, pfStr),
+                    Encryption.encode(client.getNicname(), pfStr), clientEncryption.getPublicKeyFromKeypair()));
             flagGoodConn = true;
             setButtonAfterStart();
         } catch (IOException ex) {
@@ -133,11 +134,15 @@ public class ClientPanel extends javax.swing.JPanel {
     public void clientSendMsg(String message) {
         if (!message.replaceAll("\\s+", "").equals("")) {
             try {
-                client.getOutputStream().writeObject(new Message(serverEncryption.encrypt(message)));
+                sendMsg(message);
             } catch (IOException ex) {
                 Logger.getLogger(ClientPanel.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
+    }
+
+    private void sendMsg(String message) throws IOException {
+        client.getOutputStream().writeObject(new Message(serverEncryption.encrypt(message)));
     }
 
     private void exit() {
@@ -248,7 +253,7 @@ public class ClientPanel extends javax.swing.JPanel {
                             exit();
                             break;
                         case ControlLines.STR_EXIT_ALL:
-                            client.getOutputStream().writeObject(new Message(serverEncryption.encrypt(ControlLines.STR_EXIT_ALL)));
+                            sendMsg(ControlLines.STR_EXIT_ALL);
                             strChat = strChat + "\n" + ControlLines.STR_STOP_SERVER;
                             tpOutput.append(commandToMsg + "\n");
                             tpOutput.setCaretPosition(tpOutput.getText().length());
@@ -530,13 +535,13 @@ public class ClientPanel extends javax.swing.JPanel {
     }//GEN-LAST:event_btStartClientActionPerformed
 
     private void btStopClientActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btStopClientActionPerformed
+        if (conf == ClientType.CLIENT_WITH_SERVER) {
+            serverFrame.stopServer();
+        }
         resender.setStop();
         tpOutput.append(stringsFile.getProperty("you_exit") + "\n");
         clientSendMsg(ControlLines.STR_EXIT);
         exit();
-        if (conf == ClientType.CLIENT_WITH_SERVER) {
-            serverFrame.stopServer();
-        }
     }//GEN-LAST:event_btStopClientActionPerformed
 
     private void tfInputKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_tfInputKeyPressed
