@@ -7,6 +7,7 @@ import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.URL;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.logging.Level;
@@ -21,12 +22,16 @@ import javax.swing.JLabel;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DocumentFilter;
-// Класс с дополнительными функциями. Вынесены сюда, чтобы не засорять основной код.
 
+/**
+ * Класс с дополнительными функциями. Вынесены сюда, чтобы не засорять основной код
+ *
+ * @author Yura
+ */
 public class Utils {
 
     private static final String SOUND_MSG = "resources/sounds/Blocked.wav";
-    private static final URL soundURL = Utils.class.getResource(SOUND_MSG);
+    private static final URL SOUND_URL = Utils.class.getResource(SOUND_MSG);
 
     // Фильтр для поля IP, на данный момент не используется.
     public class DocumentFilterForIP extends DocumentFilter {
@@ -104,7 +109,7 @@ public class Utils {
         // процедура проигрывающая один заранее заданный файл
         //AudioInputStream stream = AudioSystem.getAudioInputStream(new File("womp.wav")); // создаём аудио поток из файла
 //        AudioInputStream stream = AudioSystem.getAudioInputStream(new File(SOUND_MSG)); // создаём аудио поток из файла
-        AudioInputStream stream = AudioSystem.getAudioInputStream(soundURL);
+        AudioInputStream stream = AudioSystem.getAudioInputStream(SOUND_URL);
         DataLine.Info info = new DataLine.Info(Clip.class, stream.getFormat()); // получаем информацию о звуке из потока
         Clip clip = (Clip) AudioSystem.getLine(info); // инициализируем проигрыватель
         clip.open(stream); // воспроизводим файл
@@ -132,14 +137,10 @@ public class Utils {
     }
 
     private static String getInterfaceInfo(NetworkInterface nif) throws IOException {
-//         final String NL = System.getProperty("line.separator");
         String ipAddress = "";
-
         Enumeration<InetAddress> inetAddresses = nif.getInetAddresses();
-
         while (inetAddresses.hasMoreElements()) {
             InetAddress inetAddr = inetAddresses.nextElement();
-
             if (inetAddr instanceof Inet4Address) {
                 ipAddress = inetAddr.getHostAddress();
             }
@@ -150,9 +151,7 @@ public class Utils {
     public static ArrayList<String> getMyLocalIP() {
         ArrayList<String> listAddr = new ArrayList<>();
         try {
-            Enumeration<NetworkInterface> interfaces
-                    = NetworkInterface.getNetworkInterfaces();
-
+            Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
             while (interfaces.hasMoreElements()) {
                 NetworkInterface nif = interfaces.nextElement();
 
@@ -181,4 +180,84 @@ public class Utils {
 
     }
 
+    public static int getAndCheckPort(String strPort) {
+        int port = -1;
+        try {
+            port = Integer.parseInt(strPort);
+            port = (port <= 0 || port > 65535) ? -1 : port;
+        } catch (Exception e) {
+        }
+        return port;
+    }
+
+    public static boolean checkString(String string) {
+        try {
+            Integer.parseInt(string);
+        } catch (Exception e) {
+            return false;
+        }
+        return true;
+    }
+
+    private static boolean checkIP(String string) {
+        if (checkString(string)) {
+            return !(!(Integer.parseInt(string) >= 0) || !(Integer.parseInt(string) < 256));
+        } else {
+            return false;
+        }
+    }
+
+    public static String getAndCheckIP(String ip) {
+        char[] chArr = ip.toCharArray();
+        String ip_1 = "", ip_2 = "", ip_3 = "", ip_4 = "";
+        int i = 0;
+        for (; i < chArr.length; i++) {
+            if (chArr[i] == '.') {
+                break;
+            }
+            ip_1 += chArr[i];
+        }
+        if (!checkIP(ip_1)) {
+            return null;
+        }
+        i++;
+        for (; i < chArr.length; i++) {
+            if (chArr[i] == '.') {
+                break;
+            }
+            ip_2 += chArr[i];
+        }
+        if (!checkIP(ip_2)) {
+            return null;
+        }
+        i++;
+        for (; i < chArr.length; i++) {
+            if (chArr[i] == '.') {
+                break;
+            }
+            ip_3 += chArr[i];
+        }
+        if (!checkIP(ip_3)) {
+            return null;
+        }
+        i++;
+        for (; i < chArr.length; i++) {
+            ip_4 += chArr[i];
+        }
+        if (!checkIP(ip_4)) {
+            return null;
+        }
+        return ip;
+    }
+
+    public String getMyLocalIPOne() {
+        InetAddress addr = null;
+        try {
+            addr = InetAddress.getLocalHost();
+        } catch (UnknownHostException ex) {
+            Logger.getLogger(ServerFrame.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        String myLANIP = addr.getHostAddress();
+        return myLANIP;
+    }
 }

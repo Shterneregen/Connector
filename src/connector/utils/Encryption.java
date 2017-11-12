@@ -4,7 +4,6 @@ import java.io.UnsupportedEncodingException;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
-import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -13,128 +12,76 @@ import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 
+/**
+ * Класс отвечающий за шифрование
+ *
+ * @author Yura
+ */
 public class Encryption {
 
+    public Encryption() {
+        prepare();
+    }
+
+    //<editor-fold defaultstate="collapsed" desc="Симметричное шифрование">
+    /**
+     * Шифрует строку методом xor
+     *
+     * @param pText шифруемый текст
+     * @param pKey ключ шифрования
+     * @return зашифрованная строка
+     * @throws UnsupportedEncodingException
+     */
     public static String encode(String pText, String pKey) throws UnsupportedEncodingException {
-        ////////////////////////////////////////////////////////////////
-
-//        int[] iMsg = msgToInt(pText);
-//        int[] iPsw = msgToInt(pKey);
-//        byte[] iMsg = pText.getBytes("UTF-8");
-//        final byte[] iPsw = pKey.getBytes("UTF-8");
         byte[] iMsg = pText.getBytes("Cp1251");
         byte[] iPsw = pKey.getBytes("Cp1251");
-//        byte[] iMsg = pText.getBytes();
-//        byte[] iPsw = pKey.getBytes();
-//        byte[] iMsg = new BigInteger(pText, 16).toByteArray();
-//        byte[] iPsw = new BigInteger(pText, 16).toByteArray();
-//
         for (int i = 0, j = 0; i < iMsg.length; i++, j++) {
-            //iMsg[i] = iMsg[i] ^ (iPsw[i % iPsw.length] & 0xff);
-            //iMsg[i] = (iMsg[i] ^ iPsw[i % iPsw.length]);
             if (j == iPsw.length - 1) {
                 j = 0;
             }
-//            iMsg[i] = (byte) (iMsg[i] ^ iPsw[j]);
-//            iMsg[i] = (byte) ((iMsg[i] & 0xff) ^ (iPsw[j] & 0xf));
-//            iMsg[i] = (byte) (iMsg[i] ^ iPsw[j]);
-//            iMsg[i] = (byte) (iMsg[i] ^ (iPsw[j] & 0xf));
-//            iMsg[i] = (byte) (iMsg[i] ^ (2));
-//            iMsg[i] ^= (iPsw[j] & 0xf);
-//            iMsg[i] ^= (byte) iPsw[j];
-//            iMsg[i] = (byte) (iMsg[i] ^ 10);
             iMsg[i] ^= (byte) (iPsw[j] & 0xf);
         }
-
-        ////////////////////////////////////////////////////////////////
-//        return new String(intToMsg(iMsg), "UTF-8");
-//        return new String(intToMsg(iMsg));
-//        return pText;
-//         return new String(iMsg, "UTF-8"); // this works  
-//         return new BigInteger(1, iMsg).toString(16);
         return new String(iMsg, "Cp1251");
     }
 
+    /**
+     * Расшифровывает строку методом xor
+     *
+     * @param pText зашифрованная строка
+     * @param pKey ключ шифрования
+     * @return расшифрованная строка
+     * @throws UnsupportedEncodingException
+     */
     public static String decode(String pText, String pKey) throws UnsupportedEncodingException {
-        ////////////////////////////////////////////////////////////////
-//        int[] iMsg = msgToInt(pText);
-//        int[] iPsw = msgToInt(pKey);
-//        byte[] iMsg = pText.getBytes("UTF-8");
-//        final byte[] iPsw = pKey.getBytes("UTF-8");
-//        byte[] iMsg = pText.getBytes();
-//        byte[] iPsw = pKey.getBytes();
         byte[] iMsg = pText.getBytes("Cp1251");
         byte[] iPsw = pKey.getBytes("Cp1251");
-//        byte[] iMsg = new BigInteger(pText, 16).toByteArray();
-//        byte[] iPsw = new BigInteger(pText, 16).toByteArray();
-
-        //int sum=0;
-//        for (int i = 0; i < iPsw.length; i++) {
-//            sum += iPsw[i];
-//        }
         for (int i = 0, j = 0; i < iMsg.length; i++, j++) {
             if (j == iPsw.length - 1) {
                 j = 0;
             }
-//            iMsg[i] = (byte) (iMsg[i] ^ iPsw[j]);
-//            iMsg[i] = (byte) ((iMsg[i] & 0xff) ^ (iPsw[j] & 0xf));
-//            iMsg[i] = (byte) (iMsg[i] ^ (iPsw[j] & 0xf));
-//                iMsg[i] = (byte) (iMsg[i] ^ iPsw[j]);
-//            iMsg[i] = (byte) (iMsg[i] ^ (2));
-//            iMsg[i] ^= (iPsw[j] & 0xf);
-//            iMsg[i] ^= (byte) iPsw[j];
-//            iMsg[i] = (byte) (iMsg[i] ^ 10);
             iMsg[i] ^= (byte) (iPsw[j] & 0xf);
         }
-
-        ////////////////////////////////////////////////////////////////
-//        for (int i = 0; i < iMsg.length; i++) {
-//            iMsg[i] = (byte) (txt[i] ^ key[i % key.length]);
-//        }
-//        for (int i = 0; i < iMsg.length; i++) {
-//            //iMsg[i] = iMsg[i] ^ (iPsw[i % iPsw.length] & 0xff);            
-//            //iMsg[i] = (iMsg[i] ^ iPsw[i % iPsw.length]);
-//            
-//            //iMsg[i] = iMsg[i] ^ 3;
-//        }
-//        return new String(intToMsg(iMsg), "UTF-8");
-//        return new String(intToMsg(iMsg));
-//        return pText;
-//return new String(iMsg, "UTF-8"); // this works
-//return new BigInteger(1, iMsg).toString(16);
         return new String(iMsg, "Cp1251");
     }
+    //</editor-fold>
 
-    // Преобразует строку в целочисленный массив
-    public static int[] msgToInt(String message) throws UnsupportedEncodingException {
-        byte[] msgToByte = message.getBytes("UTF-8");
-        int[] imsg = new int[msgToByte.length];
-        for (int i = 0; i < msgToByte.length; i++) {
-            imsg[i] = (0xfff & msgToByte[i]);
-        }
-        return imsg;
-    }
-
-    // Преобразует целочисленный массив в байтовый
-    public static byte[] intToMsg(int[] imsg) {
-        byte[] intToByte = new byte[imsg.length];
-        for (int i = 0; i < imsg.length; i++) {
-            intToByte[i] = (byte) (imsg[i]);
-        }
-        return intToByte;
-    }
-    //////////////////////////////////////////////////////////////////////////////////////
+    //<editor-fold defaultstate="collapsed" desc="Ассиметричное шифрование">
     private KeyPair keypair;
     private Cipher cipher;
-    private PrivateKey privateKey;
-    private PublicKey publicKey;
 
+    /**
+     * Возвращает открытый ключ из существующей пары открытый/закрытый ключ
+     *
+     * @return
+     */
     public PublicKey getPublicKeyFromKeypair() {
         return keypair.getPublic();
     }
 
     /**
-     * @param args the command line arguments
+     * Формирует пару открытый/закрытый ключ по заданному открытому ключу
+     *
+     * @param publicKey открытый ключ
      */
     public void createPair(PublicKey publicKey) {
         try {
@@ -152,7 +99,10 @@ public class Encryption {
 
     }
 
-    public void prepare() {
+    /**
+     * Формирует пару открытый/закрытый ключ
+     */
+    public final void prepare() {
         try {
             //throws NoSuchAlgorithmException, NoSuchPaddingException
             KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA");
@@ -163,49 +113,49 @@ public class Encryption {
         } catch (NoSuchAlgorithmException | NoSuchPaddingException ex) {
             Logger.getLogger(Encryption.class.getName()).log(Level.SEVERE, null, ex);
         }
-
     }
 
+    /**
+     * Шифрует сообщение открытым ключом
+     *
+     * @param plaintext исходная строка
+     * @return зашифрованная строка
+     */
     public String encrypt(String plaintext) {
         byte[] bytes;
         byte[] encrypted;
-        char[] encryptedTranspherable = null;
         String encryptedStrTranspherable = "";//
         try {
-            //throws Exception
             this.cipher.init(Cipher.ENCRYPT_MODE, this.keypair.getPublic());
-
             bytes = plaintext.getBytes("UTF-8");
-
             encrypted = blockCipher(bytes, Cipher.ENCRYPT_MODE);
-
 //	encryptedTranspherable = Hex.encodeHex(encrypted);
             encryptedStrTranspherable = byte2Hex(encrypted);//
-
         } catch (Exception ex) {
             Logger.getLogger(Encryption.class.getName()).log(Level.SEVERE, null, ex);
         }
-//        return new String(encryptedTranspherable);
-        return new String(encryptedStrTranspherable);//
+        return encryptedStrTranspherable;//
     }
 
-    public String decrypt(String encrypted) {
+    /**
+     * Расшифровывает строку закрытым ключом
+     *
+     * @param encryptedStr зашифрованая строка
+     * @return расшифрованная строка
+     */
+    public String decrypt(String encryptedStr) {
         byte[] bts;
         byte[] decrypted;
-        String s = "";
+        String resStr = "";
         try {
-            //        throws Exception
             this.cipher.init(Cipher.DECRYPT_MODE, this.keypair.getPrivate());
-
-//	bts = Hex.decodeHex(encrypted.toCharArray());
-            bts = hex2Byte(encrypted);
-
+            bts = hex2Byte(encryptedStr);
             decrypted = blockCipher(bts, Cipher.DECRYPT_MODE);
-            s = new String(decrypted, "UTF-8");
+            resStr = new String(decrypted, "UTF-8");
         } catch (Exception ex) {
             Logger.getLogger(Encryption.class.getName()).log(Level.SEVERE, null, ex);
         }
-        return s;
+        return resStr;
     }
 
     private byte[] blockCipher(byte[] bytes, int mode) throws IllegalBlockSizeException, BadPaddingException {
@@ -315,5 +265,38 @@ public class Encryption {
         }
         return r;
     }
+    //</editor-fold>
+
+    //<editor-fold defaultstate="collapsed" desc="Не используется">
+    /**
+     * Преобразует строку в целочисленный массив
+     *
+     * @param message
+     * @return
+     * @throws UnsupportedEncodingException
+     */
+    public static int[] msgToInt(String message) throws UnsupportedEncodingException {
+        byte[] msgToByte = message.getBytes("UTF-8");
+        int[] imsg = new int[msgToByte.length];
+        for (int i = 0; i < msgToByte.length; i++) {
+            imsg[i] = (0xfff & msgToByte[i]);
+        }
+        return imsg;
+    }
+
+    /**
+     * Преобразует целочисленный массив в байтовый
+     *
+     * @param imsg
+     * @return
+     */
+    public static byte[] intToMsg(int[] imsg) {
+        byte[] intToByte = new byte[imsg.length];
+        for (int i = 0; i < imsg.length; i++) {
+            intToByte[i] = (byte) (imsg[i]);
+        }
+        return intToByte;
+    }
+    //</editor-fold>
 
 }

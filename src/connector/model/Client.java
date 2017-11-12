@@ -22,31 +22,23 @@ public class Client {
     private int port;
     private String ip;
     private String nicname;
-    private String pass;
+    private String psw;
 
     private ObjectInputStream inputStream;
     private ObjectOutputStream outputStream;
 
-    public Client() {
-        port = 0;
-        ip = "";
-        nicname = "";
-        pass = "";
-    }
+    public Client(int port, String ip, String nicname, String psw) {
+        this.port = port;
+        this.ip = ip;
+        this.nicname = nicname;
+        this.psw = psw;
 
-    public void initSocket() {
         try {
-            this.socket = new Socket(ip, port);
+            socket = new Socket(ip, port);
+            outputStream = new ObjectOutputStream(socket.getOutputStream());
+            inputStream = new ObjectInputStream(socket.getInputStream());
         } catch (IOException ex) {
-            Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
-
-    public void setStreams() {
-        try {
-            outputStream = new ObjectOutputStream(this.getSocket().getOutputStream());
-            inputStream = new ObjectInputStream(this.getSocket().getInputStream());
-        } catch (IOException ex) {
+            closeStreams();
             Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
@@ -56,18 +48,27 @@ public class Client {
             if (inputStream != null) {
                 inputStream.close();
             }
+        } catch (IOException ioe) {
+            Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ioe);
+        }
+        try {
             if (outputStream != null) {
-                outputStream.flush();
                 outputStream.close();
+                outputStream.flush();
             }
+        } catch (IOException ioe) {
+            Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ioe);
+        }
+        try {
             if (socket != null) {
                 socket.close();
             }
-        } catch (IOException ex) {
-            Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ioe) {
+            Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ioe);
         }
     }
 
+    //<editor-fold defaultstate="collapsed" desc="get-set">
     public Socket getSocket() {
         return socket;
     }
@@ -100,12 +101,12 @@ public class Client {
         this.nicname = nicname;
     }
 
-    public String getPass() {
-        return pass;
+    public String getPsw() {
+        return psw;
     }
 
-    public void setPass(String pass) {
-        this.pass = pass;
+    public void setPsw(String psw) {
+        this.psw = psw;
     }
 
     public ObjectInputStream getInputStream() {
@@ -123,4 +124,6 @@ public class Client {
     public void setOutputStream(ObjectOutputStream outputStream) {
         this.outputStream = outputStream;
     }
+    //</editor-fold>
+
 }

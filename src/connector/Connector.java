@@ -1,7 +1,6 @@
 package connector;
 
 import connector.resources.ControlLines;
-import connector.utils.ProjectProperties;
 import connector.view.ClientFrame;
 import static javax.swing.JFrame.EXIT_ON_CLOSE;
 
@@ -15,7 +14,7 @@ public class Connector {
         clientFrame.setDefaultCloseOperation(EXIT_ON_CLOSE);
         clientFrame.setVisible(true);
 
-//        new ClientFrame(ControlLines.MAIN_NAME).setVisible(true);
+        new ClientFrame(ControlLines.MAIN_NAME).setVisible(true);
 //        new ClientFrame(Strings.getMAIN_NAME()).setVisible(true);
     }
 }

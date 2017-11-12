@@ -54,7 +54,7 @@ public class ProjectProperties {
         projProperties = new Properties();
         stringsFile = new Properties();
 
-//      <editor-fold defaultstate="collapsed" desc="External file"> 
+        //<editor-fold defaultstate="collapsed" desc="External file"> 
         // определяем текущий каталог
         File currentDir = new File(".");
 
@@ -81,7 +81,7 @@ public class ProjectProperties {
         } catch (Exception ex) {
             Logger.getLogger(ProjectProperties.class.getName()).log(Level.SEVERE, null, ex);
         }
-// </editor-fold>
+        //</editor-fold>
 
 //        FileInputStream fileInputStream;
 //        try {

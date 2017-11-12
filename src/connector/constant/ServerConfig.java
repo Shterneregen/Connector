@@ -12,6 +12,13 @@ package connector.constant;
  */
 public class ServerConfig {
 
-    public static int SERVER_FROM_CLIENT = 1;   // Сервер запущен из клиента
-    public static int ONLY_SERVER = 0;          // Сервер запущен один
+    /**
+     * Сервер запущен из клиента
+     */
+    public static int SERVER_FROM_CLIENT = 1;
+
+    /**
+     * Сервер запущен без клиента
+     */
+    public static int ONLY_SERVER = 0;
 }
