@@ -253,8 +253,9 @@ public class ClientPanel extends javax.swing.JPanel {
                             exit();
                             break;
                         case ControlLines.STR_EXIT_ALL:
-                            sendMsg(ControlLines.STR_EXIT_ALL);
-                            strChat = strChat + "\n" + ControlLines.STR_STOP_SERVER;
+                            commandToMsg = stringsFile.getProperty("stop_server");
+//                            sendMsg(ControlLines.STR_EXIT_ALL);
+                            strChat = strChat + "\n" + commandToMsg;
                             tpOutput.append(commandToMsg + "\n");
                             tpOutput.setCaretPosition(tpOutput.getText().length());
                             resender.setStop();
@@ -268,9 +269,11 @@ public class ClientPanel extends javax.swing.JPanel {
                             break;
                     }
                 }
-            } catch (IOException e) {
-                tpOutput.append(stringsFile.getProperty("error_retrieving_message") + "\n");
-            } finally {
+            } 
+//            catch (IOException e) {
+//                tpOutput.append(stringsFile.getProperty("error_retrieving_message") + "\n");
+//            } 
+            finally {
                 client.closeStreams();
             }
         }
@@ -537,11 +540,12 @@ public class ClientPanel extends javax.swing.JPanel {
     private void btStopClientActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btStopClientActionPerformed
         if (conf == ClientType.CLIENT_WITH_SERVER) {
             serverFrame.stopServer();
+        } else {
+            resender.setStop();
+            tpOutput.append(stringsFile.getProperty("you_exit") + "\n");
+            clientSendMsg(ControlLines.STR_EXIT);
+            exit();
         }
-        resender.setStop();
-        tpOutput.append(stringsFile.getProperty("you_exit") + "\n");
-        clientSendMsg(ControlLines.STR_EXIT);
-        exit();
     }//GEN-LAST:event_btStopClientActionPerformed
 
     private void tfInputKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_tfInputKeyPressed

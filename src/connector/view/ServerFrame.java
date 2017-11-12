@@ -115,7 +115,6 @@ public class ServerFrame extends javax.swing.JFrame {
 
     public void stopServer() {
         server.setStopServerThread();
-        server.closeAllServerConnection();
 
         btStartServer.setEnabled(true);
         btStopServer.setEnabled(false);

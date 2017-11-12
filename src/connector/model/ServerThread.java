@@ -29,14 +29,12 @@ import java.util.logging.Logger;
 class ServerThread extends Thread {
 
     private boolean stoped = false;
-    private ServerSocket serverSocket = null;
-    private Socket socket;
-    private int port;
     private List<String> listNames;
     private List<Connection> connections;
     private int userNumber;
     private Encryption serverEncryption;
     private StringBuilder buffChat;
+    private int port;
     private String psw;
 
     ServerThread(int port, String psw) {
@@ -55,6 +53,8 @@ class ServerThread extends Thread {
 
     @Override
     public void run() {
+        ServerSocket serverSocket = null;
+        Socket socket = null;
         try {
             serverSocket = new ServerSocket(port);
             while (!stoped) {
@@ -73,6 +73,10 @@ class ServerThread extends Thread {
                 if (serverSocket != null) {
                     serverSocket.close();
                 }
+            } catch (IOException ex) {
+                Logger.getLogger(ServerThread.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            try {
                 if (socket != null) {
                     socket.close();
                 }
@@ -87,7 +91,9 @@ class ServerThread extends Thread {
             if (connections != null && !connections.isEmpty()) {
                 synchronized (connections) {
                     for (Connection thisConnection : connections) {
-                        thisConnection.getOutputStream().writeObject(new Message(thisConnection.getClientEncryption().encrypt(ControlLines.STR_EXIT_ALL), true));
+                        thisConnection.getOutputStream().writeObject(new Message(
+                                thisConnection.getClientEncryption().encrypt(ControlLines.STR_EXIT_ALL), true
+                        ));
                     }
                 }
             }
@@ -102,10 +108,8 @@ class ServerThread extends Thread {
         private Socket socket;
         private Boolean flagWrongNic = false;
         private boolean stoped = false;
-//        private boolean closed = false;
         private ObjectInputStream inputStream;
         private ObjectOutputStream outputStream;
-        private Message message;
         private Encryption clientEncryption;
         private String name = "";
         private Properties stringsFile;
@@ -142,15 +146,19 @@ class ServerThread extends Thread {
 
         @Override
         public void run() {
+            Message message;
             try {
                 while (!stoped) {
                     message = (Message) inputStream.readObject();
-                    String pass = Encryption.decode(message.getPsw(), psw);
                     name = Encryption.decode(message.getName(), psw);
-
                     clientEncryption.createPair(message.getPublicKey());
-                    Connection.this.outputStream.writeObject(new Message(clientEncryption.encrypt(ControlLines.STR_SEND_PUB_KEY), true, serverEncryption.getPublicKeyFromKeypair()));
 
+                    Connection.this.outputStream.writeObject(new Message(
+                            clientEncryption.encrypt(ControlLines.STR_SEND_PUB_KEY),
+                            true,
+                            serverEncryption.getPublicKeyFromKeypair()));
+
+                    String pass = Encryption.decode(message.getPsw(), psw);
                     if (pass.equals(psw)) {
                         // Проверяет, есть ли такой же ник в чате
                         flagWrongNic = stoped = checkNicname(name, listNames);
@@ -167,7 +175,8 @@ class ServerThread extends Thread {
                             // В цикле получаем очередное сообщение от данного клиента и рассылаем остальным
                             while (!stoped) {
                                 message = (Message) inputStream.readObject();
-                                String msgFromClient = Utils.removeTheTrash(serverEncryption.decrypt(message.getMessage()));
+                                String msgFromClient = Utils
+                                        .removeTheTrash(serverEncryption.decrypt(message.getMessage()));
 
                                 switch (msgFromClient) {
                                     // Оповещаем всех, что данный клиент вышел
@@ -231,21 +240,21 @@ class ServerThread extends Thread {
         private String getTime(boolean ch) {
             //Date calendar = Calendar.getInstance().getTime();
             long curTime = System.currentTimeMillis();
-            String curStringDate = ch ? new SimpleDateFormat("dd.MM.yyyy").format(curTime) : new SimpleDateFormat("kk:mm:ss").format(curTime);
+            String curStringDate = ch
+                    ? new SimpleDateFormat("dd.MM.yyyy").format(curTime)
+                    : new SimpleDateFormat("kk:mm:ss").format(curTime);
             return curStringDate;
         }
 
         /* Закрывает входной и выходной потоки и сокет*/
         private void close() {
-//            if (!closed) {
-//                closed = true;
             try {
                 if (this.inputStream != null) {
                     this.inputStream.close();
                 }
             } catch (Exception e) {
                 Logger.getLogger(ServerThread.class.getName()).log(Level.SEVERE, null, e);
-                System.err.println("Потоки не были закрыты! (close)");
+                System.err.println("Поток inputStream не закрыт!");
             }
             try {
                 if (this.outputStream != null) {
@@ -254,7 +263,7 @@ class ServerThread extends Thread {
                 }
             } catch (Exception e) {
                 Logger.getLogger(ServerThread.class.getName()).log(Level.SEVERE, null, e);
-                System.err.println("Потоки не были закрыты! (close)");
+                System.err.println("Поток outputStream не закрыт!");
             }
             try {
                 if (socket != null) {
@@ -262,7 +271,7 @@ class ServerThread extends Thread {
                 }
             } catch (Exception e) {
                 Logger.getLogger(ServerThread.class.getName()).log(Level.SEVERE, null, e);
-                System.err.println("Потоки не были закрыты! (close)");
+                System.err.println("Сокет не закрыт!");
             }
             synchronized (connections) {
                 connections.remove(Connection.this);
@@ -272,7 +281,6 @@ class ServerThread extends Thread {
                     listNames.remove(name);
                 }
             }
-//            }
         }
 
         //<editor-fold defaultstate="collapsed" desc="get-set">

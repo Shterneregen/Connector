@@ -23,9 +23,6 @@ public class ServerManager {
     public void setStopServerThread() {
         isStartServer = false;
         serverThread.setStop();
-    }
-
-    public void closeAllServerConnection() {
         serverThread.closeAll();
     }
 
