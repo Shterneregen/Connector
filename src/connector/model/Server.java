@@ -14,7 +14,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.text.SimpleDateFormat;
+import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -26,7 +26,7 @@ import java.util.logging.Logger;
  *
  * @author Yura
  */
-class ServerThread extends Thread {
+class Server extends Thread {
 
     private boolean stoped = false;
     private List<String> listNames;
@@ -34,10 +34,11 @@ class ServerThread extends Thread {
     private int userNumber;
     private Encryption serverEncryption;
     private StringBuilder buffChat;
+    private ServerSocket serverSocket = null;
     private int port;
     private String psw;
 
-    ServerThread(int port, String psw) {
+    Server(int port, String psw) {
         this.port = port;
         this.psw = psw;
         connections = Collections.synchronizedList(new ArrayList<Connection>());
@@ -53,7 +54,6 @@ class ServerThread extends Thread {
 
     @Override
     public void run() {
-        ServerSocket serverSocket = null;
         Socket socket = null;
         try {
             serverSocket = new ServerSocket(port);
@@ -66,34 +66,53 @@ class ServerThread extends Thread {
                 connections.add(con);
                 con.start();
             }
+        } catch (SocketException se) {
+            System.out.println("Main SocketException done");
         } catch (IOException e) {
-            Logger.getLogger(ServerThread.class.getName()).log(Level.SEVERE, null, e);
+            Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, e);
         } finally {
             try {
                 if (serverSocket != null) {
                     serverSocket.close();
                 }
             } catch (IOException ex) {
-                Logger.getLogger(ServerThread.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
             }
             try {
                 if (socket != null) {
                     socket.close();
                 }
             } catch (IOException ex) {
-                Logger.getLogger(ServerThread.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
     }
 
-    protected void closeAll() {
+    protected void stopServer() {
+        closeAllConnections();
+        setStop();
+        closeServerSocket();
+    }
+
+    protected void closeServerSocket() {
+        if (serverSocket != null) {
+            try {
+                serverSocket.close();
+            } catch (IOException ex) {
+                Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+    }
+
+    protected void closeAllConnections() {
         try {
             if (connections != null && !connections.isEmpty()) {
                 synchronized (connections) {
                     for (Connection thisConnection : connections) {
                         thisConnection.getOutputStream().writeObject(new Message(
-                                thisConnection.getClientEncryption().encrypt(ControlLines.STR_EXIT_ALL), true
+                                thisConnection.getClientEncryption().encrypt(ControlLines.STR_STOP_SERVER), true
                         ));
+//                        thisConnection.close();
                     }
                 }
             }
@@ -121,27 +140,13 @@ class ServerThread extends Thread {
                 inputStream = new ObjectInputStream(this.socket.getInputStream());
                 outputStream = new ObjectOutputStream(this.socket.getOutputStream());
             } catch (IOException e) {
-                Logger.getLogger(ServerThread.class.getName()).log(Level.SEVERE, null, e);
+                Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, e);
             }
             stringsFile = ProjectProperties.getInstance().getStringsFile();
         }
 
         public void setStop() {
             stoped = true;
-        }
-
-        /*Проверяет, есть ли такой же ник в чате*/
-        private boolean checkNicname(String nicname, List<String> listNames) throws IOException {
-            boolean res = false;
-            for (String userName : listNames) {
-                if (nicname.equals(userName)) {
-                    res = true;
-                    break;
-                } else {
-                    res = false;
-                }
-            }
-            return res;
         }
 
         @Override
@@ -161,7 +166,7 @@ class ServerThread extends Thread {
                     String pass = Encryption.decode(message.getPsw(), psw);
                     if (pass.equals(psw)) {
                         // Проверяет, есть ли такой же ник в чате
-                        flagWrongNic = stoped = checkNicname(name, listNames);
+                        flagWrongNic = stoped = Utils.checkNicname(name, listNames);
 
                         if (!flagWrongNic) {
                             userNumber++;
@@ -184,9 +189,6 @@ class ServerThread extends Thread {
                                         connections.remove(Connection.this);
                                         sendMsgToAllMembers(name + " " + stringsFile.getProperty("server.msg.left"));
                                         userNumber--;
-                                        setStop();
-                                        break;
-                                    case ControlLines.STR_EXIT_ALL:
                                         setStop();
                                         break;
                                     // Отправляем все сообщения сессии
@@ -213,8 +215,10 @@ class ServerThread extends Thread {
                         this.setStop();
                     }
                 }
+            } catch (java.net.SocketException se) {
+                System.out.println("Connection SocketException");
             } catch (IOException | ClassNotFoundException e) {
-                Logger.getLogger(ServerThread.class.getName()).log(Level.SEVERE, null, e);
+                Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, e);
             } finally {
                 close();
             }
@@ -224,7 +228,7 @@ class ServerThread extends Thread {
         private void sendMsgToAllMembers(String broadcastMsg) throws IOException {
             synchronized (connections) {
                 for (Connection thisConnection : connections) {
-                    String msg = "[" + getTime(false) + "] " + broadcastMsg;
+                    String msg = "[" + Utils.getTime(false) + "] " + broadcastMsg;
                     writeMsgToStream(thisConnection, msg);
                     buffChat.append(msg).append("\n");
                 }
@@ -236,16 +240,6 @@ class ServerThread extends Thread {
             connection.getOutputStream().writeObject(new Message(connection.getClientEncryption().encrypt(msg), false));
         }
 
-        /*Возвращает дату (ch == 1) или время (ch == 0)*/
-        private String getTime(boolean ch) {
-            //Date calendar = Calendar.getInstance().getTime();
-            long curTime = System.currentTimeMillis();
-            String curStringDate = ch
-                    ? new SimpleDateFormat("dd.MM.yyyy").format(curTime)
-                    : new SimpleDateFormat("kk:mm:ss").format(curTime);
-            return curStringDate;
-        }
-
         /* Закрывает входной и выходной потоки и сокет*/
         private void close() {
             try {
@@ -253,7 +247,7 @@ class ServerThread extends Thread {
                     this.inputStream.close();
                 }
             } catch (Exception e) {
-                Logger.getLogger(ServerThread.class.getName()).log(Level.SEVERE, null, e);
+                Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, e);
                 System.err.println("Поток inputStream не закрыт!");
             }
             try {
@@ -262,7 +256,7 @@ class ServerThread extends Thread {
                     this.outputStream.flush();
                 }
             } catch (Exception e) {
-                Logger.getLogger(ServerThread.class.getName()).log(Level.SEVERE, null, e);
+                Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, e);
                 System.err.println("Поток outputStream не закрыт!");
             }
             try {
@@ -270,7 +264,7 @@ class ServerThread extends Thread {
                     this.socket.close();
                 }
             } catch (Exception e) {
-                Logger.getLogger(ServerThread.class.getName()).log(Level.SEVERE, null, e);
+                Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, e);
                 System.err.println("Сокет не закрыт!");
             }
             synchronized (connections) {

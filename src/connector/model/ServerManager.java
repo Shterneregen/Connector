@@ -11,23 +11,18 @@ package connector.model;
  */
 public class ServerManager {
 
-    private ServerThread serverThread;
+    private Server serverThread;
     private Boolean isStartServer = false;
 
-    public void createServerThreadAndStart(int port, String psw) {
-        serverThread = new ServerThread(port, psw);
+    public void createServer(int port, String psw) {
+        serverThread = new Server(port, psw);
         isStartServer = true;
         serverThread.start();
     }
 
-    public void setStopServerThread() {
+    public void stopServer() {
         isStartServer = false;
-        serverThread.setStop();
-        serverThread.closeAll();
-    }
-
-    public ServerThread getServerThread() {
-        return serverThread;
+        serverThread.stopServer();
     }
 
     public Boolean getIsStartServer() {

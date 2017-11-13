@@ -252,14 +252,6 @@ public class ClientPanel extends javax.swing.JPanel {
                             }
                             exit();
                             break;
-                        case ControlLines.STR_EXIT_ALL:
-                            commandToMsg = stringsFile.getProperty("stop_server");
-//                            sendMsg(ControlLines.STR_EXIT_ALL);
-                            strChat = strChat + "\n" + commandToMsg;
-                            tpOutput.append(commandToMsg + "\n");
-                            tpOutput.setCaretPosition(tpOutput.getText().length());
-                            resender.setStop();
-                            exit();
                         default:
                             strChat = strChat + "\n" + receiveStr;
                             if (!message.isfSystemMessage()) {
@@ -270,9 +262,6 @@ public class ClientPanel extends javax.swing.JPanel {
                     }
                 }
             } 
-//            catch (IOException e) {
-//                tpOutput.append(stringsFile.getProperty("error_retrieving_message") + "\n");
-//            } 
             finally {
                 client.closeStreams();
             }

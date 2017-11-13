@@ -8,8 +8,10 @@ import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.URL;
 import java.net.UnknownHostException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.sound.sampled.AudioInputStream;
@@ -165,21 +167,6 @@ public class Utils {
         return listAddr;
     }
 
-    // На данный момент не используется.
-    public class StatusBar extends JLabel {
-
-        public StatusBar() {
-            super();
-            super.setPreferredSize(new Dimension(100, 16));
-            setMessage("Ready");
-        }
-
-        public void setMessage(String message) {
-            setText(" " + message);
-        }
-
-    }
-
     public static int getAndCheckPort(String strPort) {
         int port = -1;
         try {
@@ -250,6 +237,31 @@ public class Utils {
         return ip;
     }
 
+    /*Возвращает дату (ch == 1) или время (ch == 0)*/
+    public static String getTime(boolean ch) {
+        //Date calendar = Calendar.getInstance().getTime();
+        long curTime = System.currentTimeMillis();
+        String curStringDate = ch
+                ? new SimpleDateFormat("dd.MM.yyyy").format(curTime)
+                : new SimpleDateFormat("kk:mm:ss").format(curTime);
+        return curStringDate;
+    }
+
+    /*Проверяет, есть ли такой же ник в чате*/
+    public static boolean checkNicname(String nicname, List<String> listNames) throws IOException {
+        boolean res = false;
+        for (String userName : listNames) {
+            if (nicname.equals(userName)) {
+                res = true;
+                break;
+            } else {
+                res = false;
+            }
+        }
+        return res;
+    }
+
+    //<editor-fold defaultstate="collapsed" desc="Не используется">
     public String getMyLocalIPOne() {
         InetAddress addr = null;
         try {
@@ -260,4 +272,20 @@ public class Utils {
         String myLANIP = addr.getHostAddress();
         return myLANIP;
     }
+
+    public class StatusBar extends JLabel {
+
+        public StatusBar() {
+            super();
+            super.setPreferredSize(new Dimension(100, 16));
+            setMessage("Ready");
+        }
+
+        public void setMessage(String message) {
+            setText(" " + message);
+        }
+
+    }
+
+    //</editor-fold>
 }

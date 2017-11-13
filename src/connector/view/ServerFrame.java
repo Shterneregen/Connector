@@ -109,12 +109,12 @@ public class ServerFrame extends javax.swing.JFrame {
 
             tfPort.setEditable(false);
             pfPas.setEditable(false);
-            server.createServerThreadAndStart(intPort, psw);
+            server.createServer(intPort, psw);
         }
     }
 
     public void stopServer() {
-        server.setStopServerThread();
+        server.stopServer();
 
         btStartServer.setEnabled(true);
         btStopServer.setEnabled(false);
