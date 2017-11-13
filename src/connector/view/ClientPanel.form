@@ -131,8 +131,7 @@
                           </Group>
                           <Group type="102" attributes="0">
                               <Component id="cbNewConversation" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace max="32767" attributes="0"/>
-                              <Component id="btSettings" min="-2" pref="59" max="-2" attributes="0"/>
+                              <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
                           </Group>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
@@ -158,11 +157,8 @@
                           <Component id="lbPass" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="pfPas" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="1" attributes="0">
-                          <Component id="cbNewConversation" min="-2" max="-2" attributes="0"/>
-                          <Component id="btSettings" min="-2" pref="35" max="-2" attributes="0"/>
-                      </Group>
+                      <EmptySpace min="-2" pref="18" max="-2" attributes="0"/>
+                      <Component id="cbNewConversation" min="-2" max="-2" attributes="0"/>
                       <EmptySpace min="-2" pref="0" max="-2" attributes="0"/>
                   </Group>
               </Group>
@@ -230,16 +226,6 @@
                 <Property name="text" type="java.lang.String" value="&#x41d;&#x43e;&#x432;&#x44b;&#x439; &#x434;&#x438;&#x430;&#x43b;&#x43e;&#x433;"/>
                 <Property name="opaque" type="boolean" value="false"/>
               </Properties>
-            </Component>
-            <Component class="javax.swing.JButton" name="btSettings">
-              <Properties>
-                <Property name="borderPainted" type="boolean" value="false"/>
-                <Property name="contentAreaFilled" type="boolean" value="false"/>
-                <Property name="focusable" type="boolean" value="false"/>
-              </Properties>
-              <Events>
-                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btSettingsActionPerformed"/>
-              </Events>
             </Component>
           </SubComponents>
         </Container>

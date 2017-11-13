@@ -1,7 +1,7 @@
 package connector.view;
 
 import connector.resources.ControlLines;
-import connector.Tray;
+import connector.model.Tray;
 import connector.constant.ServerConfig;
 import connector.utils.Utils;
 import connector.constant.TrayType;

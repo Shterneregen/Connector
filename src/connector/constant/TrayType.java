@@ -6,12 +6,19 @@
 package connector.constant;
 
 /**
- * Определяет тип трея
+ * Тип трея
  *
  * @author Yura
  */
 public class TrayType {
 
-    public static int SERVER_TRAY = 1;  // Трей сервера
-    public static int CLIENT_TRAY = 0;  // Трей клиента
+    /**
+     * Трей клиента
+     */
+    public static final int CLIENT_TRAY = 0;
+
+    /**
+     * Трей сервера
+     */
+    public static final int SERVER_TRAY = 1;
 }

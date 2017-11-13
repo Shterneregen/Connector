@@ -1,9 +1,10 @@
 package connector.view;
 
 import connector.resources.ControlLines;
-import connector.Tray;
+import connector.model.Tray;
 import static connector.constant.ClientType.CLIENT_WITHOUT_SERVER;
 import static connector.constant.ServerConfig.ONLY_SERVER;
+import connector.constant.TrayType;
 import connector.utils.ProjectProperties;
 import java.awt.Graphics;
 import java.awt.Image;
@@ -86,7 +87,7 @@ public class ClientFrame extends javax.swing.JFrame {
 
 //                if (numCl != 0) {
 //                    new Tray().setTrayIcon(ClientFrame.this, listClients, CLIENT);
-                new Tray().setTrayIcon(ClientFrame.this, mainPanel, CLIENT);
+                new Tray().setTrayIcon(ClientFrame.this, mainPanel, TrayType.CLIENT_TRAY);
 //                } else {
 //                    new Tray().setTrayIcon(ClientFrame.this, null, CLIENT);
 //                }

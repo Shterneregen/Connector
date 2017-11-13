@@ -63,8 +63,8 @@ public class ClientPanel extends javax.swing.JPanel {
 
         initComponents();
         setItemsNames();
-        btSettings.setIcon(new javax.swing.ImageIcon(getClass().getResource("../resources/images/setting.png")));
-        btSettings.setToolTipText(stringsFile.getProperty("clientPanel.button.setting"));
+//        btSettings.setIcon(new javax.swing.ImageIcon(getClass().getResource("../resources/images/setting.png")));
+//        btSettings.setToolTipText(stringsFile.getProperty("clientPanel.button.setting"));
         listAddr.stream().forEach((address) -> {
             tfIP.addItem(address);
         });
@@ -85,7 +85,7 @@ public class ClientPanel extends javax.swing.JPanel {
         tfInput.setEditable(false);
         btStopClient.setEnabled(false);
         btSent.setEnabled(false);
-        btSettings.setEnabled(false);
+//        btSettings.setEnabled(false);
 
         cbNewConversation.addItemListener(new ItemListener() {
             @Override
@@ -95,13 +95,13 @@ public class ClientPanel extends javax.swing.JPanel {
                     btStartClient.setText(stringsFile.getProperty("clientPanel.button.creat_conversation"));
                     btStopClient.setText(stringsFile.getProperty("clientPanel.button.stop_conversation"));
                     tfIP.setEditable(false);
-                    btSettings.setEnabled(true);
+//                    btSettings.setEnabled(true);
                 } else {
                     ClientPanel.this.conf = ClientType.CLIENT_WITHOUT_SERVER;
                     btStartClient.setText(stringsFile.getProperty("clientPanel.button.join"));
                     btStopClient.setText(stringsFile.getProperty("clientPanel.button.exit"));
                     tfIP.setEditable(true);
-                    btSettings.setEnabled(false);
+//                    btSettings.setEnabled(false);
                 }
                 tfIP.removeAllItems();
                 listAddr.stream().forEach((address) -> {
@@ -316,7 +316,6 @@ public class ClientPanel extends javax.swing.JPanel {
         lbNic = new javax.swing.JLabel();
         lbPass = new javax.swing.JLabel();
         cbNewConversation = new javax.swing.JCheckBox();
-        btSettings = new javax.swing.JButton();
         jPanel2 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         tpOutput = new javax.swing.JTextArea();
@@ -372,15 +371,6 @@ public class ClientPanel extends javax.swing.JPanel {
         cbNewConversation.setText("Новый диалог");
         cbNewConversation.setOpaque(false);
 
-        btSettings.setBorderPainted(false);
-        btSettings.setContentAreaFilled(false);
-        btSettings.setFocusable(false);
-        btSettings.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btSettingsActionPerformed(evt);
-            }
-        });
-
         javax.swing.GroupLayout pSetConLayout = new javax.swing.GroupLayout(pSetCon);
         pSetCon.setLayout(pSetConLayout);
         pSetConLayout.setHorizontalGroup(
@@ -412,8 +402,7 @@ public class ClientPanel extends javax.swing.JPanel {
                                 .addComponent(tfPort, javax.swing.GroupLayout.PREFERRED_SIZE, 127, javax.swing.GroupLayout.PREFERRED_SIZE))))
                     .addGroup(pSetConLayout.createSequentialGroup()
                         .addComponent(cbNewConversation)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(btSettings, javax.swing.GroupLayout.PREFERRED_SIZE, 59, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         pSetConLayout.setVerticalGroup(
@@ -432,10 +421,8 @@ public class ClientPanel extends javax.swing.JPanel {
                     .addComponent(tfNic, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(lbPass)
                     .addComponent(pfPas, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(pSetConLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(cbNewConversation)
-                    .addComponent(btSettings, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
+                .addComponent(cbNewConversation)
                 .addGap(0, 0, 0))
         );
 
@@ -549,13 +536,8 @@ public class ClientPanel extends javax.swing.JPanel {
         tfInput.setText("");
     }//GEN-LAST:event_btSentActionPerformed
 
-    private void btSettingsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btSettingsActionPerformed
-        serverFrame.setVisible(true);
-    }//GEN-LAST:event_btSettingsActionPerformed
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btSent;
-    private javax.swing.JButton btSettings;
     private javax.swing.JButton btStartClient;
     private javax.swing.JButton btStopClient;
     private javax.swing.JCheckBox cbNewConversation;

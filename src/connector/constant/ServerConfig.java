@@ -6,7 +6,7 @@
 package connector.constant;
 
 /**
- * Определяет сервер запущен из клиента или один
+ * Сервер запущен из клиента или один
  *
  * @author Yura
  */
@@ -15,10 +15,10 @@ public class ServerConfig {
     /**
      * Сервер запущен из клиента
      */
-    public static int SERVER_FROM_CLIENT = 1;
+    public static final int SERVER_FROM_CLIENT = 1;
 
     /**
      * Сервер запущен без клиента
      */
-    public static int ONLY_SERVER = 0;
+    public static final int ONLY_SERVER = 0;
 }

@@ -2,6 +2,7 @@ package connector.utils;
 
 import connector.view.ServerFrame;
 import java.awt.Dimension;
+import java.io.File;
 import java.io.IOException;
 import java.net.Inet4Address;
 import java.net.InetAddress;
@@ -32,44 +33,8 @@ import javax.swing.text.DocumentFilter;
  */
 public class Utils {
 
-    private static final String SOUND_MSG = "resources/sounds/Blocked.wav";
+    private static final String SOUND_MSG = "../resources/sounds/Blocked.wav";
     private static final URL SOUND_URL = Utils.class.getResource(SOUND_MSG);
-
-    // Фильтр для поля IP, на данный момент не используется.
-    public class DocumentFilterForIP extends DocumentFilter {
-
-        @Override
-        public void insertString(FilterBypass fb, int offset, String string, AttributeSet attr) throws BadLocationException {
-
-            StringBuffer buffer = new StringBuffer(string);
-            for (int i = buffer.length() - 1; i >= 0; i--) {
-                char ch = buffer.charAt(i);
-                if (!Character.isDigit(ch) && ch != '-') {
-                    buffer.deleteCharAt(i);
-                }
-            }
-            string = buffer.toString();
-            super.insertString(fb, offset, string, attr);
-        }
-
-        @Override
-        public void replace(FilterBypass fb, int offset, int length, String string, AttributeSet attrs) throws BadLocationException {
-            StringBuffer buffer = null;
-            if (string != null) {
-                buffer = new StringBuffer(string);
-                //int num = 0;
-                for (int i = buffer.length() - 1; i >= 0; i--) {
-
-                    char ch = buffer.charAt(i);
-                    if (!Character.isDigit(ch) && ch != '.') {
-                        buffer.deleteCharAt(i);
-                    }
-                }
-                string = buffer.toString();
-            }
-            super.replace(fb, offset, length, string, attrs);
-        }
-    }
 
     // Фильтр для поля порта, позволяет вводить только цифры.
     public class DocumentFilterForPort extends DocumentFilter {
@@ -106,19 +71,29 @@ public class Utils {
         }
     }
 
-    // Воспроизводит звук.
+    /**
+     * Воспроизводит звук.
+     *
+     * @throws UnsupportedAudioFileException
+     * @throws IOException
+     * @throws LineUnavailableException
+     */
     public static void PlaySound() throws UnsupportedAudioFileException, IOException, LineUnavailableException {
-        // процедура проигрывающая один заранее заданный файл
         //AudioInputStream stream = AudioSystem.getAudioInputStream(new File("womp.wav")); // создаём аудио поток из файла
-//        AudioInputStream stream = AudioSystem.getAudioInputStream(new File(SOUND_MSG)); // создаём аудио поток из файла
-        AudioInputStream stream = AudioSystem.getAudioInputStream(SOUND_URL);
+        AudioInputStream stream = AudioSystem.getAudioInputStream(new File(SOUND_MSG)); // создаём аудио поток из файла
+//        AudioInputStream stream = AudioSystem.getAudioInputStream(SOUND_URL);
         DataLine.Info info = new DataLine.Info(Clip.class, stream.getFormat()); // получаем информацию о звуке из потока
         Clip clip = (Clip) AudioSystem.getLine(info); // инициализируем проигрыватель
         clip.open(stream); // воспроизводим файл
         clip.start(); // закрываем проигрыватель
     }
 
-    // Удаляет управляющие символы из строки.
+    /**
+     * Удаляет управляющие символы из строки.
+     *
+     * @param s
+     * @return
+     */
     public static String removeTheTrash(String s) {
         char[] buf = new char[1024];
         int length = s.length();
@@ -237,7 +212,9 @@ public class Utils {
         return ip;
     }
 
-    /*Возвращает дату (ch == 1) или время (ch == 0)*/
+    /**
+     * Возвращает дату (ch == 1) или время (ch == 0)
+     */
     public static String getTime(boolean ch) {
         //Date calendar = Calendar.getInstance().getTime();
         long curTime = System.currentTimeMillis();
@@ -287,5 +264,40 @@ public class Utils {
 
     }
 
+    // Фильтр для поля IP, на данный момент не используется.
+    public class DocumentFilterForIP extends DocumentFilter {
+
+        @Override
+        public void insertString(DocumentFilter.FilterBypass fb, int offset, String string, AttributeSet attr) throws BadLocationException {
+
+            StringBuffer buffer = new StringBuffer(string);
+            for (int i = buffer.length() - 1; i >= 0; i--) {
+                char ch = buffer.charAt(i);
+                if (!Character.isDigit(ch) && ch != '-') {
+                    buffer.deleteCharAt(i);
+                }
+            }
+            string = buffer.toString();
+            super.insertString(fb, offset, string, attr);
+        }
+
+        @Override
+        public void replace(DocumentFilter.FilterBypass fb, int offset, int length, String string, AttributeSet attrs) throws BadLocationException {
+            StringBuffer buffer = null;
+            if (string != null) {
+                buffer = new StringBuffer(string);
+                //int num = 0;
+                for (int i = buffer.length() - 1; i >= 0; i--) {
+
+                    char ch = buffer.charAt(i);
+                    if (!Character.isDigit(ch) && ch != '.') {
+                        buffer.deleteCharAt(i);
+                    }
+                }
+                string = buffer.toString();
+            }
+            super.replace(fb, offset, length, string, attrs);
+        }
+    }
     //</editor-fold>
 }
