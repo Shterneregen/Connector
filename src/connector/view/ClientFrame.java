@@ -18,10 +18,9 @@ import javax.swing.JPanel;
 
 public class ClientFrame extends javax.swing.JFrame {
 
-    private static final int CLIENT = 0;
+    private static final String CLIENT_BACKGROUND = "../resources/images/fon33.jpg";
     private ClientPanel mainPanel;
     private String strChat;
-    private static final String CLIENT_BACKGROUND = "../resources/images/fon33.jpg";
     private Properties stringsFile;
 
 //    Utils.StatusBar statusBar;

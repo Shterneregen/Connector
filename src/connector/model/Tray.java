@@ -8,7 +8,8 @@ import connector.utils.Utils;
 import java.awt.*;
 import javax.swing.*;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.io.IOException;
 import java.net.*;
 import java.util.Properties;
@@ -27,55 +28,47 @@ public class Tray {
     private SystemTray tray;
     private Link link;
     private Properties stringsFile;
+//    ArrayList<Client> listClients = new ArrayList<Client>();
 
     public Tray() {
         stringsFile = ProjectProperties.getInstance().getStringsFile();
-        trayIcon = null;
         tray = SystemTray.getSystemTray();
         link = null;
-
     }
-//    ArrayList<Client> listClients = new ArrayList<Client>();
 
 //    public void setTrayIcon(JFrame frame, ArrayList<Client> listClients, int conf) {
     public void setTrayIcon(JFrame frame, ClientPanel client, int conf) {
 //        this.listClients = listClients;
         if (!SystemTray.isSupported()) {
+            if (client != null) {
+                link.setStop();
+            }
+            frame.setVisible(true);
+            frame.setState(JFrame.NORMAL);
             return;
         }
         PopupMenu trayMenu = new PopupMenu();
 
-        MenuItem item1 = new MenuItem("Развернуть");
-        item1.addActionListener(new ActionListener() {
-//            SystemTray tray = SystemTray.getSystemTray();
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
+        MenuItem itemExtend = new MenuItem("Развернуть");
+        itemExtend.addActionListener((ActionEvent e) -> {
 //                if (listClients !=null) {
 ////                    if (conf == 0 & listClients !=null) {
 //                    link.setStop();
 //                }
-
-                if (client != null) {
-                    link.setStop();
-                }
-
-                frame.setVisible(true);
-                frame.setState(JFrame.NORMAL);
-                //frame.setExtendedState(NORMAL);
-//                tray.remove(trayIcon);
-                tray = SystemTray.getSystemTray();
-                tray.remove(trayIcon);
+            if (client != null) {
+                link.setStop();
             }
+
+            frame.setVisible(true);
+            frame.setState(JFrame.NORMAL);
+            tray = SystemTray.getSystemTray();
+            tray.remove(trayIcon);
         });
-        trayMenu.add(item1);
+        trayMenu.add(itemExtend);
 
         MenuItem itemExit = new MenuItem("Выйти");
-        itemExit.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                System.exit(0);
-            }
+        itemExit.addActionListener((ActionEvent e) -> {
+            System.exit(0);
         });
         trayMenu.add(itemExit);
 
@@ -85,40 +78,37 @@ public class Tray {
 
         Image icon = Toolkit.getDefaultToolkit().getImage(imageURL);
         trayIcon = new TrayIcon(icon,
-                (conf == SERVER_TRAY ? APPLICATION_NAME_SERVER : APPLICATION_NAME_CLIENT), trayMenu);
+                (conf == SERVER_TRAY ? APPLICATION_NAME_SERVER : APPLICATION_NAME_CLIENT),
+                trayMenu);
         trayIcon.setImageAutoSize(true);
-//        trayIcon.addMouseListener(new MouseListener(){
-//            @Override
-//            public void mouseClicked(MouseEvent e) {
-//                if (client !=null) {
-//                    link.setStop();
-//                }
-//
-//                frame.setVisible(true);
-//                frame.setState(JFrame.NORMAL);
-//                getTray().remove(trayIcon);
-//            }
-//
-//            @Override
-//            public void mousePressed(MouseEvent e) {
-////                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-//            }
-//
-//            @Override
-//            public void mouseReleased(MouseEvent e) {
-////                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-//            }
-//
-//            @Override
-//            public void mouseEntered(MouseEvent e) {
-////                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-//            }
-//
-//            @Override
-//            public void mouseExited(MouseEvent e) {
-////                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-//            }
-//        });
+
+        trayIcon.addMouseListener(new MouseListener() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (client != null) {
+                    link.setStop();
+                }
+                frame.setVisible(true);
+                frame.setState(JFrame.NORMAL);
+                tray.remove(trayIcon);
+            }
+
+            @Override
+            public void mousePressed(MouseEvent e) {
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+            }
+
+            @Override
+            public void mouseEntered(MouseEvent e) {
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+            }
+        });
 
 //        if (listClients !=null) {
 ////            if (conf == 0 & listClients !=null) {
@@ -141,7 +131,7 @@ public class Tray {
 
     private class Link extends Thread {
 
-        ClientPanel client;
+        private ClientPanel client;
         private boolean stoped = false;
 
         private String msg = "";
@@ -166,14 +156,12 @@ public class Tray {
                     } else {
                         receiveStr = client.getReceiveStr();
                     }
-                    trayIcon.displayMessage(client.getName(), receiveStr,
-                            TrayIcon.MessageType.INFO);
-//                    Toolkit.getDefaultToolkit().beep();
+                    trayIcon.displayMessage(client.getName(), receiveStr, TrayIcon.MessageType.INFO);
                     try {
                         Utils.PlaySound();
                     } catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex) {
-                        Logger.getLogger(Tray.class.getName()).log(Level.SEVERE, null, ex);
                         Toolkit.getDefaultToolkit().beep();
+                        Logger.getLogger(Tray.class.getName()).log(Level.SEVERE, null, ex);
                     }
                 }
                 oldMsg = msg;

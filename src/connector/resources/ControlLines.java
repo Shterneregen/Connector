@@ -3,7 +3,6 @@ package connector.resources;
 public class ControlLines {
 
     public static final String STR_EXIT = "</exit/>";
-//    public static final String STR_EXIT_ALL = "</exit-all/>";
     public static final String STR_GET_ALL_MSG = "</GET-ALL/>";
     public static final String STR_GOOD_CONN = "</GOOD-CONNECTION/>";
     public static final String STR_SEND_PUB_KEY = "</sendpubk/>";

@@ -2,7 +2,6 @@ package connector.utils;
 
 import connector.view.ServerFrame;
 import java.awt.Dimension;
-import java.io.File;
 import java.io.IOException;
 import java.net.Inet4Address;
 import java.net.InetAddress;
@@ -33,10 +32,12 @@ import javax.swing.text.DocumentFilter;
  */
 public class Utils {
 
-    private static final String SOUND_MSG = "../resources/sounds/Blocked.wav";
+    private static final String SOUND_MSG = "..\\resources\\sounds\\Blocked.wav";
     private static final URL SOUND_URL = Utils.class.getResource(SOUND_MSG);
 
-    // Фильтр для поля порта, позволяет вводить только цифры.
+    /**
+     * Фильтр для поля порта, позволяет вводить только цифры.
+     */
     public class DocumentFilterForPort extends DocumentFilter {
 
         @Override
@@ -79,9 +80,8 @@ public class Utils {
      * @throws LineUnavailableException
      */
     public static void PlaySound() throws UnsupportedAudioFileException, IOException, LineUnavailableException {
-        //AudioInputStream stream = AudioSystem.getAudioInputStream(new File("womp.wav")); // создаём аудио поток из файла
-        AudioInputStream stream = AudioSystem.getAudioInputStream(new File(SOUND_MSG)); // создаём аудио поток из файла
-//        AudioInputStream stream = AudioSystem.getAudioInputStream(SOUND_URL);
+//        AudioInputStream stream = AudioSystem.getAudioInputStream(new File(SOUND_MSG)); // создаём аудио поток из файла
+        AudioInputStream stream = AudioSystem.getAudioInputStream(SOUND_URL);
         DataLine.Info info = new DataLine.Info(Clip.class, stream.getFormat()); // получаем информацию о звуке из потока
         Clip clip = (Clip) AudioSystem.getLine(info); // инициализируем проигрыватель
         clip.open(stream); // воспроизводим файл
@@ -125,6 +125,11 @@ public class Utils {
         return ipAddress;
     }
 
+    /**
+     * Возвращает массив локальных IP
+     *
+     * @return массив локальных IP
+     */
     public static ArrayList<String> getMyLocalIP() {
         ArrayList<String> listAddr = new ArrayList<>();
         try {
@@ -213,10 +218,12 @@ public class Utils {
     }
 
     /**
-     * Возвращает дату (ch == 1) или время (ch == 0)
+     * Возвращает дату или время
+     *
+     * @param ch true - дату, false - время
+     * @return дату или время
      */
     public static String getTime(boolean ch) {
-        //Date calendar = Calendar.getInstance().getTime();
         long curTime = System.currentTimeMillis();
         String curStringDate = ch
                 ? new SimpleDateFormat("dd.MM.yyyy").format(curTime)
@@ -224,8 +231,15 @@ public class Utils {
         return curStringDate;
     }
 
-    /*Проверяет, есть ли такой же ник в чате*/
-    public static boolean checkNicname(String nicname, List<String> listNames) throws IOException {
+    /**
+     * Проверяет, есть ли такой же ник в чате
+     *
+     * @param nicname ник для проверки
+     * @param listNames список ников
+     * @return true - есть в списке, false - нет в списке
+     * @throws IOException
+     */
+    public static boolean checkNicname(String nicname, List<String> listNames) {
         boolean res = false;
         for (String userName : listNames) {
             if (nicname.equals(userName)) {

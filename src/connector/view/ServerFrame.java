@@ -95,12 +95,8 @@ public class ServerFrame extends javax.swing.JFrame {
 
         tfPort.setText(stringsFile.getProperty("str.defaultPort"));
         pfPas.setText(stringsFile.getProperty("str.defaultPsw"));
-//        lbYourIP.setText(" Ваш локальный IP ");
     }
 
-//    public StringBuilder getBuffChat() {
-//        return server.getBuffChat();
-//    }
     public void startServer(String port, String psw) {
         int intPort = checkServerConfig(port, psw);
         if (intPort > 0) {
