@@ -19,35 +19,18 @@ import java.util.logging.Logger;
  */
 public class ProjectProperties {
 
-    private static ProjectProperties instance;
-//    private static final String PATH_TO_PROPERTIES = "resources/config.properties";
     private static final String CONFIG_FILE_NAME = "config.properties";
     private static final String DIR_SEPARATOR = System.getProperty("file.separator");
+    private static ProjectProperties instance;
     private Properties projProperties;
     private Properties stringsFile;
-    public static String LANGUAGE_FILE_NAME;
+    private static String LANGUAGE_FILE_NAME;
 
     public static synchronized ProjectProperties getInstance() {
         if (instance == null) {
             instance = new ProjectProperties();
         }
         return instance;
-    }
-
-    public Properties getProjProperties() {
-        return projProperties;
-    }
-
-    public void setProjProperties(Properties projProperties) {
-        this.projProperties = projProperties;
-    }
-
-    public Properties getStringsFile() {
-        return stringsFile;
-    }
-
-    public void setStringsFile(Properties stringsFile) {
-        this.stringsFile = stringsFile;
     }
 
     private ProjectProperties() {
@@ -83,6 +66,8 @@ public class ProjectProperties {
         }
         //</editor-fold>
 
+        //<editor-fold defaultstate="collapsed" desc="Загрузка пропертей из jar">
+//    private static final String PATH_TO_PROPERTIES = "resources/config.properties";
 //        FileInputStream fileInputStream;
 //        try {
 //            //обращаемся к файлу и получаем данные
@@ -94,6 +79,25 @@ public class ProjectProperties {
 //        } catch (IOException e) {
 //            System.out.println("Ошибка в программе: файл " + PATH_TO_PROPERTIES + " не обнаружено");
 //            e.printStackTrace();
-//        }
+//        }        
+        //</editor-fold>
     }
+
+    //<editor-fold defaultstate="collapsed" desc="get-set">
+    public Properties getProjProperties() {
+        return projProperties;
+    }
+
+    public void setProjProperties(Properties projProperties) {
+        this.projProperties = projProperties;
+    }
+
+    public Properties getStringsFile() {
+        return stringsFile;
+    }
+
+    public void setStringsFile(Properties stringsFile) {
+        this.stringsFile = stringsFile;
+    }
+    //</editor-fold>
 }
