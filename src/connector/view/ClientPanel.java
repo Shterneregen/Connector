@@ -33,7 +33,7 @@ public class ClientPanel extends javax.swing.JPanel {
 
     private String strChat;
     private String receiveStr;
-    private int conf;
+    private ClientType clientType;
 
     private ServerFrame serverFrame;
     private Resender resender;
@@ -50,9 +50,9 @@ public class ClientPanel extends javax.swing.JPanel {
     private List<String> listAddr; // Массив локальных IP адресов
 //    private final JTabbedPane pane;
 
-    public ClientPanel(int conf) {
+    public ClientPanel(ClientType clientType) {
         stringsFile = ProjectProperties.getInstance().getStringsFile();
-        this.conf = conf;
+        this.clientType = clientType;
 
         flagGoodConn = false;
         errConn = false;
@@ -68,11 +68,11 @@ public class ClientPanel extends javax.swing.JPanel {
         listAddr.stream().forEach((address) -> {
             tfIP.addItem(address);
         });
-        if (conf == ClientType.CLIENT_WITH_SERVER) {
+        if (clientType.equals(ClientType.CLIENT_WITH_SERVER)) {
             btStartClient.setText(stringsFile.getProperty("clientPanel.button.creat_conversation"));
             btStopClient.setText(stringsFile.getProperty("clientPanel.button.stop_conversation"));
             tfIP.setEditable(false);
-        } else if (conf == ClientType.CLIENT_WITHOUT_SERVER) {
+        } else if (clientType.equals(ClientType.CLIENT_WITHOUT_SERVER)) {
             btStartClient.setText(stringsFile.getProperty("clientPanel.button.join"));
             btStopClient.setText(stringsFile.getProperty("clientPanel.button.exit"));
         }
@@ -91,13 +91,13 @@ public class ClientPanel extends javax.swing.JPanel {
             @Override
             public void itemStateChanged(ItemEvent e) {
                 if (cbNewConversation.isSelected()) {
-                    ClientPanel.this.conf = ClientType.CLIENT_WITH_SERVER;
+                    ClientPanel.this.clientType = ClientType.CLIENT_WITH_SERVER;
                     btStartClient.setText(stringsFile.getProperty("clientPanel.button.creat_conversation"));
                     btStopClient.setText(stringsFile.getProperty("clientPanel.button.stop_conversation"));
                     tfIP.setEditable(false);
 //                    btSettings.setEnabled(true);
                 } else {
-                    ClientPanel.this.conf = ClientType.CLIENT_WITHOUT_SERVER;
+                    ClientPanel.this.clientType = ClientType.CLIENT_WITHOUT_SERVER;
                     btStartClient.setText(stringsFile.getProperty("clientPanel.button.join"));
                     btStopClient.setText(stringsFile.getProperty("clientPanel.button.exit"));
                     tfIP.setEditable(true);
@@ -156,7 +156,7 @@ public class ClientPanel extends javax.swing.JPanel {
         btStopClient.setEnabled(true);
         btSent.setEnabled(true);
 
-        if (conf != ClientType.CLIENT_WITH_SERVER) {
+        if (clientType.equals(ClientType.CLIENT_WITHOUT_SERVER)) {
             tfIP.setEditable(false);
         }
         tfPort.setEditable(false);
@@ -174,7 +174,7 @@ public class ClientPanel extends javax.swing.JPanel {
         btStopClient.setEnabled(false);
         btSent.setEnabled(false);
 
-        if (conf != ClientType.CLIENT_WITH_SERVER) {
+        if (clientType.equals(ClientType.CLIENT_WITHOUT_SERVER)) {
             tfIP.setEditable(true);
         }
         tfPort.setEditable(true);
@@ -261,8 +261,7 @@ public class ClientPanel extends javax.swing.JPanel {
                             break;
                     }
                 }
-            } 
-            finally {
+            } finally {
                 client.closeStreams();
             }
         }
@@ -504,7 +503,7 @@ public class ClientPanel extends javax.swing.JPanel {
         String ip = Utils.getAndCheckIP((String) tfIP.getSelectedItem());
         int port = Utils.getAndCheckPort(tfPort.getText());
         if (ip != null && port > 0) {
-            if (conf == ClientType.CLIENT_WITH_SERVER) {
+            if (clientType.equals(ClientType.CLIENT_WITH_SERVER)) {
                 serverFrame = new ServerFrame(ControlLines.MAIN_NAME, ServerConfig.SERVER_FROM_CLIENT);
                 serverFrame.startServer(tfPort.getText(), String.valueOf(pfPas.getPassword()));
             }
@@ -514,7 +513,7 @@ public class ClientPanel extends javax.swing.JPanel {
     }//GEN-LAST:event_btStartClientActionPerformed
 
     private void btStopClientActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btStopClientActionPerformed
-        if (conf == ClientType.CLIENT_WITH_SERVER) {
+        if (clientType.equals(ClientType.CLIENT_WITH_SERVER)) {
             serverFrame.stopServer();
         } else {
             resender.setStop();

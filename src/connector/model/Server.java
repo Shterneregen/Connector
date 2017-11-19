@@ -130,7 +130,7 @@ class Server extends Thread {
         private ObjectInputStream inputStream;
         private ObjectOutputStream outputStream;
         private Encryption clientEncryption;
-        private String name = "";
+        private String name;
         private Properties stringsFile;
 
         public Connection(Socket soc) {
@@ -235,18 +235,22 @@ class Server extends Thread {
             }
         }
 
-        /*Отправляем сообщение определенному участнику*/
+        /**
+         * Отправляем сообщение определенному участнику
+         */
         private void writeMsgToStream(Connection connection, String msg) throws IOException {
             connection.getOutputStream().writeObject(new Message(connection.getClientEncryption().encrypt(msg), false));
         }
 
-        /* Закрывает входной и выходной потоки и сокет*/
+        /**
+         * Закрывает входной и выходной потоки и сокет
+         */
         private void close() {
             try {
                 if (this.inputStream != null) {
                     this.inputStream.close();
                 }
-            } catch (Exception e) {
+            } catch (IOException e) {
                 Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, e);
                 System.err.println("Поток inputStream не закрыт!");
             }
@@ -255,7 +259,7 @@ class Server extends Thread {
                     this.outputStream.close();
                     this.outputStream.flush();
                 }
-            } catch (Exception e) {
+            } catch (IOException e) {
                 Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, e);
                 System.err.println("Поток outputStream не закрыт!");
             }
@@ -263,7 +267,7 @@ class Server extends Thread {
                 if (socket != null) {
                     this.socket.close();
                 }
-            } catch (Exception e) {
+            } catch (IOException e) {
                 Logger.getLogger(Server.class.getName()).log(Level.SEVERE, null, e);
                 System.err.println("Сокет не закрыт!");
             }

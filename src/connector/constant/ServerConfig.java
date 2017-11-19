@@ -10,15 +10,13 @@ package connector.constant;
  *
  * @author Yura
  */
-public class ServerConfig {
-
+public enum ServerConfig {
     /**
      * Сервер запущен из клиента
      */
-    public static final int SERVER_FROM_CLIENT = 1;
-
+    SERVER_FROM_CLIENT,
     /**
      * Сервер запущен без клиента
      */
-    public static final int ONLY_SERVER = 0;
+    ONLY_SERVER;
 }

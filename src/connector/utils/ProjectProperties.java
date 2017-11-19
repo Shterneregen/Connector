@@ -19,12 +19,23 @@ import java.util.logging.Logger;
  */
 public class ProjectProperties {
 
+    private static final String LANGUAGE_FILE = "language_file";
+    private static final String SERVER_ICON = "server_icon";
+    private static final String SERVER_NAME = "server_name";
+    private static final String CLIENT_ICON = "client_icon";
+    private static final String CLIENT_NAME = "client_name";
+
     private static final String CONFIG_FILE_NAME = "config.properties";
     private static final String DIR_SEPARATOR = System.getProperty("file.separator");
     private static ProjectProperties instance;
     private Properties projProperties;
     private Properties stringsFile;
     private static String LANGUAGE_FILE_NAME;
+
+    public static String SERVER_NAME_SELECT;
+    public static String SERVER_ICON_SELECT;
+    public static String CLIENT_NAME_SELECT;
+    public static String CLIENT_ICON_SELECT;
 
     public static synchronized ProjectProperties getInstance() {
         if (instance == null) {
@@ -48,7 +59,11 @@ public class ProjectProperties {
             FileInputStream ins = new FileInputStream(sFilePath);
             // загружаем свойства
             projProperties.load(ins);
-            LANGUAGE_FILE_NAME = projProperties.getProperty("language_file");
+            LANGUAGE_FILE_NAME = projProperties.getProperty(LANGUAGE_FILE);
+            SERVER_NAME_SELECT = projProperties.getProperty(SERVER_NAME);
+            SERVER_ICON_SELECT = projProperties.getProperty(SERVER_ICON);
+            CLIENT_NAME_SELECT = projProperties.getProperty(CLIENT_NAME);
+            CLIENT_ICON_SELECT = projProperties.getProperty(CLIENT_ICON);
         } catch (IOException ex) {
             Logger.getLogger(ProjectProperties.class.getName()).log(Level.SEVERE, null, ex);
         } catch (Exception ex) {

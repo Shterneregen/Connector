@@ -1,7 +1,7 @@
 package connector.model;
 
+import connector.constant.TrayType;
 import connector.view.ClientPanel;
-import static connector.constant.TrayType.SERVER_TRAY;
 import connector.resources.ControlLines;
 import connector.utils.ProjectProperties;
 import connector.utils.Utils;
@@ -24,6 +24,7 @@ public class Tray {
     public static final String APPLICATION_NAME_CLIENT = "Client";
     public static final String ICON_SERVER = "../resources/images/save.png";
     public static final String ICON_CLIENT = "../resources/images/icon.png";
+    
     private TrayIcon trayIcon;
     private SystemTray tray;
     private Link link;
@@ -33,11 +34,10 @@ public class Tray {
     public Tray() {
         stringsFile = ProjectProperties.getInstance().getStringsFile();
         tray = SystemTray.getSystemTray();
-        link = null;
     }
 
 //    public void setTrayIcon(JFrame frame, ArrayList<Client> listClients, int conf) {
-    public void setTrayIcon(JFrame frame, ClientPanel client, int conf) {
+    public void setTrayIcon(JFrame frame, ClientPanel client, TrayType trayType) {
 //        this.listClients = listClients;
         if (!SystemTray.isSupported()) {
             if (client != null) {
@@ -72,13 +72,13 @@ public class Tray {
         });
         trayMenu.add(itemExit);
 
-        URL imageURL = conf == SERVER_TRAY
+        URL imageURL = trayType.equals(TrayType.SERVER_TRAY)
                 ? Tray.class.getResource(ICON_SERVER)
                 : Tray.class.getResource(ICON_CLIENT);
 
         Image icon = Toolkit.getDefaultToolkit().getImage(imageURL);
         trayIcon = new TrayIcon(icon,
-                (conf == SERVER_TRAY ? APPLICATION_NAME_SERVER : APPLICATION_NAME_CLIENT),
+                (trayType.equals(TrayType.SERVER_TRAY) ? APPLICATION_NAME_SERVER : APPLICATION_NAME_CLIENT),
                 trayMenu);
         trayIcon.setImageAutoSize(true);
 

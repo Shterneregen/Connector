@@ -1,9 +1,9 @@
 package connector.view;
 
+import connector.constant.ClientType;
+import connector.constant.ServerConfig;
 import connector.resources.ControlLines;
 import connector.model.Tray;
-import static connector.constant.ClientType.CLIENT_WITHOUT_SERVER;
-import static connector.constant.ServerConfig.ONLY_SERVER;
 import connector.constant.TrayType;
 import connector.utils.ProjectProperties;
 import java.awt.Graphics;
@@ -43,7 +43,7 @@ public class ClientFrame extends javax.swing.JFrame {
 ////            getContentPane().add(statusBar,java.awt.BorderLayout.SOUTH);
 //            statusBar.setMessage("FUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUU");
 
-        mainPanel = new ClientPanel(CLIENT_WITHOUT_SERVER);
+        mainPanel = new ClientPanel(ClientType.CLIENT_WITHOUT_SERVER);
 
         initComponents();
         setMenuItemsNames();
@@ -124,11 +124,9 @@ public class ClientFrame extends javax.swing.JFrame {
     class BgPanel extends JPanel {
 
         public void paintComponent(Graphics g) {
-            Image im = null;
-
             //im = ImageIO.read(new File("D:\\Tests\\fon.jpg"));
             URL imageURL = (ClientFrame.class.getResource(CLIENT_BACKGROUND));
-            im = Toolkit.getDefaultToolkit().getImage(imageURL);
+            Image im = Toolkit.getDefaultToolkit().getImage(imageURL);
 
             g.drawImage(im, 0, 0, null);
             repaint();
@@ -236,7 +234,7 @@ public class ClientFrame extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jmiNewServerWindowActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jmiNewServerWindowActionPerformed
-        ServerFrame server = new ServerFrame(ControlLines.MAIN_NAME, ONLY_SERVER);
+        ServerFrame server = new ServerFrame(ControlLines.MAIN_NAME, ServerConfig.ONLY_SERVER);
         server.setVisible(true);
     }//GEN-LAST:event_jmiNewServerWindowActionPerformed
 

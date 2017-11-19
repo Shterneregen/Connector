@@ -27,9 +27,9 @@ public class ServerFrame extends javax.swing.JFrame {
      * Окно сервера
      *
      * @param frameName название окна
-     * @param conf ServerConfig
+     * @param serverConfig ServerConfig
      */
-    public ServerFrame(String frameName, int conf) {
+    public ServerFrame(String frameName, ServerConfig serverConfig) {
         super(frameName);
         server = new ServerManager();
         stringsFile = ProjectProperties.getInstance().getStringsFile();
@@ -49,7 +49,7 @@ public class ServerFrame extends javax.swing.JFrame {
             }
 
             public void windowClosing(WindowEvent event) {
-                if (server.getIsStartServer() && conf == ServerConfig.ONLY_SERVER) {
+                if (server.getIsStartServer() && serverConfig.equals(ServerConfig.ONLY_SERVER)) {
                     stopServer();
                 }
                 setVisible(false);

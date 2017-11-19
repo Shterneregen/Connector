@@ -10,16 +10,14 @@ package connector.constant;
  *
  * @author Yura
  */
-public class ClientType {
-
+public enum ClientType {
     /**
      * Клиент без сервера
      */
-    public static final int CLIENT_WITHOUT_SERVER = 0;
-
+    CLIENT_WITHOUT_SERVER,
     /**
      * Клиент с сервером
      */
-    public static final int CLIENT_WITH_SERVER = 1;
+    CLIENT_WITH_SERVER;
 
 }

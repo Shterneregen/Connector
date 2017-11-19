@@ -10,15 +10,13 @@ package connector.constant;
  *
  * @author Yura
  */
-public class TrayType {
-
+public enum TrayType {
     /**
      * Трей клиента
      */
-    public static final int CLIENT_TRAY = 0;
-
+    CLIENT_TRAY,
     /**
      * Трей сервера
      */
-    public static final int SERVER_TRAY = 1;
+    SERVER_TRAY;
 }
