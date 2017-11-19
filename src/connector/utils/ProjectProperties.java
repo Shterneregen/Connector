@@ -54,26 +54,20 @@ public class ProjectProperties {
 
         try {
             // определяем полный путь к файлу
-            String sFilePath = currentDir.getCanonicalPath() + DIR_SEPARATOR + CONFIG_FILE_NAME;
+            String propertiesPath = currentDir.getCanonicalPath() + DIR_SEPARATOR + CONFIG_FILE_NAME;
             // создаем поток для чтения из файла
-            FileInputStream ins = new FileInputStream(sFilePath);
-            // загружаем свойства
-            projProperties.load(ins);
+            FileInputStream propertieStream = new FileInputStream(propertiesPath);
+            projProperties.load(propertieStream);
+
             LANGUAGE_FILE_NAME = projProperties.getProperty(LANGUAGE_FILE);
             SERVER_NAME_SELECT = projProperties.getProperty(SERVER_NAME);
             SERVER_ICON_SELECT = projProperties.getProperty(SERVER_ICON);
             CLIENT_NAME_SELECT = projProperties.getProperty(CLIENT_NAME);
             CLIENT_ICON_SELECT = projProperties.getProperty(CLIENT_ICON);
-        } catch (IOException ex) {
-            Logger.getLogger(ProjectProperties.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (Exception ex) {
-            Logger.getLogger(ProjectProperties.class.getName()).log(Level.SEVERE, null, ex);
-        }
 
-        try {
-            String sFilePath = currentDir.getCanonicalPath() + DIR_SEPARATOR + LANGUAGE_FILE_NAME;
-            FileInputStream ins = new FileInputStream(sFilePath);
-            stringsFile.load(ins);
+            String languagePath = currentDir.getCanonicalPath() + DIR_SEPARATOR + LANGUAGE_FILE_NAME;
+            FileInputStream stringStream = new FileInputStream(languagePath);
+            stringsFile.load(stringStream);
         } catch (IOException ex) {
             Logger.getLogger(ProjectProperties.class.getName()).log(Level.SEVERE, null, ex);
         } catch (Exception ex) {
@@ -88,9 +82,6 @@ public class ProjectProperties {
 //            //обращаемся к файлу и получаем данные
 //            fileInputStream = new FileInputStream(PATH_TO_PROPERTIES);
 //            projProperties.load(fileInputStream);
-//
-//            //печатаем полученные данные в консоль
-//            System.out.println("language: " + projProperties.getProperty("language"));
 //        } catch (IOException e) {
 //            System.out.println("Ошибка в программе: файл " + PATH_TO_PROPERTIES + " не обнаружено");
 //            e.printStackTrace();
