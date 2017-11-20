@@ -8,18 +8,14 @@ import connector.model.Client;
 import connector.constant.ClientType;
 import connector.constant.ServerConfig;
 import connector.utils.ProjectProperties;
-import java.awt.Component;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.AbstractButton;
 import javax.swing.text.AbstractDocument;
 
 /**
@@ -74,7 +70,7 @@ public class ClientPanel extends javax.swing.JPanel {
             tfIP.setEditable(false);
         } else if (clientType.equals(ClientType.CLIENT_WITHOUT_SERVER)) {
             btStartClient.setText(stringsFile.getProperty("clientPanel.button.join"));
-            btStopClient.setText(stringsFile.getProperty("clientPanel.button.exit"));
+            btStopClient.setText(stringsFile.getProperty("str.exit"));
         }
         ((AbstractDocument) tfPort.getDocument()).setDocumentFilter(new Utils().new DocumentFilterForPort());
 
@@ -85,7 +81,6 @@ public class ClientPanel extends javax.swing.JPanel {
         tfInput.setEditable(false);
         btStopClient.setEnabled(false);
         btSent.setEnabled(false);
-//        btSettings.setEnabled(false);
 
         cbNewConversation.addItemListener(new ItemListener() {
             @Override
@@ -95,13 +90,11 @@ public class ClientPanel extends javax.swing.JPanel {
                     btStartClient.setText(stringsFile.getProperty("clientPanel.button.creat_conversation"));
                     btStopClient.setText(stringsFile.getProperty("clientPanel.button.stop_conversation"));
                     tfIP.setEditable(false);
-//                    btSettings.setEnabled(true);
                 } else {
                     ClientPanel.this.clientType = ClientType.CLIENT_WITHOUT_SERVER;
                     btStartClient.setText(stringsFile.getProperty("clientPanel.button.join"));
-                    btStopClient.setText(stringsFile.getProperty("clientPanel.button.exit"));
+                    btStopClient.setText(stringsFile.getProperty("str.exit"));
                     tfIP.setEditable(true);
-//                    btSettings.setEnabled(false);
                 }
                 tfIP.removeAllItems();
                 listAddr.stream().forEach((address) -> {
@@ -279,24 +272,6 @@ public class ClientPanel extends javax.swing.JPanel {
     public Boolean getFlagGoodConn() {
         return flagGoodConn;
     }
-
-    private final static MouseListener buttonMouseListener = new MouseAdapter() {
-        public void mouseEntered(MouseEvent e) {
-            Component component = e.getComponent();
-            if (component instanceof AbstractButton) {
-                AbstractButton button = (AbstractButton) component;
-                button.setBorderPainted(true);
-            }
-        }
-
-        public void mouseExited(MouseEvent e) {
-            Component component = e.getComponent();
-            if (component instanceof AbstractButton) {
-                AbstractButton button = (AbstractButton) component;
-                button.setBorderPainted(false);
-            }
-        }
-    };
 
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
@@ -500,14 +475,14 @@ public class ClientPanel extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btStartClientActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btStartClientActionPerformed
-        String ip = Utils.getAndCheckIP((String) tfIP.getSelectedItem());
-        int port = Utils.getAndCheckPort(tfPort.getText());
-        if (ip != null && port > 0) {
+        Optional<String> ip = Utils.getAndCheckIP((String) tfIP.getSelectedItem());
+        Optional<Integer> port = Utils.getAndCheckPort(tfPort.getText());
+        if (ip.isPresent() && port.isPresent()) {
             if (clientType.equals(ClientType.CLIENT_WITH_SERVER)) {
                 serverFrame = new ServerFrame(ControlLines.MAIN_NAME, ServerConfig.SERVER_FROM_CLIENT);
                 serverFrame.startServer(tfPort.getText(), String.valueOf(pfPas.getPassword()));
             }
-            client = new Client(port, ip, tfNic.getText(), String.valueOf(pfPas.getPassword()));
+            client = new Client(port.get(), ip.get(), tfNic.getText(), String.valueOf(pfPas.getPassword()));
             setConnection();
         }
     }//GEN-LAST:event_btStartClientActionPerformed

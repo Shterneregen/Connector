@@ -7,18 +7,14 @@ import connector.model.Tray;
 import connector.constant.TrayType;
 import connector.utils.ProjectProperties;
 import java.awt.Graphics;
-import java.awt.Image;
-import java.awt.Toolkit;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
-import java.net.URL;
 import java.util.Properties;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 public class ClientFrame extends javax.swing.JFrame {
 
-    private static final String CLIENT_BACKGROUND = "../resources/images/fon33.jpg";
     private ClientPanel mainPanel;
     private String strChat;
     private Properties stringsFile;
@@ -52,9 +48,13 @@ public class ClientFrame extends javax.swing.JFrame {
 
 //        jPanel1.setLayout(new FlowLayout());
 //        jPanel1.add(mainPanel);
-        BgPanel bgPanel = new BgPanel();
-        bgPanel.add(mainPanel);
-        this.setContentPane(bgPanel);
+        if (ProjectProperties.CLIENT_BACKGROUND != null) {
+            BgPanel bgPanel = new BgPanel();
+            bgPanel.add(mainPanel);
+            this.setContentPane(bgPanel);
+        } else {
+            this.setContentPane(mainPanel);
+        }
 
 //        listClients.add(mainPanel);        
         setResizable(false);
@@ -125,10 +125,7 @@ public class ClientFrame extends javax.swing.JFrame {
 
         public void paintComponent(Graphics g) {
             //im = ImageIO.read(new File("D:\\Tests\\fon.jpg"));
-            URL imageURL = (ClientFrame.class.getResource(CLIENT_BACKGROUND));
-            Image im = Toolkit.getDefaultToolkit().getImage(imageURL);
-
-            g.drawImage(im, 0, 0, null);
+            g.drawImage(ProjectProperties.CLIENT_BACKGROUND, 0, 0, null);
             repaint();
         }
     }

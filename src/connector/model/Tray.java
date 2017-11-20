@@ -1,5 +1,6 @@
 package connector.model;
 
+import connector.constant.Switch;
 import connector.constant.TrayType;
 import connector.view.ClientPanel;
 import connector.resources.ControlLines;
@@ -11,7 +12,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.IOException;
-import java.net.*;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -20,11 +20,8 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 
 public class Tray {
 
-    public static final String APPLICATION_NAME_SERVER = "Server";
-    public static final String APPLICATION_NAME_CLIENT = "Client";
-    public static final String ICON_SERVER = "../resources/images/save.png";
-    public static final String ICON_CLIENT = "../resources/images/icon.png";
-    
+//    public static final String ICON_SERVER = "../resources/images/save.png";
+//    public static final String ICON_CLIENT = "../resources/images/icon.png";
     private TrayIcon trayIcon;
     private SystemTray tray;
     private Link link;
@@ -49,7 +46,7 @@ public class Tray {
         }
         PopupMenu trayMenu = new PopupMenu();
 
-        MenuItem itemExtend = new MenuItem("Развернуть");
+        MenuItem itemExtend = new MenuItem(stringsFile.getProperty("str.exit"));
         itemExtend.addActionListener((ActionEvent e) -> {
 //                if (listClients !=null) {
 ////                    if (conf == 0 & listClients !=null) {
@@ -66,19 +63,25 @@ public class Tray {
         });
         trayMenu.add(itemExtend);
 
-        MenuItem itemExit = new MenuItem("Выйти");
+        MenuItem itemExit = new MenuItem(stringsFile.getProperty("str.expand"));
         itemExit.addActionListener((ActionEvent e) -> {
             System.exit(0);
         });
         trayMenu.add(itemExit);
 
-        URL imageURL = trayType.equals(TrayType.SERVER_TRAY)
-                ? Tray.class.getResource(ICON_SERVER)
-                : Tray.class.getResource(ICON_CLIENT);
-
-        Image icon = Toolkit.getDefaultToolkit().getImage(imageURL);
-        trayIcon = new TrayIcon(icon,
-                (trayType.equals(TrayType.SERVER_TRAY) ? APPLICATION_NAME_SERVER : APPLICATION_NAME_CLIENT),
+//        URL imageURL = trayType.equals(TrayType.SERVER_TRAY)
+//                ? Tray.class.getResource(ICON_SERVER)
+//                : Tray.class.getResource(ICON_CLIENT);
+//        URL imageURL = trayType.equals(TrayType.SERVER_TRAY)
+//                ? Tray.class.getResource(ICON_SERVER)
+//                : Tray.class.getResource(ICON_CLIENT);
+//        Image icon = Toolkit.getDefaultToolkit().getImage(imageURL);
+        trayIcon = new TrayIcon(trayType.equals(TrayType.SERVER_TRAY)
+                ? ProjectProperties.SERVER_IMAGE
+                : ProjectProperties.CLIENT_IMAGE,
+                trayType.equals(TrayType.SERVER_TRAY)
+                ? ProjectProperties.SERVER_NAME_SELECT
+                : ProjectProperties.CLIENT_NAME_SELECT,
                 trayMenu);
         trayIcon.setImageAutoSize(true);
 
@@ -117,7 +120,7 @@ public class Tray {
 //                link.start();
 //            }
 //        }
-        if (client != null) {
+        if (client != null && ProjectProperties.POP_UP_SWITCH.equals(Switch.ON)) {
             link = new Link(client);
             link.start();
         }
@@ -134,7 +137,7 @@ public class Tray {
         private ClientPanel client;
         private boolean stoped = false;
 
-        private String msg = "";
+        private String msg;
         private String oldMsg = "Нет сообщений";
 
         public Link(ClientPanel client) {
@@ -150,18 +153,17 @@ public class Tray {
             while (!stoped) {
                 msg = client.getStrChat();
                 if (!msg.equals(oldMsg)) {
-                    String receiveStr;
-                    if (msg.equals(ControlLines.STR_STOP_SERVER)) {
-                        receiveStr = stringsFile.getProperty("stop_server");
-                    } else {
-                        receiveStr = client.getReceiveStr();
-                    }
+                    String receiveStr = msg.equals(ControlLines.STR_STOP_SERVER)
+                            ? stringsFile.getProperty("stop_server")
+                            : client.getReceiveStr();
                     trayIcon.displayMessage(client.getName(), receiveStr, TrayIcon.MessageType.INFO);
-                    try {
-                        Utils.PlaySound();
-                    } catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex) {
-                        Toolkit.getDefaultToolkit().beep();
-                        Logger.getLogger(Tray.class.getName()).log(Level.SEVERE, null, ex);
+                    if (ProjectProperties.SOUND_SWITCH.equals(Switch.ON)) {
+                        try {
+                            Utils.PlaySound();
+                        } catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex) {
+                            Toolkit.getDefaultToolkit().beep();
+                            Logger.getLogger(Tray.class.getName()).log(Level.SEVERE, null, ex);
+                        }
                     }
                 }
                 oldMsg = msg;

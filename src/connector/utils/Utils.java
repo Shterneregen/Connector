@@ -6,12 +6,12 @@ import java.io.IOException;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
-import java.net.URL;
 import java.net.UnknownHostException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.sound.sampled.AudioInputStream;
@@ -32,9 +32,8 @@ import javax.swing.text.DocumentFilter;
  */
 public class Utils {
 
-    private static final String SOUND_MSG = "..\\resources\\sounds\\Blocked.wav";
-    private static final URL SOUND_URL = Utils.class.getResource(SOUND_MSG);
-
+//    private static final String SOUND_MSG = "..\\resources\\sounds\\Blocked.wav";
+//    private static final URL SOUND_URL = Utils.class.getResource(SOUND_MSG);
     /**
      * Фильтр для поля порта, позволяет вводить только цифры.
      */
@@ -81,7 +80,7 @@ public class Utils {
      */
     public static void PlaySound() throws UnsupportedAudioFileException, IOException, LineUnavailableException {
 //        AudioInputStream stream = AudioSystem.getAudioInputStream(new File(SOUND_MSG)); // создаём аудио поток из файла
-        AudioInputStream stream = AudioSystem.getAudioInputStream(SOUND_URL);
+        AudioInputStream stream = AudioSystem.getAudioInputStream(ProjectProperties.SOUND_FILE_FILE);
         DataLine.Info info = new DataLine.Info(Clip.class, stream.getFormat()); // получаем информацию о звуке из потока
         Clip clip = (Clip) AudioSystem.getLine(info); // инициализируем проигрыватель
         clip.open(stream); // воспроизводим файл
@@ -147,14 +146,15 @@ public class Utils {
         return listAddr;
     }
 
-    public static int getAndCheckPort(String strPort) {
-        int port = -1;
+    public static Optional<Integer> getAndCheckPort(String strPort) {
         try {
-            port = Integer.parseInt(strPort);
-            port = (port <= 0 || port > 65535) ? -1 : port;
+            int port = Integer.parseInt(strPort);
+            return (port <= 0 || port > 65535)
+                    ? Optional.empty()
+                    : Optional.of(port);
         } catch (Exception e) {
+            return Optional.empty();
         }
-        return port;
     }
 
     public static boolean checkString(String string) {
@@ -167,14 +167,10 @@ public class Utils {
     }
 
     private static boolean checkIP(String string) {
-        if (checkString(string)) {
-            return !(!(Integer.parseInt(string) >= 0) || !(Integer.parseInt(string) < 256));
-        } else {
-            return false;
-        }
+        return checkString(string) && Integer.parseInt(string) >= 0 && Integer.parseInt(string) < 256;
     }
 
-    public static String getAndCheckIP(String ip) {
+    public static Optional<String> getAndCheckIP(String ip) {
         char[] chArr = ip.toCharArray();
         String ip_1 = "", ip_2 = "", ip_3 = "", ip_4 = "";
         int i = 0;
@@ -185,7 +181,7 @@ public class Utils {
             ip_1 += chArr[i];
         }
         if (!checkIP(ip_1)) {
-            return null;
+            return Optional.empty();
         }
         i++;
         for (; i < chArr.length; i++) {
@@ -195,7 +191,7 @@ public class Utils {
             ip_2 += chArr[i];
         }
         if (!checkIP(ip_2)) {
-            return null;
+            return Optional.empty();
         }
         i++;
         for (; i < chArr.length; i++) {
@@ -205,16 +201,16 @@ public class Utils {
             ip_3 += chArr[i];
         }
         if (!checkIP(ip_3)) {
-            return null;
+            return Optional.empty();
         }
         i++;
         for (; i < chArr.length; i++) {
             ip_4 += chArr[i];
         }
         if (!checkIP(ip_4)) {
-            return null;
+            return Optional.empty();
         }
-        return ip;
+        return Optional.of(ip);
     }
 
     /**

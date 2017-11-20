@@ -10,6 +10,7 @@ import connector.utils.ProjectProperties;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.util.ArrayList;
+import java.util.Optional;
 import java.util.Properties;
 import javax.swing.text.AbstractDocument;
 
@@ -98,14 +99,25 @@ public class ServerFrame extends javax.swing.JFrame {
     }
 
     public void startServer(String port, String psw) {
-        int intPort = checkServerConfig(port, psw);
-        if (intPort > 0) {
+        Optional<Integer> checkPort = Utils.getAndCheckPort(port);
+        Optional<String> checkPsw = checkPsw(psw);
+        if (checkPort.isPresent() && checkPsw.isPresent()) {
             btStartServer.setEnabled(false);
             btStopServer.setEnabled(true);
 
             tfPort.setEditable(false);
             pfPas.setEditable(false);
-            server.createServer(intPort, psw);
+            server.createServer(checkPort.get(), psw);
+        } else {
+            String errorPort = !checkPort.isPresent()
+                    ? stringsFile.getProperty("wrong_port") + "; "
+                    : "";
+
+            String errorPsw = !checkPsw.isPresent()
+                    ? stringsFile.getProperty("tf.enter_pass") + "; "
+                    : "";
+
+            lbNumUs.setText(errorPort + errorPsw);
         }
     }
 
@@ -122,15 +134,10 @@ public class ServerFrame extends javax.swing.JFrame {
 //        lbNumUs.setText(stringsFile.getProperty("serverFrame.str.users") + server.getUserNumber());
     }
 
-    private int checkServerConfig(String strPort, String psw) {
-        Integer port = Utils.getAndCheckPort(strPort);
-        if (psw == null || (psw != null && !psw.equals(""))) {
-            lbNumUs.setText(stringsFile.getProperty("tf.enter_pass"));
-        }
-        if (port < 0) {
-            lbNumUs.setText(stringsFile.getProperty("wrong_port"));
-        }
-        return port;
+    private Optional<String> checkPsw(String psw) {
+        return psw == null || (psw != null && psw.equals(""))
+                ? Optional.empty()
+                : Optional.of(psw);
     }
 
     @SuppressWarnings("unchecked")
