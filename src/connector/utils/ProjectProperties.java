@@ -32,15 +32,15 @@ public class ProjectProperties {
     private static final String SOUND_FILE = "sound_file";
     private static final String SOUND_SETTING = "sound_setting";
     private static final String POP_UP_SETTING = "pop_up_setting";
-    private static String PATH;
 
     private static final String PATH_TO_INNER_PROPERTIES = "resources/config.properties";
     private static final String CONFIG_FILE_NAME = "config.properties";
     private static final String DIR_SEPARATOR = System.getProperty("file.separator");
     private static ProjectProperties instance;
-    private Properties projProperties;
-    private Properties stringsFile;
+    private static Properties projProperties;
+    private static Properties stringsFile;
     private static String LANGUAGE_FILE_NAME;
+    private static String PATH;
 
     public static String SERVER_NAME_SELECT;
     public static String CLIENT_NAME_SELECT;
@@ -77,28 +77,7 @@ public class ProjectProperties {
             projProperties.load(propertieStream);
 
             LANGUAGE_FILE_NAME = projProperties.getProperty(LANGUAGE_FILE);
-
-            SERVER_NAME_SELECT = projProperties.getProperty(SERVER_NAME);
-            SERVER_IMAGE = Toolkit.getDefaultToolkit()
-                    .getImage(PATH + projProperties.getProperty(SERVER_ICON));
-
-            CLIENT_NAME_SELECT = projProperties.getProperty(CLIENT_NAME);
-            CLIENT_IMAGE = Toolkit.getDefaultToolkit()
-                    .getImage(PATH + projProperties.getProperty(CLIENT_ICON));
-
-            CLIENT_BACKGROUND = Toolkit.getDefaultToolkit()
-                    .getImage(PATH + projProperties.getProperty(BACKGROUND));
-
-            SOUND_FILE_FILE = new File(PATH + projProperties.getProperty(SOUND_FILE));
-
-            SOUND_SWITCH = projProperties.getProperty(SOUND_SETTING).toLowerCase().equals(Switch.ON.getMode())
-                    ? Switch.ON
-                    : Switch.OFF;
-
-            POP_UP_SWITCH = projProperties.getProperty(POP_UP_SETTING).toLowerCase().equals(Switch.ON.getMode())
-                    ? Switch.ON
-                    : Switch.OFF;
-
+            
             stringStream = new FileInputStream(PATH + LANGUAGE_FILE_NAME);
             stringsFile.load(stringStream);
         } catch (Exception ex) {
@@ -110,21 +89,43 @@ public class ProjectProperties {
                 Logger.getLogger(ProjectProperties.class.getName()).log(Level.SEVERE, null, ex1);
             } catch (IOException ex1) {
                 Logger.getLogger(ProjectProperties.class.getName()).log(Level.SEVERE, null, ex1);
-            } finally {
-                try {
-                    propertieStream.close();
-                } catch (IOException ex1) {
-                    Logger.getLogger(ProjectProperties.class.getName())
-                            .log(Level.SEVERE, "Cannot close propertieStream", ex1);
-                }
-                try {
-                    stringStream.close();
-                } catch (IOException ex1) {
-                    Logger.getLogger(ProjectProperties.class.getName())
-                            .log(Level.SEVERE, "Cannot close stringStream", ex1);
-                }
+            }
+        } finally {
+            try {
+                propertieStream.close();
+            } catch (IOException ex1) {
+                Logger.getLogger(ProjectProperties.class.getName())
+                        .log(Level.SEVERE, "Cannot close propertieStream", ex1);
+            }
+            try {
+                stringStream.close();
+            } catch (IOException ex1) {
+                Logger.getLogger(ProjectProperties.class.getName())
+                        .log(Level.SEVERE, "Cannot close stringStream", ex1);
             }
         }
+
+        SERVER_NAME_SELECT = projProperties.getProperty(SERVER_NAME);
+        SERVER_IMAGE = Toolkit.getDefaultToolkit()
+                .getImage(PATH + projProperties.getProperty(SERVER_ICON));
+
+        CLIENT_NAME_SELECT = projProperties.getProperty(CLIENT_NAME);
+        CLIENT_IMAGE = Toolkit.getDefaultToolkit()
+                .getImage(PATH + projProperties.getProperty(CLIENT_ICON));
+
+        CLIENT_BACKGROUND = Toolkit.getDefaultToolkit()
+                .getImage(PATH + projProperties.getProperty(BACKGROUND));
+
+        SOUND_FILE_FILE = new File(PATH + projProperties.getProperty(SOUND_FILE));
+
+        SOUND_SWITCH = projProperties.getProperty(SOUND_SETTING).toLowerCase().equals(Switch.ON.getMode())
+                ? Switch.ON
+                : Switch.OFF;
+
+        POP_UP_SWITCH = projProperties.getProperty(POP_UP_SETTING).toLowerCase().equals(Switch.ON.getMode())
+                ? Switch.ON
+                : Switch.OFF;
+
     }
 
     //<editor-fold defaultstate="collapsed" desc="get-set">

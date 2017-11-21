@@ -69,12 +69,7 @@ public class Tray {
         });
         trayMenu.add(itemExit);
 
-//        URL imageURL = trayType.equals(TrayType.SERVER_TRAY)
-//                ? Tray.class.getResource(ICON_SERVER)
-//                : Tray.class.getResource(ICON_CLIENT);
-//        URL imageURL = trayType.equals(TrayType.SERVER_TRAY)
-//                ? Tray.class.getResource(ICON_SERVER)
-//                : Tray.class.getResource(ICON_CLIENT);
+//        URL imageURL = Tray.class.getResource(ICON_CLIENT);
 //        Image icon = Toolkit.getDefaultToolkit().getImage(imageURL);
         trayIcon = new TrayIcon(trayType.equals(TrayType.SERVER_TRAY)
                 ? ProjectProperties.SERVER_IMAGE

@@ -53,7 +53,7 @@ public class ClientFrame extends javax.swing.JFrame {
             bgPanel.add(mainPanel);
             this.setContentPane(bgPanel);
         } else {
-            this.setContentPane(mainPanel);
+            this.add(mainPanel);
         }
 
 //        listClients.add(mainPanel);        
