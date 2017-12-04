@@ -56,32 +56,24 @@ public class ProjectProperties {
 
 //    private static final String CLIENT_BACKGROUND = "../resources/images/fon33.jpg";
     public static synchronized ProjectProperties getInstance() {
-        if (instance == null) {
-            instance = new ProjectProperties();
-        }
-        return instance;
+        return instance == null
+                ? new ProjectProperties()
+                : instance;
     }
 
     private ProjectProperties() {
         projProperties = new Properties();
         stringsFile = new Properties();
 
-        // определяем текущий каталог
-        File currentDir = new File(".");
         FileInputStream propertieStream = null;
-        FileInputStream stringStream = null;
         try {
-            PATH = currentDir.getCanonicalPath() + DIR_SEPARATOR;
+            // Читаем из внешних propertie файлов
+            PATH = getCurrentDir();
             // создаем поток для чтения из файла
             propertieStream = new FileInputStream(PATH + CONFIG_FILE_NAME);
             projProperties.load(propertieStream);
-
-            LANGUAGE_FILE_NAME = projProperties.getProperty(LANGUAGE_FILE);
-            
-            stringStream = new FileInputStream(PATH + LANGUAGE_FILE_NAME);
-            stringsFile.load(stringStream);
         } catch (Exception ex) {
-            /*Загрузка пропертей из jar*/
+            // Если из внешних загрузить не получилось, берём проперти из jar
             try (FileInputStream fileInputStream = new FileInputStream(PATH_TO_INNER_PROPERTIES)) {
                 projProperties.load(fileInputStream);
                 Logger.getLogger(ProjectProperties.class.getName()).log(Level.SEVERE, null, ex);
@@ -97,12 +89,13 @@ public class ProjectProperties {
                 Logger.getLogger(ProjectProperties.class.getName())
                         .log(Level.SEVERE, "Cannot close propertieStream", ex1);
             }
-            try {
-                stringStream.close();
-            } catch (IOException ex1) {
-                Logger.getLogger(ProjectProperties.class.getName())
-                        .log(Level.SEVERE, "Cannot close stringStream", ex1);
-            }
+        }
+        LANGUAGE_FILE_NAME = projProperties.getProperty(LANGUAGE_FILE);
+        try (FileInputStream stringStream = new FileInputStream(PATH + LANGUAGE_FILE_NAME)) {
+            stringsFile.load(stringStream);
+        } catch (IOException e) {
+            Logger.getLogger(ProjectProperties.class.getName())
+                    .log(Level.SEVERE, "Cannot close stringStream", e);
         }
 
         SERVER_NAME_SELECT = projProperties.getProperty(SERVER_NAME);
@@ -126,6 +119,12 @@ public class ProjectProperties {
                 ? Switch.ON
                 : Switch.OFF;
 
+    }
+
+    private String getCurrentDir() throws IOException {
+        // определяем текущий каталог
+        File currentDir = new File(".");
+        return currentDir.getCanonicalPath() + DIR_SEPARATOR;
     }
 
     //<editor-fold defaultstate="collapsed" desc="get-set">
