@@ -2,6 +2,7 @@ package connector.utils;
 
 import connector.view.ServerFrame;
 import java.awt.Dimension;
+import java.io.File;
 import java.io.IOException;
 import java.net.Inet4Address;
 import java.net.InetAddress;
@@ -32,8 +33,6 @@ import javax.swing.text.DocumentFilter;
  */
 public class Utils {
 
-//    private static final String SOUND_MSG = "..\\resources\\sounds\\Blocked.wav";
-//    private static final URL SOUND_URL = Utils.class.getResource(SOUND_MSG);
     /**
      * Фильтр для поля порта, позволяет вводить только цифры.
      */
@@ -74,13 +73,13 @@ public class Utils {
     /**
      * Воспроизводит звук.
      *
+     * @param soundFile
      * @throws UnsupportedAudioFileException
      * @throws IOException
      * @throws LineUnavailableException
      */
-    public static void PlaySound() throws UnsupportedAudioFileException, IOException, LineUnavailableException {
-//        AudioInputStream stream = AudioSystem.getAudioInputStream(new File(SOUND_MSG)); // создаём аудио поток из файла
-        AudioInputStream stream = AudioSystem.getAudioInputStream(ProjectProperties.SOUND_FILE_FILE);
+    public static void PlaySound(File soundFile) throws UnsupportedAudioFileException, IOException, LineUnavailableException {
+        AudioInputStream stream = AudioSystem.getAudioInputStream(soundFile);
         DataLine.Info info = new DataLine.Info(Clip.class, stream.getFormat()); // получаем информацию о звуке из потока
         Clip clip = (Clip) AudioSystem.getLine(info); // инициализируем проигрыватель
         clip.open(stream); // воспроизводим файл
@@ -233,7 +232,6 @@ public class Utils {
      * @param nicname ник для проверки
      * @param listNames список ников
      * @return true - есть в списке, false - нет в списке
-     * @throws IOException
      */
     public static boolean checkNicname(String nicname, List<String> listNames) {
         boolean res = false;
@@ -274,6 +272,9 @@ public class Utils {
 
     }
 
+//        Utils.StatusBar statusBar = new Utils().new StatusBar();
+//        getContentPane().add(statusBar, java.awt.BorderLayout.SOUTH);
+//        statusBar.setMessage("FUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUU");
     // Фильтр для поля IP, на данный момент не используется.
     public class DocumentFilterForIP extends DocumentFilter {
 

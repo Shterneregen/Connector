@@ -7,6 +7,7 @@ import connector.model.Tray;
 import connector.constant.TrayType;
 import connector.utils.ProjectProperties;
 import java.awt.Graphics;
+import java.awt.Image;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.util.Properties;
@@ -15,31 +16,14 @@ import javax.swing.JPanel;
 
 public class ClientFrame extends javax.swing.JFrame {
 
-    private ClientPanel mainPanel;
     private String strChat;
     private Properties stringsFile;
-
-//    Utils.StatusBar statusBar;
-    public ClientPanel getMainPanel() {
-        return mainPanel;
-    }
 
     public ClientFrame(String s) {
         super(s);
         stringsFile = ProjectProperties.getInstance().getStringsFile();
-//        try { 
-//            icon = ImageIO.read(ClientFrame.class.getResourceAsStream("../resources/images/icon.png"));
-//        } catch (IOException ex) {
-//            Logger.getLogger(ClientFrame.class.getName()).log(Level.SEVERE, null, ex);
-//        }
-//        setIconImage(icon);
-// statusBar = new Utils().new StatusBar();
-////            getContentPane().add(statusBar, java.awt.BorderLayout.SOUTH);
-//            getContentPane().add(statusBar,java.awt.BorderLayout.SOUTH);
-////            getContentPane().add(statusBar,java.awt.BorderLayout.SOUTH);
-//            statusBar.setMessage("FUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUU");
 
-        mainPanel = new ClientPanel(ClientType.CLIENT_WITHOUT_SERVER);
+        ClientPanel mainPanel = new ClientPanel(ClientType.CLIENT_WITHOUT_SERVER);
 
         initComponents();
         setMenuItemsNames();
@@ -48,12 +32,16 @@ public class ClientFrame extends javax.swing.JFrame {
 
 //        jPanel1.setLayout(new FlowLayout());
 //        jPanel1.add(mainPanel);
+//        if (ProjectProperties.CLIENT_BACKGROUND != null) {
+//            Image background = (Image) IntrospectorTools.cloneObject(ProjectProperties.CLIENT_BACKGROUND);
         if (ProjectProperties.CLIENT_BACKGROUND != null) {
-            BgPanel bgPanel = new BgPanel();
+            BgPanel bgPanel = new BgPanel(ProjectProperties.CLIENT_BACKGROUND);
             bgPanel.add(mainPanel);
             this.setContentPane(bgPanel);
         } else {
-            this.add(mainPanel);
+            JPanel bgPanel = new JPanel();
+            bgPanel.add(mainPanel);
+            this.setContentPane(bgPanel);
         }
 
 //        listClients.add(mainPanel);        
@@ -123,9 +111,14 @@ public class ClientFrame extends javax.swing.JFrame {
 
     class BgPanel extends JPanel {
 
+        Image background;
+
+        public BgPanel(Image background) {
+            this.background = background;
+        }
+
         public void paintComponent(Graphics g) {
-            //im = ImageIO.read(new File("D:\\Tests\\fon.jpg"));
-            g.drawImage(ProjectProperties.CLIENT_BACKGROUND, 0, 0, null);
+            g.drawImage(background, 0, 0, null);
             repaint();
         }
     }

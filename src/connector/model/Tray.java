@@ -11,12 +11,9 @@ import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.io.IOException;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.sound.sampled.LineUnavailableException;
-import javax.sound.sampled.UnsupportedAudioFileException;
 
 public class Tray {
 
@@ -154,10 +151,9 @@ public class Tray {
                     trayIcon.displayMessage(client.getName(), receiveStr, TrayIcon.MessageType.INFO);
                     if (ProjectProperties.SOUND_SWITCH.equals(Switch.ON)) {
                         try {
-                            Utils.PlaySound();
-                        } catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex) {
+                            Utils.PlaySound(ProjectProperties.SOUND_FILE_FILE);
+                        } catch (Exception ex) {
                             Toolkit.getDefaultToolkit().beep();
-                            Logger.getLogger(Tray.class.getName()).log(Level.SEVERE, null, ex);
                         }
                     }
                 }

@@ -10,11 +10,12 @@ import java.awt.Image;
 import java.awt.Toolkit;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.imageio.ImageIO;
 
 /**
  * Класс для загрузки настройки программы, сделан синглтоном
@@ -33,14 +34,18 @@ public class ProjectProperties {
     private static final String SOUND_SETTING = "sound_setting";
     private static final String POP_UP_SETTING = "pop_up_setting";
 
-    private static final String PATH_TO_INNER_PROPERTIES = "resources/config.properties";
+    private static final String S = System.getProperty("file.separator"); // separator
     private static final String CONFIG_FILE_NAME = "config.properties";
-    private static final String DIR_SEPARATOR = System.getProperty("file.separator");
+    private static final String PATH_TO_INNER_RESOURCES = ".." + S + "resources" + S;
+    private static final String PATH_TO_INNER_PROPERTIES = PATH_TO_INNER_RESOURCES + CONFIG_FILE_NAME;
+    private static final String DEFAULT_ICON = "java.png";
     private static ProjectProperties instance;
     private static Properties projProperties;
     private static Properties stringsFile;
     private static String LANGUAGE_FILE_NAME;
     private static String PATH;
+
+    private static Boolean isInnerProperties = true;
 
     public static String SERVER_NAME_SELECT;
     public static String CLIENT_NAME_SELECT;
@@ -49,16 +54,13 @@ public class ProjectProperties {
 
     public static Image SERVER_IMAGE;
     public static Image CLIENT_IMAGE;
-    public static Image CLIENT_BACKGROUND;
+    public static Image CLIENT_BACKGROUND = null;
 
     public static Switch SOUND_SWITCH;
     public static Switch POP_UP_SWITCH;
 
-//    private static final String CLIENT_BACKGROUND = "../resources/images/fon33.jpg";
     public static synchronized ProjectProperties getInstance() {
-        return instance == null
-                ? new ProjectProperties()
-                : instance;
+        return instance == null ? new ProjectProperties() : instance;
     }
 
     private ProjectProperties() {
@@ -72,59 +74,75 @@ public class ProjectProperties {
             // создаем поток для чтения из файла
             propertieStream = new FileInputStream(PATH + CONFIG_FILE_NAME);
             projProperties.load(propertieStream);
+            isInnerProperties = false;
         } catch (Exception ex) {
             // Если из внешних загрузить не получилось, берём проперти из jar
-            try (FileInputStream fileInputStream = new FileInputStream(PATH_TO_INNER_PROPERTIES)) {
-                projProperties.load(fileInputStream);
-                Logger.getLogger(ProjectProperties.class.getName()).log(Level.SEVERE, null, ex);
-            } catch (FileNotFoundException ex1) {
-                Logger.getLogger(ProjectProperties.class.getName()).log(Level.SEVERE, null, ex1);
-            } catch (IOException ex1) {
+            Logger.getLogger("Cannot load projProperties from outer file");
+//            try (FileInputStream fileInputStream = new FileInputStream(PATH_TO_INNER_PROPERTIES)) {
+            try (InputStream inputStream = getClass().getResourceAsStream(PATH_TO_INNER_PROPERTIES)) {
+                projProperties.load(inputStream);
+            } catch (Exception ex1) {
                 Logger.getLogger(ProjectProperties.class.getName()).log(Level.SEVERE, null, ex1);
             }
         } finally {
-            try {
-                propertieStream.close();
-            } catch (IOException ex1) {
-                Logger.getLogger(ProjectProperties.class.getName())
-                        .log(Level.SEVERE, "Cannot close propertieStream", ex1);
+            if (propertieStream != null) {
+                try {
+                    propertieStream.close();
+                } catch (IOException ex1) {
+                    Logger.getLogger(ProjectProperties.class.getName())
+                            .log(Level.SEVERE, "Cannot close propertieStream", ex1);
+                }
             }
-        }
-        LANGUAGE_FILE_NAME = projProperties.getProperty(LANGUAGE_FILE);
-        try (FileInputStream stringStream = new FileInputStream(PATH + LANGUAGE_FILE_NAME)) {
-            stringsFile.load(stringStream);
-        } catch (IOException e) {
-            Logger.getLogger(ProjectProperties.class.getName())
-                    .log(Level.SEVERE, "Cannot close stringStream", e);
         }
 
         SERVER_NAME_SELECT = projProperties.getProperty(SERVER_NAME);
-        SERVER_IMAGE = Toolkit.getDefaultToolkit()
-                .getImage(PATH + projProperties.getProperty(SERVER_ICON));
-
         CLIENT_NAME_SELECT = projProperties.getProperty(CLIENT_NAME);
-        CLIENT_IMAGE = Toolkit.getDefaultToolkit()
-                .getImage(PATH + projProperties.getProperty(CLIENT_ICON));
-
-        CLIENT_BACKGROUND = Toolkit.getDefaultToolkit()
-                .getImage(PATH + projProperties.getProperty(BACKGROUND));
-
-        SOUND_FILE_FILE = new File(PATH + projProperties.getProperty(SOUND_FILE));
-
         SOUND_SWITCH = projProperties.getProperty(SOUND_SETTING).toLowerCase().equals(Switch.ON.getMode())
                 ? Switch.ON
                 : Switch.OFF;
-
         POP_UP_SWITCH = projProperties.getProperty(POP_UP_SETTING).toLowerCase().equals(Switch.ON.getMode())
                 ? Switch.ON
                 : Switch.OFF;
 
+        try {
+            if (!isInnerProperties) {
+                SERVER_IMAGE = Toolkit.getDefaultToolkit().getImage(PATH + projProperties.getProperty(SERVER_ICON));
+                CLIENT_IMAGE = Toolkit.getDefaultToolkit().getImage(PATH + projProperties.getProperty(CLIENT_ICON));
+                CLIENT_BACKGROUND = Toolkit.getDefaultToolkit().getImage(PATH + projProperties.getProperty(BACKGROUND));
+                SOUND_FILE_FILE = new File(PATH + projProperties.getProperty(SOUND_FILE));
+                try (FileInputStream stringStream = new FileInputStream(PATH + LANGUAGE_FILE_NAME)) {
+                    stringsFile.load(stringStream);
+                } catch (IOException e) {
+                    Logger.getLogger(ProjectProperties.class.getName()).log(Level.SEVERE, "Cannot close stringStream", e);
+                }
+            } else {
+                LANGUAGE_FILE_NAME = projProperties.getProperty(LANGUAGE_FILE);
+                SERVER_IMAGE = ImageIO.read(getClass().getResourceAsStream(PATH_TO_INNER_RESOURCES + DEFAULT_ICON));
+                CLIENT_IMAGE = ImageIO.read(getClass().getResourceAsStream(PATH_TO_INNER_RESOURCES + DEFAULT_ICON));
+                try (InputStream inputStream = getClass().getResourceAsStream(PATH_TO_INNER_RESOURCES + LANGUAGE_FILE_NAME)) {
+                    stringsFile.load(inputStream);
+                } catch (Exception ex1) {
+                    Logger.getLogger(ProjectProperties.class.getName()).log(Level.SEVERE, null, ex1);
+                }
+            }
+        } catch (Exception e) {
+        }
+//        try (FileInputStream stringStream = new FileInputStream(PATH + LANGUAGE_FILE_NAME)) {
+//            stringsFile.load(stringStream);
+//        } catch (IOException e) {
+//            Logger.getLogger(ProjectProperties.class.getName())
+//                    .log(Level.SEVERE, "Cannot close stringStream", e);
+//        }
     }
 
-    private String getCurrentDir() throws IOException {
+    public Image buildBackground() {
+        return Toolkit.getDefaultToolkit().getImage(PATH + projProperties.getProperty(BACKGROUND));
+    }
+
+    private static String getCurrentDir() throws IOException {
         // определяем текущий каталог
         File currentDir = new File(".");
-        return currentDir.getCanonicalPath() + DIR_SEPARATOR;
+        return currentDir.getCanonicalPath() + S;
     }
 
     //<editor-fold defaultstate="collapsed" desc="get-set">
