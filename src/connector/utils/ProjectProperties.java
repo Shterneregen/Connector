@@ -104,6 +104,7 @@ public class ProjectProperties {
                 ? Switch.ON
                 : Switch.OFF;
 
+        LANGUAGE_FILE_NAME = projProperties.getProperty(LANGUAGE_FILE);
         try {
             if (!isInnerProperties) {
                 SERVER_IMAGE = Toolkit.getDefaultToolkit().getImage(PATH + projProperties.getProperty(SERVER_ICON));
@@ -116,7 +117,6 @@ public class ProjectProperties {
                     Logger.getLogger(ProjectProperties.class.getName()).log(Level.SEVERE, "Cannot close stringStream", e);
                 }
             } else {
-                LANGUAGE_FILE_NAME = projProperties.getProperty(LANGUAGE_FILE);
                 SERVER_IMAGE = ImageIO.read(getClass().getResourceAsStream(PATH_TO_INNER_RESOURCES + DEFAULT_ICON));
                 CLIENT_IMAGE = ImageIO.read(getClass().getResourceAsStream(PATH_TO_INNER_RESOURCES + DEFAULT_ICON));
                 try (InputStream inputStream = getClass().getResourceAsStream(PATH_TO_INNER_RESOURCES + LANGUAGE_FILE_NAME)) {
