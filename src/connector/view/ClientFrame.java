@@ -17,11 +17,13 @@ import javax.swing.JPanel;
 public class ClientFrame extends javax.swing.JFrame {
 
     private String strChat;
+    private ProjectProperties projectProperties;
     private Properties stringsFile;
 
     public ClientFrame(String s) {
         super(s);
-        stringsFile = ProjectProperties.getInstance().getStringsFile();
+        projectProperties = ProjectProperties.getInstance();
+        stringsFile = projectProperties.getStringsFile();
 
         ClientPanel mainPanel = new ClientPanel(ClientType.CLIENT_WITHOUT_SERVER);
 
@@ -34,8 +36,8 @@ public class ClientFrame extends javax.swing.JFrame {
 //        jPanel1.add(mainPanel);
 //        if (ProjectProperties.CLIENT_BACKGROUND != null) {
 //            Image background = (Image) IntrospectorTools.cloneObject(ProjectProperties.CLIENT_BACKGROUND);
-        if (ProjectProperties.CLIENT_BACKGROUND != null) {
-            BgPanel bgPanel = new BgPanel(ProjectProperties.CLIENT_BACKGROUND);
+        if (projectProperties.CLIENT_BACKGROUND != null) {
+            BgPanel bgPanel = new BgPanel(projectProperties.CLIENT_BACKGROUND);
             bgPanel.add(mainPanel);
             this.setContentPane(bgPanel);
         } else {

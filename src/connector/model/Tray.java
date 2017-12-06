@@ -22,11 +22,13 @@ public class Tray {
     private TrayIcon trayIcon;
     private SystemTray tray;
     private Link link;
+    private ProjectProperties projectProperties;
     private Properties stringsFile;
 //    ArrayList<Client> listClients = new ArrayList<Client>();
 
     public Tray() {
-        stringsFile = ProjectProperties.getInstance().getStringsFile();
+        projectProperties = ProjectProperties.getInstance();
+        stringsFile = projectProperties.getStringsFile();
         tray = SystemTray.getSystemTray();
     }
 
@@ -69,11 +71,11 @@ public class Tray {
 //        URL imageURL = Tray.class.getResource(ICON_CLIENT);
 //        Image icon = Toolkit.getDefaultToolkit().getImage(imageURL);
         trayIcon = new TrayIcon(trayType.equals(TrayType.SERVER_TRAY)
-                ? ProjectProperties.SERVER_IMAGE
-                : ProjectProperties.CLIENT_IMAGE,
+                ? projectProperties.SERVER_IMAGE
+                : projectProperties.CLIENT_IMAGE,
                 trayType.equals(TrayType.SERVER_TRAY)
-                ? ProjectProperties.SERVER_NAME_SELECT
-                : ProjectProperties.CLIENT_NAME_SELECT,
+                ? projectProperties.SERVER_NAME_SELECT
+                : projectProperties.CLIENT_NAME_SELECT,
                 trayMenu);
         trayIcon.setImageAutoSize(true);
 
@@ -112,7 +114,7 @@ public class Tray {
 //                link.start();
 //            }
 //        }
-        if (client != null && ProjectProperties.POP_UP_SWITCH.equals(Switch.ON)) {
+        if (client != null && projectProperties.POP_UP_SWITCH.equals(Switch.ON)) {
             link = new Link(client);
             link.start();
         }
@@ -149,9 +151,9 @@ public class Tray {
                             ? stringsFile.getProperty("stop_server")
                             : client.getReceiveStr();
                     trayIcon.displayMessage(client.getName(), receiveStr, TrayIcon.MessageType.INFO);
-                    if (ProjectProperties.SOUND_SWITCH.equals(Switch.ON)) {
+                    if (projectProperties.SOUND_SWITCH.equals(Switch.ON)) {
                         try {
-                            Utils.PlaySound(ProjectProperties.SOUND_FILE_FILE);
+                            Utils.PlaySound(projectProperties.SOUND_FILE_FILE);
                         } catch (Exception ex) {
                             Toolkit.getDefaultToolkit().beep();
                         }
