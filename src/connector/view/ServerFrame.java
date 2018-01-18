@@ -5,7 +5,7 @@ import connector.model.Tray;
 import connector.constant.ServerConfig;
 import connector.utils.Utils;
 import connector.constant.TrayType;
-import connector.model.ServerManager;
+import connector.controller.ServerController;
 import connector.utils.ProjectProperties;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
@@ -21,7 +21,7 @@ import javax.swing.text.AbstractDocument;
  */
 public class ServerFrame extends javax.swing.JFrame {
 
-    private ServerManager server;
+    private ServerController serverController;
     private Properties stringsFile;
 
     /**
@@ -32,7 +32,6 @@ public class ServerFrame extends javax.swing.JFrame {
      */
     public ServerFrame(String frameName, ServerConfig serverConfig) {
         super(frameName);
-        server = new ServerManager();
         stringsFile = ProjectProperties.getInstance().getStringsFile();
 
         initComponents();
@@ -50,11 +49,14 @@ public class ServerFrame extends javax.swing.JFrame {
             }
 
             public void windowClosing(WindowEvent event) {
-                if (server.getIsStartServer() && serverConfig.equals(ServerConfig.ONLY_SERVER)) {
-                    stopServer();
+                stopServer();
+
+                if (serverConfig.equals(ServerConfig.ONLY_SERVER)) {
+                    System.exit(0);
+                } else {
+                    setVisible(false);
+                    dispose();
                 }
-                setVisible(false);
-                dispose();
             }
 
             public void windowDeactivated(WindowEvent event) {
@@ -107,7 +109,9 @@ public class ServerFrame extends javax.swing.JFrame {
 
             tfPort.setEditable(false);
             pfPas.setEditable(false);
-            server.createServer(checkPort.get(), psw);
+
+            serverController = new ServerController(port, psw);
+            serverController.startServer();
         } else {
             String errorPort = !checkPort.isPresent()
                     ? stringsFile.getProperty("wrong_port") + "; "
@@ -122,8 +126,9 @@ public class ServerFrame extends javax.swing.JFrame {
     }
 
     public void stopServer() {
-        server.stopServer();
-
+        if (serverController != null) {
+            serverController.stopServer();
+        }
         btStartServer.setEnabled(true);
         btStopServer.setEnabled(false);
 

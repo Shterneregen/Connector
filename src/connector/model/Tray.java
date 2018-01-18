@@ -17,8 +17,6 @@ import java.util.logging.Logger;
 
 public class Tray {
 
-//    public static final String ICON_SERVER = "../resources/images/save.png";
-//    public static final String ICON_CLIENT = "../resources/images/icon.png";
     private TrayIcon trayIcon;
     private SystemTray tray;
     private Link link;
