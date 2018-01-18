@@ -1,15 +1,16 @@
 package connector.view;
 
 import connector.resources.ControlLines;
-import connector.Tray;
+import connector.model.Tray;
 import connector.constant.ServerConfig;
 import connector.utils.Utils;
 import connector.constant.TrayType;
-import connector.model.ServerManager;
+import connector.controller.ServerController;
 import connector.utils.ProjectProperties;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.util.ArrayList;
+import java.util.Optional;
 import java.util.Properties;
 import javax.swing.text.AbstractDocument;
 
@@ -20,18 +21,17 @@ import javax.swing.text.AbstractDocument;
  */
 public class ServerFrame extends javax.swing.JFrame {
 
-    private ServerManager server;
+    private ServerController serverController;
     private Properties stringsFile;
 
     /**
      * Окно сервера
      *
      * @param frameName название окна
-     * @param conf ServerConfig
+     * @param serverConfig ServerConfig
      */
-    public ServerFrame(String frameName, int conf) {
+    public ServerFrame(String frameName, ServerConfig serverConfig) {
         super(frameName);
-        server = new ServerManager();
         stringsFile = ProjectProperties.getInstance().getStringsFile();
 
         initComponents();
@@ -49,11 +49,14 @@ public class ServerFrame extends javax.swing.JFrame {
             }
 
             public void windowClosing(WindowEvent event) {
-                if (server.getIsStartServer() && conf == ServerConfig.ONLY_SERVER) {
-                    stopServer();
+                stopServer();
+
+                if (serverConfig.equals(ServerConfig.ONLY_SERVER)) {
+                    System.exit(0);
+                } else {
+                    setVisible(false);
+                    dispose();
                 }
-                setVisible(false);
-                dispose();
             }
 
             public void windowDeactivated(WindowEvent event) {
@@ -95,27 +98,37 @@ public class ServerFrame extends javax.swing.JFrame {
 
         tfPort.setText(stringsFile.getProperty("str.defaultPort"));
         pfPas.setText(stringsFile.getProperty("str.defaultPsw"));
-//        lbYourIP.setText(" Ваш локальный IP ");
     }
 
-//    public StringBuilder getBuffChat() {
-//        return server.getBuffChat();
-//    }
     public void startServer(String port, String psw) {
-        int intPort = checkServerConfig(port, psw);
-        if (intPort > 0) {
+        Optional<Integer> checkPort = Utils.getAndCheckPort(port);
+        Optional<String> checkPsw = checkPsw(psw);
+        if (checkPort.isPresent() && checkPsw.isPresent()) {
             btStartServer.setEnabled(false);
             btStopServer.setEnabled(true);
 
             tfPort.setEditable(false);
             pfPas.setEditable(false);
-            server.createServerThreadAndStart(intPort, psw);
+
+            serverController = new ServerController(port, psw);
+            serverController.startServer();
+        } else {
+            String errorPort = !checkPort.isPresent()
+                    ? stringsFile.getProperty("wrong_port") + "; "
+                    : "";
+
+            String errorPsw = !checkPsw.isPresent()
+                    ? stringsFile.getProperty("tf.enter_pass") + "; "
+                    : "";
+
+            lbNumUs.setText(errorPort + errorPsw);
         }
     }
 
     public void stopServer() {
-        server.setStopServerThread();
-
+        if (serverController != null) {
+            serverController.stopServer();
+        }
         btStartServer.setEnabled(true);
         btStopServer.setEnabled(false);
 
@@ -126,15 +139,10 @@ public class ServerFrame extends javax.swing.JFrame {
 //        lbNumUs.setText(stringsFile.getProperty("serverFrame.str.users") + server.getUserNumber());
     }
 
-    private int checkServerConfig(String strPort, String psw) {
-        Integer port = Utils.getAndCheckPort(strPort);
-        if (psw == null || (psw != null && !psw.equals(""))) {
-            lbNumUs.setText(stringsFile.getProperty("tf.enter_pass"));
-        }
-        if (port < 0) {
-            lbNumUs.setText(stringsFile.getProperty("wrong_port"));
-        }
-        return port;
+    private Optional<String> checkPsw(String psw) {
+        return psw == null || (psw != null && psw.equals(""))
+                ? Optional.empty()
+                : Optional.of(psw);
     }
 
     @SuppressWarnings("unchecked")

@@ -1,49 +1,31 @@
 package connector.view;
 
+import connector.constant.ClientType;
+import connector.constant.ServerConfig;
 import connector.resources.ControlLines;
-import connector.Tray;
-import static connector.constant.ClientType.CLIENT_WITHOUT_SERVER;
-import static connector.constant.ServerConfig.ONLY_SERVER;
+import connector.model.Tray;
+import connector.constant.TrayType;
 import connector.utils.ProjectProperties;
 import java.awt.Graphics;
 import java.awt.Image;
-import java.awt.Toolkit;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
-import java.net.URL;
 import java.util.Properties;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 public class ClientFrame extends javax.swing.JFrame {
 
-    private static final int CLIENT = 0;
-    private ClientPanel mainPanel;
     private String strChat;
-    private static final String CLIENT_BACKGROUND = "../resources/images/fon33.jpg";
+    private ProjectProperties projectProperties;
     private Properties stringsFile;
-
-//    Utils.StatusBar statusBar;
-    public ClientPanel getMainPanel() {
-        return mainPanel;
-    }
 
     public ClientFrame(String s) {
         super(s);
-        stringsFile = ProjectProperties.getInstance().getStringsFile();
-//        try { 
-//            icon = ImageIO.read(ClientFrame.class.getResourceAsStream("../resources/images/icon.png"));
-//        } catch (IOException ex) {
-//            Logger.getLogger(ClientFrame.class.getName()).log(Level.SEVERE, null, ex);
-//        }
-//        setIconImage(icon);
-// statusBar = new Utils().new StatusBar();
-////            getContentPane().add(statusBar, java.awt.BorderLayout.SOUTH);
-//            getContentPane().add(statusBar,java.awt.BorderLayout.SOUTH);
-////            getContentPane().add(statusBar,java.awt.BorderLayout.SOUTH);
-//            statusBar.setMessage("FUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUU");
+        projectProperties = ProjectProperties.getInstance();
+        stringsFile = projectProperties.getStringsFile();
 
-        mainPanel = new ClientPanel(CLIENT_WITHOUT_SERVER);
+        ClientPanel mainPanel = new ClientPanel(ClientType.CLIENT_WITHOUT_SERVER);
 
         initComponents();
         setMenuItemsNames();
@@ -52,9 +34,17 @@ public class ClientFrame extends javax.swing.JFrame {
 
 //        jPanel1.setLayout(new FlowLayout());
 //        jPanel1.add(mainPanel);
-        BgPanel bgPanel = new BgPanel();
-        bgPanel.add(mainPanel);
-        this.setContentPane(bgPanel);
+//        if (ProjectProperties.CLIENT_BACKGROUND != null) {
+//            Image background = (Image) IntrospectorTools.cloneObject(ProjectProperties.CLIENT_BACKGROUND);
+        if (projectProperties.CLIENT_BACKGROUND != null) {
+            BgPanel bgPanel = new BgPanel(projectProperties.CLIENT_BACKGROUND);
+            bgPanel.add(mainPanel);
+            this.setContentPane(bgPanel);
+        } else {
+            JPanel bgPanel = new JPanel();
+            bgPanel.add(mainPanel);
+            this.setContentPane(bgPanel);
+        }
 
 //        listClients.add(mainPanel);        
         setResizable(false);
@@ -86,7 +76,7 @@ public class ClientFrame extends javax.swing.JFrame {
 
 //                if (numCl != 0) {
 //                    new Tray().setTrayIcon(ClientFrame.this, listClients, CLIENT);
-                new Tray().setTrayIcon(ClientFrame.this, mainPanel, CLIENT);
+                new Tray().setTrayIcon(ClientFrame.this, mainPanel, TrayType.CLIENT_TRAY);
 //                } else {
 //                    new Tray().setTrayIcon(ClientFrame.this, null, CLIENT);
 //                }
@@ -123,14 +113,14 @@ public class ClientFrame extends javax.swing.JFrame {
 
     class BgPanel extends JPanel {
 
+        Image background;
+
+        public BgPanel(Image background) {
+            this.background = background;
+        }
+
         public void paintComponent(Graphics g) {
-            Image im = null;
-
-            //im = ImageIO.read(new File("D:\\Tests\\fon.jpg"));
-            URL imageURL = (ClientFrame.class.getResource(CLIENT_BACKGROUND));
-            im = Toolkit.getDefaultToolkit().getImage(imageURL);
-
-            g.drawImage(im, 0, 0, null);
+            g.drawImage(background, 0, 0, null);
             repaint();
         }
     }
@@ -236,7 +226,7 @@ public class ClientFrame extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jmiNewServerWindowActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jmiNewServerWindowActionPerformed
-        ServerFrame server = new ServerFrame(ControlLines.MAIN_NAME, ONLY_SERVER);
+        ServerFrame server = new ServerFrame(ControlLines.MAIN_NAME, ServerConfig.ONLY_SERVER);
         server.setVisible(true);
     }//GEN-LAST:event_jmiNewServerWindowActionPerformed
 

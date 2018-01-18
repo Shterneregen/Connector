@@ -2,14 +2,17 @@ package connector.utils;
 
 import connector.view.ServerFrame;
 import java.awt.Dimension;
+import java.io.File;
 import java.io.IOException;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
-import java.net.URL;
 import java.net.UnknownHostException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.List;
+import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.sound.sampled.AudioInputStream;
@@ -30,46 +33,9 @@ import javax.swing.text.DocumentFilter;
  */
 public class Utils {
 
-    private static final String SOUND_MSG = "resources/sounds/Blocked.wav";
-    private static final URL SOUND_URL = Utils.class.getResource(SOUND_MSG);
-
-    // Фильтр для поля IP, на данный момент не используется.
-    public class DocumentFilterForIP extends DocumentFilter {
-
-        @Override
-        public void insertString(FilterBypass fb, int offset, String string, AttributeSet attr) throws BadLocationException {
-
-            StringBuffer buffer = new StringBuffer(string);
-            for (int i = buffer.length() - 1; i >= 0; i--) {
-                char ch = buffer.charAt(i);
-                if (!Character.isDigit(ch) && ch != '-') {
-                    buffer.deleteCharAt(i);
-                }
-            }
-            string = buffer.toString();
-            super.insertString(fb, offset, string, attr);
-        }
-
-        @Override
-        public void replace(FilterBypass fb, int offset, int length, String string, AttributeSet attrs) throws BadLocationException {
-            StringBuffer buffer = null;
-            if (string != null) {
-                buffer = new StringBuffer(string);
-                //int num = 0;
-                for (int i = buffer.length() - 1; i >= 0; i--) {
-
-                    char ch = buffer.charAt(i);
-                    if (!Character.isDigit(ch) && ch != '.') {
-                        buffer.deleteCharAt(i);
-                    }
-                }
-                string = buffer.toString();
-            }
-            super.replace(fb, offset, length, string, attrs);
-        }
-    }
-
-    // Фильтр для поля порта, позволяет вводить только цифры.
+    /**
+     * Фильтр для поля порта, позволяет вводить только цифры.
+     */
     public class DocumentFilterForPort extends DocumentFilter {
 
         @Override
@@ -104,19 +70,28 @@ public class Utils {
         }
     }
 
-    // Воспроизводит звук.
-    public static void PlaySound() throws UnsupportedAudioFileException, IOException, LineUnavailableException {
-        // процедура проигрывающая один заранее заданный файл
-        //AudioInputStream stream = AudioSystem.getAudioInputStream(new File("womp.wav")); // создаём аудио поток из файла
-//        AudioInputStream stream = AudioSystem.getAudioInputStream(new File(SOUND_MSG)); // создаём аудио поток из файла
-        AudioInputStream stream = AudioSystem.getAudioInputStream(SOUND_URL);
+    /**
+     * Воспроизводит звук.
+     *
+     * @param soundFile
+     * @throws UnsupportedAudioFileException
+     * @throws IOException
+     * @throws LineUnavailableException
+     */
+    public static void PlaySound(File soundFile) throws UnsupportedAudioFileException, IOException, LineUnavailableException {
+        AudioInputStream stream = AudioSystem.getAudioInputStream(soundFile);
         DataLine.Info info = new DataLine.Info(Clip.class, stream.getFormat()); // получаем информацию о звуке из потока
         Clip clip = (Clip) AudioSystem.getLine(info); // инициализируем проигрыватель
         clip.open(stream); // воспроизводим файл
         clip.start(); // закрываем проигрыватель
     }
 
-    // Удаляет управляющие символы из строки.
+    /**
+     * Удаляет управляющие символы из строки.
+     *
+     * @param s
+     * @return
+     */
     public static String removeTheTrash(String s) {
         char[] buf = new char[1024];
         int length = s.length();
@@ -148,6 +123,11 @@ public class Utils {
         return ipAddress;
     }
 
+    /**
+     * Возвращает массив локальных IP
+     *
+     * @return массив локальных IP
+     */
     public static ArrayList<String> getMyLocalIP() {
         ArrayList<String> listAddr = new ArrayList<>();
         try {
@@ -165,7 +145,119 @@ public class Utils {
         return listAddr;
     }
 
-    // На данный момент не используется.
+    public static Optional<Integer> getAndCheckPort(String strPort) {
+        try {
+            int port = Integer.parseInt(strPort);
+            return (port <= 0 || port > 65535)
+                    ? Optional.empty()
+                    : Optional.of(port);
+        } catch (Exception e) {
+            return Optional.empty();
+        }
+    }
+
+    public static boolean checkString(String string) {
+        try {
+            Integer.parseInt(string);
+        } catch (Exception e) {
+            return false;
+        }
+        return true;
+    }
+
+    private static boolean checkIP(String string) {
+        return checkString(string) && Integer.parseInt(string) >= 0 && Integer.parseInt(string) < 256;
+    }
+
+    public static Optional<String> getAndCheckIP(String ip) {
+        char[] chArr = ip.toCharArray();
+        String ip_1 = "", ip_2 = "", ip_3 = "", ip_4 = "";
+        int i = 0;
+        for (; i < chArr.length; i++) {
+            if (chArr[i] == '.') {
+                break;
+            }
+            ip_1 += chArr[i];
+        }
+        if (!checkIP(ip_1)) {
+            return Optional.empty();
+        }
+        i++;
+        for (; i < chArr.length; i++) {
+            if (chArr[i] == '.') {
+                break;
+            }
+            ip_2 += chArr[i];
+        }
+        if (!checkIP(ip_2)) {
+            return Optional.empty();
+        }
+        i++;
+        for (; i < chArr.length; i++) {
+            if (chArr[i] == '.') {
+                break;
+            }
+            ip_3 += chArr[i];
+        }
+        if (!checkIP(ip_3)) {
+            return Optional.empty();
+        }
+        i++;
+        for (; i < chArr.length; i++) {
+            ip_4 += chArr[i];
+        }
+        if (!checkIP(ip_4)) {
+            return Optional.empty();
+        }
+        return Optional.of(ip);
+    }
+
+    /**
+     * Возвращает дату или время
+     *
+     * @param ch true - дату, false - время
+     * @return дату или время
+     */
+    public static String getTime(boolean ch) {
+        long curTime = System.currentTimeMillis();
+        String curStringDate = ch
+                ? new SimpleDateFormat("dd.MM.yyyy").format(curTime)
+                : new SimpleDateFormat("kk:mm:ss").format(curTime);
+        return curStringDate;
+    }
+
+    /**
+     * Проверяет, есть ли такой же ник в чате
+     *
+     * @param nicname ник для проверки
+     * @param listNames список ников
+     * @return true - есть в списке, false - нет в списке
+     */
+    public static boolean checkNicname(String nicname, List<String> listNames) {
+        boolean res = false;
+        for (String userName : listNames) {
+            if (nicname.equals(userName)) {
+                res = true;
+                break;
+            } else {
+                res = false;
+            }
+        }
+        return res;
+    }
+
+    //<editor-fold defaultstate="collapsed" desc="Не используется">
+    public String getMyLocalIPOne() {
+        InetAddress addr = null;
+        try {
+            addr = InetAddress.getLocalHost();
+        } catch (UnknownHostException ex) {
+            Logger.getLogger(ServerFrame.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        String myLANIP = addr.getHostAddress();
+        return myLANIP;
+    }
+
     public class StatusBar extends JLabel {
 
         public StatusBar() {
@@ -180,84 +272,42 @@ public class Utils {
 
     }
 
-    public static int getAndCheckPort(String strPort) {
-        int port = -1;
-        try {
-            port = Integer.parseInt(strPort);
-            port = (port <= 0 || port > 65535) ? -1 : port;
-        } catch (Exception e) {
-        }
-        return port;
-    }
+//        Utils.StatusBar statusBar = new Utils().new StatusBar();
+//        getContentPane().add(statusBar, java.awt.BorderLayout.SOUTH);
+//        statusBar.setMessage("FUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUU");
+    // Фильтр для поля IP, на данный момент не используется.
+    public class DocumentFilterForIP extends DocumentFilter {
 
-    public static boolean checkString(String string) {
-        try {
-            Integer.parseInt(string);
-        } catch (Exception e) {
-            return false;
-        }
-        return true;
-    }
+        @Override
+        public void insertString(DocumentFilter.FilterBypass fb, int offset, String string, AttributeSet attr) throws BadLocationException {
 
-    private static boolean checkIP(String string) {
-        if (checkString(string)) {
-            return !(!(Integer.parseInt(string) >= 0) || !(Integer.parseInt(string) < 256));
-        } else {
-            return false;
-        }
-    }
-
-    public static String getAndCheckIP(String ip) {
-        char[] chArr = ip.toCharArray();
-        String ip_1 = "", ip_2 = "", ip_3 = "", ip_4 = "";
-        int i = 0;
-        for (; i < chArr.length; i++) {
-            if (chArr[i] == '.') {
-                break;
+            StringBuffer buffer = new StringBuffer(string);
+            for (int i = buffer.length() - 1; i >= 0; i--) {
+                char ch = buffer.charAt(i);
+                if (!Character.isDigit(ch) && ch != '-') {
+                    buffer.deleteCharAt(i);
+                }
             }
-            ip_1 += chArr[i];
+            string = buffer.toString();
+            super.insertString(fb, offset, string, attr);
         }
-        if (!checkIP(ip_1)) {
-            return null;
-        }
-        i++;
-        for (; i < chArr.length; i++) {
-            if (chArr[i] == '.') {
-                break;
-            }
-            ip_2 += chArr[i];
-        }
-        if (!checkIP(ip_2)) {
-            return null;
-        }
-        i++;
-        for (; i < chArr.length; i++) {
-            if (chArr[i] == '.') {
-                break;
-            }
-            ip_3 += chArr[i];
-        }
-        if (!checkIP(ip_3)) {
-            return null;
-        }
-        i++;
-        for (; i < chArr.length; i++) {
-            ip_4 += chArr[i];
-        }
-        if (!checkIP(ip_4)) {
-            return null;
-        }
-        return ip;
-    }
 
-    public String getMyLocalIPOne() {
-        InetAddress addr = null;
-        try {
-            addr = InetAddress.getLocalHost();
-        } catch (UnknownHostException ex) {
-            Logger.getLogger(ServerFrame.class.getName()).log(Level.SEVERE, null, ex);
+        @Override
+        public void replace(DocumentFilter.FilterBypass fb, int offset, int length, String string, AttributeSet attrs) throws BadLocationException {
+            StringBuffer buffer = null;
+            if (string != null) {
+                buffer = new StringBuffer(string);
+                for (int i = buffer.length() - 1; i >= 0; i--) {
+
+                    char ch = buffer.charAt(i);
+                    if (!Character.isDigit(ch) && ch != '.') {
+                        buffer.deleteCharAt(i);
+                    }
+                }
+                string = buffer.toString();
+            }
+            super.replace(fb, offset, length, string, attrs);
         }
-        String myLANIP = addr.getHostAddress();
-        return myLANIP;
     }
+    //</editor-fold>
 }

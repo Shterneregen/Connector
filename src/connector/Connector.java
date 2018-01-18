@@ -15,6 +15,6 @@ public class Connector {
         clientFrame.setVisible(true);
 
         new ClientFrame(ControlLines.MAIN_NAME).setVisible(true);
-//        new ClientFrame(Strings.getMAIN_NAME()).setVisible(true);
+//        new ServerFrame("Server", ServerConfig.ONLY_SERVER).setVisible(true);
     }
 }

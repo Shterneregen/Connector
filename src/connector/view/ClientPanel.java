@@ -8,18 +8,14 @@ import connector.model.Client;
 import connector.constant.ClientType;
 import connector.constant.ServerConfig;
 import connector.utils.ProjectProperties;
-import java.awt.Component;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.AbstractButton;
 import javax.swing.text.AbstractDocument;
 
 /**
@@ -33,7 +29,7 @@ public class ClientPanel extends javax.swing.JPanel {
 
     private String strChat;
     private String receiveStr;
-    private int conf;
+    private ClientType clientType;
 
     private ServerFrame serverFrame;
     private Resender resender;
@@ -50,9 +46,9 @@ public class ClientPanel extends javax.swing.JPanel {
     private List<String> listAddr; // Массив локальных IP адресов
 //    private final JTabbedPane pane;
 
-    public ClientPanel(int conf) {
+    public ClientPanel(ClientType clientType) {
         stringsFile = ProjectProperties.getInstance().getStringsFile();
-        this.conf = conf;
+        this.clientType = clientType;
 
         flagGoodConn = false;
         errConn = false;
@@ -63,18 +59,18 @@ public class ClientPanel extends javax.swing.JPanel {
 
         initComponents();
         setItemsNames();
-        btSettings.setIcon(new javax.swing.ImageIcon(getClass().getResource("../resources/images/setting.png")));
-        btSettings.setToolTipText(stringsFile.getProperty("clientPanel.button.setting"));
+//        btSettings.setIcon(new javax.swing.ImageIcon(getClass().getResource("../resources/images/setting.png")));
+//        btSettings.setToolTipText(stringsFile.getProperty("clientPanel.button.setting"));
         listAddr.stream().forEach((address) -> {
             tfIP.addItem(address);
         });
-        if (conf == ClientType.CLIENT_WITH_SERVER) {
+        if (clientType.equals(ClientType.CLIENT_WITH_SERVER)) {
             btStartClient.setText(stringsFile.getProperty("clientPanel.button.creat_conversation"));
             btStopClient.setText(stringsFile.getProperty("clientPanel.button.stop_conversation"));
             tfIP.setEditable(false);
-        } else if (conf == ClientType.CLIENT_WITHOUT_SERVER) {
+        } else if (clientType.equals(ClientType.CLIENT_WITHOUT_SERVER)) {
             btStartClient.setText(stringsFile.getProperty("clientPanel.button.join"));
-            btStopClient.setText(stringsFile.getProperty("clientPanel.button.exit"));
+            btStopClient.setText(stringsFile.getProperty("str.exit"));
         }
         ((AbstractDocument) tfPort.getDocument()).setDocumentFilter(new Utils().new DocumentFilterForPort());
 
@@ -85,23 +81,20 @@ public class ClientPanel extends javax.swing.JPanel {
         tfInput.setEditable(false);
         btStopClient.setEnabled(false);
         btSent.setEnabled(false);
-        btSettings.setEnabled(false);
 
         cbNewConversation.addItemListener(new ItemListener() {
             @Override
             public void itemStateChanged(ItemEvent e) {
                 if (cbNewConversation.isSelected()) {
-                    ClientPanel.this.conf = ClientType.CLIENT_WITH_SERVER;
+                    ClientPanel.this.clientType = ClientType.CLIENT_WITH_SERVER;
                     btStartClient.setText(stringsFile.getProperty("clientPanel.button.creat_conversation"));
                     btStopClient.setText(stringsFile.getProperty("clientPanel.button.stop_conversation"));
                     tfIP.setEditable(false);
-                    btSettings.setEnabled(true);
                 } else {
-                    ClientPanel.this.conf = ClientType.CLIENT_WITHOUT_SERVER;
+                    ClientPanel.this.clientType = ClientType.CLIENT_WITHOUT_SERVER;
                     btStartClient.setText(stringsFile.getProperty("clientPanel.button.join"));
-                    btStopClient.setText(stringsFile.getProperty("clientPanel.button.exit"));
+                    btStopClient.setText(stringsFile.getProperty("str.exit"));
                     tfIP.setEditable(true);
-                    btSettings.setEnabled(false);
                 }
                 tfIP.removeAllItems();
                 listAddr.stream().forEach((address) -> {
@@ -156,7 +149,7 @@ public class ClientPanel extends javax.swing.JPanel {
         btStopClient.setEnabled(true);
         btSent.setEnabled(true);
 
-        if (conf != ClientType.CLIENT_WITH_SERVER) {
+        if (clientType.equals(ClientType.CLIENT_WITHOUT_SERVER)) {
             tfIP.setEditable(false);
         }
         tfPort.setEditable(false);
@@ -174,7 +167,7 @@ public class ClientPanel extends javax.swing.JPanel {
         btStopClient.setEnabled(false);
         btSent.setEnabled(false);
 
-        if (conf != ClientType.CLIENT_WITH_SERVER) {
+        if (clientType.equals(ClientType.CLIENT_WITHOUT_SERVER)) {
             tfIP.setEditable(true);
         }
         tfPort.setEditable(true);
@@ -252,14 +245,6 @@ public class ClientPanel extends javax.swing.JPanel {
                             }
                             exit();
                             break;
-                        case ControlLines.STR_EXIT_ALL:
-                            commandToMsg = stringsFile.getProperty("stop_server");
-//                            sendMsg(ControlLines.STR_EXIT_ALL);
-                            strChat = strChat + "\n" + commandToMsg;
-                            tpOutput.append(commandToMsg + "\n");
-                            tpOutput.setCaretPosition(tpOutput.getText().length());
-                            resender.setStop();
-                            exit();
                         default:
                             strChat = strChat + "\n" + receiveStr;
                             if (!message.isfSystemMessage()) {
@@ -269,11 +254,7 @@ public class ClientPanel extends javax.swing.JPanel {
                             break;
                     }
                 }
-            } 
-//            catch (IOException e) {
-//                tpOutput.append(stringsFile.getProperty("error_retrieving_message") + "\n");
-//            } 
-            finally {
+            } finally {
                 client.closeStreams();
             }
         }
@@ -292,24 +273,6 @@ public class ClientPanel extends javax.swing.JPanel {
         return flagGoodConn;
     }
 
-    private final static MouseListener buttonMouseListener = new MouseAdapter() {
-        public void mouseEntered(MouseEvent e) {
-            Component component = e.getComponent();
-            if (component instanceof AbstractButton) {
-                AbstractButton button = (AbstractButton) component;
-                button.setBorderPainted(true);
-            }
-        }
-
-        public void mouseExited(MouseEvent e) {
-            Component component = e.getComponent();
-            if (component instanceof AbstractButton) {
-                AbstractButton button = (AbstractButton) component;
-                button.setBorderPainted(false);
-            }
-        }
-    };
-
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -327,7 +290,6 @@ public class ClientPanel extends javax.swing.JPanel {
         lbNic = new javax.swing.JLabel();
         lbPass = new javax.swing.JLabel();
         cbNewConversation = new javax.swing.JCheckBox();
-        btSettings = new javax.swing.JButton();
         jPanel2 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         tpOutput = new javax.swing.JTextArea();
@@ -383,15 +345,6 @@ public class ClientPanel extends javax.swing.JPanel {
         cbNewConversation.setText("Новый диалог");
         cbNewConversation.setOpaque(false);
 
-        btSettings.setBorderPainted(false);
-        btSettings.setContentAreaFilled(false);
-        btSettings.setFocusable(false);
-        btSettings.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btSettingsActionPerformed(evt);
-            }
-        });
-
         javax.swing.GroupLayout pSetConLayout = new javax.swing.GroupLayout(pSetCon);
         pSetCon.setLayout(pSetConLayout);
         pSetConLayout.setHorizontalGroup(
@@ -423,8 +376,7 @@ public class ClientPanel extends javax.swing.JPanel {
                                 .addComponent(tfPort, javax.swing.GroupLayout.PREFERRED_SIZE, 127, javax.swing.GroupLayout.PREFERRED_SIZE))))
                     .addGroup(pSetConLayout.createSequentialGroup()
                         .addComponent(cbNewConversation)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(btSettings, javax.swing.GroupLayout.PREFERRED_SIZE, 59, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         pSetConLayout.setVerticalGroup(
@@ -443,10 +395,8 @@ public class ClientPanel extends javax.swing.JPanel {
                     .addComponent(tfNic, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(lbPass)
                     .addComponent(pfPas, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(pSetConLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(cbNewConversation)
-                    .addComponent(btSettings, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
+                .addComponent(cbNewConversation)
                 .addGap(0, 0, 0))
         );
 
@@ -525,20 +475,20 @@ public class ClientPanel extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btStartClientActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btStartClientActionPerformed
-        String ip = Utils.getAndCheckIP((String) tfIP.getSelectedItem());
-        int port = Utils.getAndCheckPort(tfPort.getText());
-        if (ip != null && port > 0) {
-            if (conf == ClientType.CLIENT_WITH_SERVER) {
+        Optional<String> ip = Utils.getAndCheckIP((String) tfIP.getSelectedItem());
+        Optional<Integer> port = Utils.getAndCheckPort(tfPort.getText());
+        if (ip.isPresent() && port.isPresent()) {
+            if (clientType.equals(ClientType.CLIENT_WITH_SERVER)) {
                 serverFrame = new ServerFrame(ControlLines.MAIN_NAME, ServerConfig.SERVER_FROM_CLIENT);
                 serverFrame.startServer(tfPort.getText(), String.valueOf(pfPas.getPassword()));
             }
-            client = new Client(port, ip, tfNic.getText(), String.valueOf(pfPas.getPassword()));
+            client = new Client(port.get(), ip.get(), tfNic.getText(), String.valueOf(pfPas.getPassword()));
             setConnection();
         }
     }//GEN-LAST:event_btStartClientActionPerformed
 
     private void btStopClientActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btStopClientActionPerformed
-        if (conf == ClientType.CLIENT_WITH_SERVER) {
+        if (clientType.equals(ClientType.CLIENT_WITH_SERVER)) {
             serverFrame.stopServer();
         } else {
             resender.setStop();
@@ -560,13 +510,8 @@ public class ClientPanel extends javax.swing.JPanel {
         tfInput.setText("");
     }//GEN-LAST:event_btSentActionPerformed
 
-    private void btSettingsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btSettingsActionPerformed
-        serverFrame.setVisible(true);
-    }//GEN-LAST:event_btSettingsActionPerformed
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btSent;
-    private javax.swing.JButton btSettings;
     private javax.swing.JButton btStartClient;
     private javax.swing.JButton btStopClient;
     private javax.swing.JCheckBox cbNewConversation;

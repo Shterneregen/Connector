@@ -6,18 +6,21 @@
 package connector.constant;
 
 /**
- * Тип клиента
  *
  * @author Yura
  */
-public enum ClientType {
-    /**
-     * Клиент без сервера
-     */
-    CLIENT_WITHOUT_SERVER,
-    /**
-     * Клиент с сервером
-     */
-    CLIENT_WITH_SERVER;
+public enum Switch {
+    ON("on"),
+    OFF("off");
+
+    private String mode;
+
+    private Switch(String mode) {
+        this.mode = mode;
+    }
+
+    public String getMode() {
+        return mode;
+    }
 
 }
