@@ -27,9 +27,9 @@ public class Client {
     private ObjectInputStream inputStream;
     private ObjectOutputStream outputStream;
 
-    public Client(int port, String ip, String nicname, String psw) {
-        this.port = port;
+    public Client(String ip, int port, String nicname, String psw) {
         this.ip = ip;
+        this.port = port;
         this.nicname = nicname;
         this.psw = psw;
 

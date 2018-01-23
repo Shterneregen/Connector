@@ -1,21 +1,18 @@
 package connector.view;
 
-import connector.utils.Encryption;
 import connector.resources.ControlLines;
 import connector.utils.Utils;
-import connector.model.Message;
-import connector.model.Client;
 import connector.constant.ClientType;
-import connector.constant.ServerConfig;
+import connector.controller.ClientController;
 import connector.utils.ProjectProperties;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.io.IOException;
 import java.util.List;
-import java.util.Optional;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JTextArea;
 import javax.swing.text.AbstractDocument;
 
 /**
@@ -25,22 +22,16 @@ import javax.swing.text.AbstractDocument;
  */
 public class ClientPanel extends javax.swing.JPanel {
 
-    private Client client;
+    private ClientController clientController;
 
     private String strChat;
-    private String receiveStr;
+//    private String receiveStr;
+//    private Resender resender;
     private ClientType clientType;
 
-    private ServerFrame serverFrame;
-    private Resender resender;
-
     private Boolean flagGoodConn;
-    private boolean errConn;
+//    private boolean errConn;
     private boolean bRsa;
-
-    private Encryption serverEncryption;
-    private Encryption clientEncryption;
-
     private Properties stringsFile;
 
     private List<String> listAddr; // Массив локальных IP адресов
@@ -51,11 +42,9 @@ public class ClientPanel extends javax.swing.JPanel {
         this.clientType = clientType;
 
         flagGoodConn = false;
-        errConn = false;
+//        errConn = false;
         listAddr = Utils.getMyLocalIP();
         bRsa = false;
-        clientEncryption = new Encryption();
-        serverEncryption = new Encryption();
 
         initComponents();
         setItemsNames();
@@ -104,44 +93,20 @@ public class ClientPanel extends javax.swing.JPanel {
         });
     }
 
-    private void setConnection() {
-        try {
-            resender = new Resender();
-            resender.start();
-            strChat = "";
-            String pfStr = client.getPsw();
-            client.getOutputStream().writeObject(new Message(Encryption.encode(pfStr, pfStr),
-                    Encryption.encode(client.getNicname(), pfStr), clientEncryption.getPublicKeyFromKeypair()));
-            flagGoodConn = true;
-            setButtonAfterStart();
-        } catch (IOException ex) {
-            //Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
-            tpOutput.append(stringsFile.getProperty("STR_NON_ACK") + "\n");
-//            tpOutput.setCaretPosition(tpOutput.getText().length());
-            errConn = true;
-            flagGoodConn = false;
-            exit();
-        }
-    }
-
     public void clientSendMsg(String message) {
         if (!message.replaceAll("\\s+", "").equals("")) {
             try {
-                sendMsg(message);
+                clientController.sendMsg(message);
             } catch (IOException ex) {
                 Logger.getLogger(ClientPanel.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
     }
 
-    private void sendMsg(String message) throws IOException {
-        client.getOutputStream().writeObject(new Message(serverEncryption.encrypt(message)));
-    }
-
-    private void exit() {
+    public void exit() {
         setButtonBeforeStart();
         flagGoodConn = false;
-        errConn = false;
+//        errConn = false;
     }
 
     void setButtonAfterStart() {
@@ -192,85 +157,31 @@ public class ClientPanel extends javax.swing.JPanel {
         pfPas.setText(stringsFile.getProperty("str.defaultPsw"));
     }
 
-    //<editor-fold defaultstate="collapsed" desc="class Resender">
-    private class Resender extends Thread {
-
-        private boolean stoped = false;
-        private boolean bFirst = true;
-        private Message message;
-        private String commandToMsg;
-
-        public void setStop() {
-            stoped = true;
-        }
-
-        @Override
-        public void run() {
-            try {
-                while (!stoped) {
-                    try {
-                        message = (Message) client.getInputStream().readObject();
-                        if (bFirst) {
-                            bFirst = false;
-                            serverEncryption.createPair(message.getPublicKey());
-                        }
-                        receiveStr = Utils.removeTheTrash(clientEncryption.decrypt(message.getMessage()));
-                    } catch (IOException | ClassNotFoundException e) {
-                        break;
-                    }
-                    switch (receiveStr) {
-                        case ControlLines.STR_WRONG_PASS:
-                            commandToMsg = stringsFile.getProperty("wrong_pass");
-                            break;
-                        case ControlLines.STR_SAME_NIC:
-                            commandToMsg = stringsFile.getProperty("same_nic");
-                            break;
-                        case ControlLines.STR_STOP_SERVER:
-                            commandToMsg = stringsFile.getProperty("stop_server");
-                            break;
-                        default:
-                            break;
-                    }
-
-                    switch (receiveStr) {
-                        case ControlLines.STR_WRONG_PASS:
-                        case ControlLines.STR_SAME_NIC:
-                        case ControlLines.STR_STOP_SERVER:
-                            strChat = strChat + "\n" + receiveStr;
-                            tpOutput.append(commandToMsg + "\n");
-                            tpOutput.setCaretPosition(tpOutput.getText().length());
-                            errConn = true;
-                            if (receiveStr.equals(ControlLines.STR_STOP_SERVER)) {
-                                resender.setStop();
-                            }
-                            exit();
-                            break;
-                        default:
-                            strChat = strChat + "\n" + receiveStr;
-                            if (!message.isfSystemMessage()) {
-                                tpOutput.append(receiveStr + "\n");
-                                tpOutput.setCaretPosition(tpOutput.getText().length());
-                            }
-                            break;
-                    }
-                }
-            } finally {
-                client.closeStreams();
-            }
-        }
-    }
-    //</editor-fold>
-
     public String getStrChat() {
         return strChat;
     }
 
-    public String getReceiveStr() {
-        return receiveStr;
-    }
-
+//    public String getReceiveStr() {
+//        return receiveStr;
+//    }
     public Boolean getFlagGoodConn() {
         return flagGoodConn;
+    }
+
+    public JTextArea getTpOutput() {
+        return tpOutput;
+    }
+
+//    public void setErrConn(boolean errConn) {
+//        this.errConn = errConn;
+//    }
+
+    public void setStrChat(String strChat) {
+        this.strChat = strChat;
+    }
+
+    public ClientController getClientController() {
+        return clientController;
     }
 
     @SuppressWarnings("unchecked")
@@ -475,27 +386,39 @@ public class ClientPanel extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btStartClientActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btStartClientActionPerformed
-        Optional<String> ip = Utils.getAndCheckIP((String) tfIP.getSelectedItem());
-        Optional<Integer> port = Utils.getAndCheckPort(tfPort.getText());
-        if (ip.isPresent() && port.isPresent()) {
-            if (clientType.equals(ClientType.CLIENT_WITH_SERVER)) {
-                serverFrame = new ServerFrame(ControlLines.MAIN_NAME, ServerConfig.SERVER_FROM_CLIENT);
-                serverFrame.startServer(tfPort.getText(), String.valueOf(pfPas.getPassword()));
-            }
-            client = new Client(port.get(), ip.get(), tfNic.getText(), String.valueOf(pfPas.getPassword()));
-            setConnection();
+        clientController = new ClientController(ClientType.CLIENT_WITH_SERVER);
+        boolean isConnection = clientController.setConnection(
+                (String) tfIP.getSelectedItem(),
+                tfPort.getText(),
+                tfNic.getText(),
+                String.valueOf(pfPas.getPassword()),
+                this);
+        if (isConnection) {
+            strChat = "";
+            flagGoodConn = true;
+            setButtonAfterStart();
+        } else {
+            tpOutput.append(stringsFile.getProperty("STR_NON_ACK") + "\n");
+//            errConn = true;
+            flagGoodConn = false;
+            exit();
         }
     }//GEN-LAST:event_btStartClientActionPerformed
 
     private void btStopClientActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btStopClientActionPerformed
-        if (clientType.equals(ClientType.CLIENT_WITH_SERVER)) {
-            serverFrame.stopServer();
-        } else {
-            resender.setStop();
+        clientController.disonnect();
+        if (!clientType.equals(ClientType.CLIENT_WITH_SERVER)) {
             tpOutput.append(stringsFile.getProperty("you_exit") + "\n");
             clientSendMsg(ControlLines.STR_EXIT);
             exit();
+//            serverFrame.stopServer();
         }
+//        else {
+//            resender.setStop();
+//            tpOutput.append(stringsFile.getProperty("you_exit") + "\n");
+//            clientSendMsg(ControlLines.STR_EXIT);
+//            exit();
+//        }
     }//GEN-LAST:event_btStopClientActionPerformed
 
     private void tfInputKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_tfInputKeyPressed
