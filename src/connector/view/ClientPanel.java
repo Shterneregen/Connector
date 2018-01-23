@@ -406,7 +406,7 @@ public class ClientPanel extends javax.swing.JPanel {
     }//GEN-LAST:event_btStartClientActionPerformed
 
     private void btStopClientActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btStopClientActionPerformed
-        clientController.disonnection();
+        clientController.disonnect();
         if (!clientType.equals(ClientType.CLIENT_WITH_SERVER)) {
             tpOutput.append(stringsFile.getProperty("you_exit") + "\n");
             clientSendMsg(ControlLines.STR_EXIT);

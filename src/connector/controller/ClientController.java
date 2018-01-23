@@ -75,7 +75,7 @@ public class ClientController {
         }
     }
 
-    public boolean disonnection() {
+    public boolean disonnect() {
         if (clientType.equals(ClientType.CLIENT_WITH_SERVER)) {
             serverController.stopServer();
         } else {
