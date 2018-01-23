@@ -126,14 +126,14 @@ public class Tray {
 
     private class Link extends Thread {
 
-        private ClientPanel client;
+        private ClientPanel clientPanel;
         private boolean stoped = false;
 
         private String msg;
         private String oldMsg = "Нет сообщений";
 
         public Link(ClientPanel client) {
-            this.client = client;
+            this.clientPanel = client;
         }
 
         public void setStop() {
@@ -143,12 +143,13 @@ public class Tray {
         @Override
         public void run() {
             while (!stoped) {
-                msg = client.getStrChat();
+                msg = clientPanel.getStrChat();
                 if (!msg.equals(oldMsg)) {
                     String receiveStr = msg.equals(ControlLines.STR_STOP_SERVER)
                             ? stringsFile.getProperty("stop_server")
-                            : client.getReceiveStr();
-                    trayIcon.displayMessage(client.getName(), receiveStr, TrayIcon.MessageType.INFO);
+                            : clientPanel.getClientController().getReceiveStr();
+//                            : client.getReceiveStr();
+                    trayIcon.displayMessage(clientPanel.getName(), receiveStr, TrayIcon.MessageType.INFO);
                     if (projectProperties.SOUND_SWITCH.equals(Switch.ON)) {
                         try {
                             Utils.PlaySound(projectProperties.SOUND_FILE_FILE);
