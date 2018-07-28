@@ -26,6 +26,7 @@ public class ServerController extends Thread {
     private ServerSocket serverSocket;
     private Encryption serverEncryption;
     private boolean stoped = false;
+    private int userNumber;
 
     public ServerController(String port, String psw) {
         Optional<Integer> checkPort = Utils.getAndCheckPort(port);
@@ -43,7 +44,7 @@ public class ServerController extends Thread {
     public void stopServer() {
         ConnectionController.closeAllConnections();
         this.setStop();
-        this.closeServerSocket();
+        Utils.close(serverSocket);
     }
 
     //Прекращает пересылку сообщений
@@ -53,6 +54,7 @@ public class ServerController extends Thread {
 
     @Override
     public void run() {
+        userNumber = 0;
         Socket socket = null;
         try {
             serverSocket = new ServerSocket(port);
@@ -64,36 +66,20 @@ public class ServerController extends Thread {
                 ConnectionController con = new ConnectionController(socket, serverEncryption, psw);
                 ConnectionController.getConnections().add(con);
                 con.start();
+                userNumber++;
             }
         } catch (SocketException se) {
             System.out.println("Main SocketException done");
         } catch (IOException e) {
             Logger.getLogger(ServerController.class.getName()).log(Level.SEVERE, null, e);
         } finally {
-            try {
-                if (serverSocket != null) {
-                    serverSocket.close();
-                }
-            } catch (IOException ex) {
-                Logger.getLogger(ServerController.class.getName()).log(Level.SEVERE, null, ex);
-            }
-            try {
-                if (socket != null) {
-                    socket.close();
-                }
-            } catch (IOException ex) {
-                Logger.getLogger(ServerController.class.getName()).log(Level.SEVERE, null, ex);
-            }
+            Utils.close(serverSocket);
+            Utils.close(socket);
         }
     }
 
-    protected void closeServerSocket() {
-        if (serverSocket != null) {
-            try {
-                serverSocket.close();
-            } catch (IOException ex) {
-                Logger.getLogger(ServerController.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }
+    public int getUserNumber() {
+        return userNumber;
     }
+
 }

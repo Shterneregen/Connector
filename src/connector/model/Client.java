@@ -5,6 +5,7 @@
  */
 package connector.model;
 
+import connector.utils.Utils;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -44,28 +45,9 @@ public class Client {
     }
 
     public void closeStreams() {
-        try {
-            if (inputStream != null) {
-                inputStream.close();
-            }
-        } catch (IOException ioe) {
-            Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ioe);
-        }
-        try {
-            if (outputStream != null) {
-                outputStream.close();
-                outputStream.flush();
-            }
-        } catch (IOException ioe) {
-            Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ioe);
-        }
-        try {
-            if (socket != null) {
-                socket.close();
-            }
-        } catch (IOException ioe) {
-            Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ioe);
-        }
+        Utils.close(inputStream);
+        Utils.close(outputStream);
+        Utils.close(socket);
     }
 
     //<editor-fold defaultstate="collapsed" desc="get-set">

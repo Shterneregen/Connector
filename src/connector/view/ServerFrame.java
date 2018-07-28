@@ -87,7 +87,9 @@ public class ServerFrame extends javax.swing.JFrame {
         jmServer.setText(stringsFile.getProperty("clientFrame.jm.server"));
         jmiNewServerWindow.setText(stringsFile.getProperty("clientFrame.jmi.newServerWindow"));
 
-//        lbNumUs.setText(stringsFile.getProperty("serverFrame.str.users") + server.getUserNumber());
+        lbUsers.setText(stringsFile.getProperty("lb.users"));
+        lbNumUs.setText("0");
+
         lbPort.setText(stringsFile.getProperty("serverFrame.lb.port"));
         lbPass.setText(stringsFile.getProperty("serverFrame.lb.pass"));
         lbIP.setText(stringsFile.getProperty("serverFrame.lb.ip"));
@@ -135,12 +137,11 @@ public class ServerFrame extends javax.swing.JFrame {
         tfPort.setEditable(true);
         pfPas.setEditable(true);
 
-//        server.setUserNumber(0);
-//        lbNumUs.setText(stringsFile.getProperty("serverFrame.str.users") + server.getUserNumber());
+        lbNumUs.setText("0");
     }
 
     private Optional<String> checkPsw(String psw) {
-        return psw == null || (psw != null && psw.equals(""))
+        return psw == null || psw.equals("")
                 ? Optional.empty()
                 : Optional.of(psw);
     }
@@ -158,6 +159,7 @@ public class ServerFrame extends javax.swing.JFrame {
         jcbIP = new javax.swing.JComboBox<>();
         lbPort = new javax.swing.JLabel();
         lbPass = new javax.swing.JLabel();
+        lbUsers = new javax.swing.JLabel();
         jMenuBar1 = new javax.swing.JMenuBar();
         jmServer = new javax.swing.JMenu();
         jmiNewServerWindow = new javax.swing.JMenuItem();
@@ -212,6 +214,8 @@ public class ServerFrame extends javax.swing.JFrame {
 
         lbPass.setText("Пароль");
 
+        lbUsers.setText(" ");
+
         jmServer.setText("Сервер");
 
         jmiNewServerWindow.setText("Новое серверное окно");
@@ -244,27 +248,27 @@ public class ServerFrame extends javax.swing.JFrame {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(lbUsers, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(lbIP, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(lbPort, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(tfPort, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(btStartServer, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(0, 0, Short.MAX_VALUE)
-                        .addComponent(lbNumUs, javax.swing.GroupLayout.PREFERRED_SIZE, 260, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(layout.createSequentialGroup()
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(lbIP, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(lbPort, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(tfPort, javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(btStartServer, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                            .addComponent(btStopServer, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(pfPas)
+                            .addComponent(lbPass, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(11, 11, 11)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(layout.createSequentialGroup()
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                    .addComponent(btStopServer, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                    .addComponent(pfPas)
-                                    .addComponent(lbPass, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-                            .addGroup(layout.createSequentialGroup()
-                                .addGap(11, 11, 11)
-                                .addComponent(jcbIP, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                .addGap(10, 10, 10)
+                                .addComponent(lbNumUs, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                            .addComponent(jcbIP, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -286,7 +290,9 @@ public class ServerFrame extends javax.swing.JFrame {
                     .addComponent(lbIP, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jcbIP, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(lbNumUs)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(lbNumUs)
+                    .addComponent(lbUsers))
                 .addContainerGap())
         );
 
@@ -338,6 +344,7 @@ public class ServerFrame extends javax.swing.JFrame {
     private javax.swing.JLabel lbNumUs;
     private javax.swing.JLabel lbPass;
     private javax.swing.JLabel lbPort;
+    private javax.swing.JLabel lbUsers;
     private javax.swing.JPasswordField pfPas;
     private javax.swing.JTextField tfPort;
     // End of variables declaration//GEN-END:variables

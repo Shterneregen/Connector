@@ -160,31 +160,10 @@ public class ConnectionController extends Thread {
      * Закрывает входной и выходной потоки и сокет
      */
     private void close() {
-        try {
-            if (this.inputStream != null) {
-                this.inputStream.close();
-            }
-        } catch (IOException e) {
-            Logger.getLogger(ConnectionController.class.getName()).log(Level.SEVERE, null, e);
-            System.err.println("Поток inputStream не закрыт!");
-        }
-        try {
-            if (this.outputStream != null) {
-                this.outputStream.close();
-                this.outputStream.flush();
-            }
-        } catch (IOException e) {
-            Logger.getLogger(ConnectionController.class.getName()).log(Level.SEVERE, null, e);
-            System.err.println("Поток outputStream не закрыт!");
-        }
-        try {
-            if (socket != null) {
-                this.socket.close();
-            }
-        } catch (IOException e) {
-            Logger.getLogger(ConnectionController.class.getName()).log(Level.SEVERE, null, e);
-            System.err.println("Сокет не закрыт!");
-        }
+        Utils.close(inputStream);
+        Utils.close(outputStream);
+        Utils.close(socket);
+
         synchronized (connections) {
             connections.remove(ConnectionController.this);
         }

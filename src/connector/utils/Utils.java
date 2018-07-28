@@ -2,6 +2,7 @@ package connector.utils;
 
 import connector.view.ServerFrame;
 import java.awt.Dimension;
+import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
 import java.net.Inet4Address;
@@ -244,6 +245,16 @@ public class Utils {
             }
         }
         return res;
+    }
+
+    public static void close(Closeable closable) {
+        if (closable != null) {
+            try {
+                closable.close();
+            } catch (IOException ex) {
+                Logger.getLogger(ServerFrame.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
     }
 
     //<editor-fold defaultstate="collapsed" desc="Не используется">
