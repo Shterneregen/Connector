@@ -12,6 +12,6 @@ public class ControlLines {
     public static final String STR_STOP_SERVER = "</server-was-stoped/>";
     public static final String STR_SAME_NIC = "</same-nic/>";
 
-    public static final String VERSION = "17.11.13.2";
+    public static final String VERSION = "180731.1";
     public static final String MAIN_NAME = "Connector " + VERSION;
 }

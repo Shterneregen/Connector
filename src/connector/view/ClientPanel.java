@@ -50,7 +50,7 @@ public class ClientPanel extends javax.swing.JPanel {
         setItemsNames();
 //        btSettings.setIcon(new javax.swing.ImageIcon(getClass().getResource("../resources/images/setting.png")));
 //        btSettings.setToolTipText(stringsFile.getProperty("clientPanel.button.setting"));
-        listAddr.stream().forEach((address) -> {
+        listAddr.forEach((address) -> {
             tfIP.addItem(address);
         });
         if (clientType.equals(ClientType.CLIENT_WITH_SERVER)) {
@@ -86,7 +86,7 @@ public class ClientPanel extends javax.swing.JPanel {
                     tfIP.setEditable(true);
                 }
                 tfIP.removeAllItems();
-                listAddr.stream().forEach((address) -> {
+                listAddr.forEach((address) -> {
                     tfIP.addItem(address);
                 });
             }
@@ -175,7 +175,6 @@ public class ClientPanel extends javax.swing.JPanel {
 //    public void setErrConn(boolean errConn) {
 //        this.errConn = errConn;
 //    }
-
     public void setStrChat(String strChat) {
         this.strChat = strChat;
     }
@@ -386,7 +385,7 @@ public class ClientPanel extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btStartClientActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btStartClientActionPerformed
-        clientController = new ClientController(ClientType.CLIENT_WITH_SERVER);
+        clientController = new ClientController(clientType);
         boolean isConnection = clientController.setConnection(
                 (String) tfIP.getSelectedItem(),
                 tfPort.getText(),

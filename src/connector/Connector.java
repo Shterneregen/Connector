@@ -2,6 +2,7 @@ package connector;
 
 import connector.controller.ServerController;
 import connector.resources.ControlLines;
+import connector.utils.ProjectProperties;
 import connector.view.ClientFrame;
 import java.util.Scanner;
 import static javax.swing.JFrame.EXIT_ON_CLOSE;
@@ -9,7 +10,7 @@ import static javax.swing.JFrame.EXIT_ON_CLOSE;
 public class Connector {
 
     private static ClientFrame clientFrame;
-//    private ProjectProperties projectProperties = ProjectProperties.getInstance();
+    private ProjectProperties projectProperties = ProjectProperties.getInstance();
 
     public static void main(String[] args) {
         if (args.length > 0) {
@@ -20,8 +21,8 @@ public class Connector {
             clientFrame.setDefaultCloseOperation(EXIT_ON_CLOSE);
             clientFrame.setVisible(true);
 
-            new ClientFrame(ControlLines.MAIN_NAME).setVisible(true);
-//        new ServerFrame("Server", ServerConfig.ONLY_SERVER).setVisible(true);
+//            new ClientFrame(ControlLines.MAIN_NAME).setVisible(true);
+//            new ServerFrame("Server", ServerConfig.ONLY_SERVER).setVisible(true);
         }
     }
 

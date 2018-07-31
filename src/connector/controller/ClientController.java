@@ -63,11 +63,11 @@ public class ClientController {
         }
 
         try {
+            // Запускаем поток получения сообщений от серверной части
             resender = new Resender();
             resender.start();
-            String pfStr = client.getPsw();
-            client.getOutputStream().writeObject(new Message(Encryption.encode(pfStr, pfStr),
-                    Encryption.encode(client.getNicname(), pfStr), clientEncryption.getPublicKeyFromKeypair()));
+            // Client send pub key
+            client.getOutputStream().writeObject(new Message(clientEncryption.getPublicKeyFromKeypair()));
             return true;
         } catch (IOException ex) {
             Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
@@ -92,7 +92,7 @@ public class ClientController {
     private class Resender extends Thread {
 
         private boolean stoped = false;
-        private boolean bFirst = true;
+        private boolean firstMsg = true;
         private Message message;
         private String commandToMsg;
 
@@ -106,10 +106,20 @@ public class ClientController {
                 while (!stoped) {
                     try {
                         message = (Message) client.getInputStream().readObject();
-                        if (bFirst) {
-                            bFirst = false;
+                        if (firstMsg) {
+                            firstMsg = false;
+                            // Client get pub key from server
                             serverEncryption.createPair(message.getPublicKey());
+
+                            // Client send psw & nic
+                            String pfStr = client.getPsw();
+                            client.getOutputStream().writeObject(new Message(
+                                    serverEncryption.encrypt(pfStr),
+                                    serverEncryption.encrypt(client.getNicname())));
+                            continue;
                         }
+
+                        // Client receive msg from server
                         receiveStr = Utils.removeTheTrash(clientEncryption.decrypt(message.getMessage()));
                     } catch (IOException | ClassNotFoundException e) {
                         break;

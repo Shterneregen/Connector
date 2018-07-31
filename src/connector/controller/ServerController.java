@@ -69,7 +69,8 @@ public class ServerController extends Thread {
                 userNumber++;
             }
         } catch (SocketException se) {
-            System.out.println("Main SocketException done");
+            System.out.println("Main SocketException");
+            Logger.getLogger(ServerController.class.getName()).log(Level.SEVERE, null, se);
         } catch (IOException e) {
             Logger.getLogger(ServerController.class.getName()).log(Level.SEVERE, null, e);
         } finally {

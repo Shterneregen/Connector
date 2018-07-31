@@ -42,6 +42,7 @@ public class ConnectionController extends Thread {
     private String psw;
     private int userNumber;
     private StringBuilder buffChat;
+    private boolean firstMsg = true;
 
     public ConnectionController(Socket soc, Encryption serverEncryption, String psw) {
         this.socket = soc;
@@ -69,16 +70,23 @@ public class ConnectionController extends Thread {
         try {
             while (!stoped) {
                 message = (Message) inputStream.readObject();
-                name = Encryption.decode(message.getName(), psw);
-                clientEncryption.createPair(message.getPublicKey());
 
-                ConnectionController.this.outputStream.writeObject(new Message(
-                        clientEncryption.encrypt(ControlLines.STR_SEND_PUB_KEY),
-                        true,
-                        serverEncryption.getPublicKeyFromKeypair()));
+                if (firstMsg) {
+                    // Server receive pub key from client
+                    clientEncryption.createPair(message.getPublicKey());
 
-                String pass = Encryption.decode(message.getPsw(), psw);
-                if (pass.equals(psw)) {
+                    // Server send pub key to client
+                    ConnectionController.this.outputStream
+                            .writeObject(new Message(serverEncryption.getPublicKeyFromKeypair()));
+                    firstMsg = false;
+                    continue;
+                }
+
+                // Server receive psw & nic from client
+                name = Utils.removeTheTrash(serverEncryption.decrypt(message.getName()));
+                String pswFromClient = Utils.removeTheTrash(serverEncryption.decrypt(message.getPsw()));
+
+                if (pswFromClient.equals(psw)) {
                     // Проверяет, есть ли такой же ник в чате
                     flagWrongNic = stoped = Utils.checkNicname(name, listNames);
 
@@ -124,8 +132,13 @@ public class ConnectionController extends Thread {
                         sendMsg(ConnectionController.this, ControlLines.STR_SAME_NIC);
                     }
                 } else {
-//                        Connection.this.out.println(Encryption.encode(Utils.getSTR_WRONG_PASS(), pfStr)); 
-//                        Connection.this.out.println(Encryption.encode("--- Сервер не отвечает --- 3"+"\n", pfStr));
+                    // Чтобы сложнее было воспользоваться брут форсом - ставлю задержку ответа 
+                    try {
+                        Thread.sleep(5000);
+                    } catch (InterruptedException ex) {
+                        Logger.getLogger(ConnectionController.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                    sendMsg(ConnectionController.this, ControlLines.STR_WRONG_PASS);
                     this.setStop();
                 }
             }

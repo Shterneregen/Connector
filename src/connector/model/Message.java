@@ -37,16 +37,23 @@ public class Message implements Serializable {
     }
 
     /**
-     * От клиента, инициализирует пересылку сообщений
+     * Для передачи открытого ключа
+     *
+     * @param publicKey открытый ключ
+     */
+    public Message(PublicKey publicKey) {
+        this.publicKey = publicKey;
+    }
+
+    /**
+     * Для инициализации клиента на сервере
      *
      * @param psw пароль сессии
      * @param name имя пользователя
-     * @param publicKey открытый ключ
      */
-    public Message(String psw, String name, PublicKey publicKey) {
+    public Message(String psw, String name) {
         this.psw = psw;
         this.name = name;
-        this.publicKey = publicKey;
     }
 
     /**
