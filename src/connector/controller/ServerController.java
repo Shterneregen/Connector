@@ -54,6 +54,7 @@ public class ServerController extends Thread {
 
     @Override
     public void run() {
+        System.out.println("Server is started!");
         userNumber = 0;
         Socket socket = null;
         try {

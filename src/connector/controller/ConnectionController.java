@@ -66,10 +66,9 @@ public class ConnectionController extends Thread {
 
     @Override
     public void run() {
-        Message message;
         try {
             while (!stoped) {
-                message = (Message) inputStream.readObject();
+                Message message = (Message) inputStream.readObject();
 
                 if (firstMsg) {
                     // Server receive pub key from client
@@ -102,8 +101,7 @@ public class ConnectionController extends Thread {
                         // В цикле получаем очередное сообщение от данного клиента и рассылаем остальным
                         while (!stoped) {
                             message = (Message) inputStream.readObject();
-                            String msgFromClient = Utils
-                                    .removeTheTrash(serverEncryption.decrypt(message.getMessage()));
+                            String msgFromClient = Utils.removeTheTrash(serverEncryption.decrypt(message.getMessage()));
 
                             switch (msgFromClient) {
                                 // Оповещаем всех, что данный клиент вышел
@@ -151,7 +149,9 @@ public class ConnectionController extends Thread {
         }
     }
 
-    /*Отправляет сообщение всем участникам*/
+    /**
+     * Отправляет сообщение всем участникам
+     */
     private void sendBroadcastMsg(String broadcastMsg) throws IOException {
         synchronized (connections) {
             for (ConnectionController thisConnection : connections) {

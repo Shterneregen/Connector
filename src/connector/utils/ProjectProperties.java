@@ -39,12 +39,15 @@ public class ProjectProperties {
     private final String PATH_TO_INNER_RESOURCES = ".." + S + "resources" + S;
     private final String PATH_TO_INNER_PROPERTIES = PATH_TO_INNER_RESOURCES + CONFIG_FILE_NAME;
     private final String DEFAULT_ICON = "java.png";
+
+    private static Logger log = Logger.getLogger(ProjectProperties.class.getName());
+
     private Properties projProperties;
-    private Properties stringsFile;
+    private static Properties stringsFile;
     private String LANGUAGE_FILE_NAME;
     private String PATH;
 
-    private Boolean isOuterProperties = false;
+    private Boolean isOuterProperties;
 
     public String SERVER_NAME_SELECT;
     public String CLIENT_NAME_SELECT;
@@ -58,19 +61,25 @@ public class ProjectProperties {
     public Switch SOUND_SWITCH;
     public Switch POP_UP_SWITCH;
 
-    private static ProjectProperties instance = new ProjectProperties();
+    private static ProjectProperties instance;
 
     public static synchronized ProjectProperties getInstance() {
-        return instance == null ? new ProjectProperties() : instance;
+        instance = instance == null ? new ProjectProperties() : instance;
+        return instance;
+    }
+
+    public static String getString(String str) {
+        return stringsFile.getProperty(str);
     }
 
     private ProjectProperties() {
+        this.isOuterProperties = false;
         projProperties = new Properties();
         stringsFile = new Properties();
         try {
             PATH = getCurrentDir();
         } catch (IOException ex) {
-            Logger.getLogger("Cannot get current Dir");
+            log.log(Level.SEVERE, "Cannot get current Dir");
         }
 
         // создаем поток для чтения из файла
@@ -78,21 +87,21 @@ public class ProjectProperties {
             projProperties.load(propertieStream);
             isOuterProperties = true;
         } catch (Exception ex) {
-            Logger.getLogger("Cannot load projProperties from outer file");
+            log.log(Level.SEVERE, "Cannot load outer properties");
         }
 
         // Если из внешних загрузить не получилось, берём проперти из jar
         if (!isOuterProperties) {
             try (InputStream inputStream = getClass().getResourceAsStream(PATH_TO_INNER_PROPERTIES)) {
                 projProperties.load(inputStream);
-            } catch (Exception ex1) {
-                Logger.getLogger(ProjectProperties.class.getName()).log(Level.SEVERE, null, ex1);
+            } catch (Exception ex) {
+                log.log(Level.SEVERE, "Cannot load inner properties");
             }
         }
 
         SERVER_NAME_SELECT = projProperties.getProperty(SERVER_NAME);
         CLIENT_NAME_SELECT = projProperties.getProperty(CLIENT_NAME);
-        System.out.println(SERVER_NAME_SELECT);
+
         SOUND_SWITCH = projProperties.getProperty(SOUND_SETTING).toLowerCase().equals(Switch.ON.getMode())
                 ? Switch.ON
                 : Switch.OFF;
@@ -110,18 +119,19 @@ public class ProjectProperties {
                 try (FileInputStream stringStream = new FileInputStream(PATH + LANGUAGE_FILE_NAME)) {
                     stringsFile.load(stringStream);
                 } catch (IOException e) {
-                    Logger.getLogger(ProjectProperties.class.getName()).log(Level.SEVERE, "Cannot close stringStream", e);
+                    log.log(Level.SEVERE, "Cannot load outer resources", e);
                 }
             } else {
                 SERVER_IMAGE = ImageIO.read(getClass().getResourceAsStream(PATH_TO_INNER_RESOURCES + DEFAULT_ICON));
                 CLIENT_IMAGE = ImageIO.read(getClass().getResourceAsStream(PATH_TO_INNER_RESOURCES + DEFAULT_ICON));
                 try (InputStream inputStream = getClass().getResourceAsStream(PATH_TO_INNER_RESOURCES + LANGUAGE_FILE_NAME)) {
                     stringsFile.load(inputStream);
-                } catch (Exception ex1) {
-                    Logger.getLogger(ProjectProperties.class.getName()).log(Level.SEVERE, null, ex1);
+                } catch (Exception e) {
+                    log.log(Level.SEVERE, "Cannot load inner resources", e);
                 }
             }
         } catch (Exception e) {
+            log.log(Level.SEVERE, "Exception while load resources", e);
         }
     }
 

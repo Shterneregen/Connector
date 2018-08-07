@@ -25,8 +25,6 @@ public class ClientPanel extends javax.swing.JPanel {
     private ClientController clientController;
 
     private String strChat;
-//    private String receiveStr;
-//    private Resender resender;
     private ClientType clientType;
 
     private Boolean flagGoodConn;
@@ -63,8 +61,10 @@ public class ClientPanel extends javax.swing.JPanel {
         }
         ((AbstractDocument) tfPort.getDocument()).setDocumentFilter(new Utils().new DocumentFilterForPort());
 
-        tpOutput.setWrapStyleWord(true);// слова не будут разрываться в том месте, где они «натыкаются» на границу компонента, а будут целиком перенесены на новую строку
-        tpOutput.setLineWrap(true);     // длинные строки будут укладываться в несколько строк вместо одной, уходящей за границы компонента
+        // слова не будут разрываться в том месте, где они «натыкаются» на границу компонента, а будут целиком перенесены на новую строку
+        tpOutput.setWrapStyleWord(true);
+        // длинные строки будут укладываться в несколько строк вместо одной, уходящей за границы компонента
+        tpOutput.setLineWrap(true);
         tpOutput.setEditable(false);
         tfInput.setText(stringsFile.getProperty("no_conn"));
         tfInput.setEditable(false);
@@ -161,9 +161,6 @@ public class ClientPanel extends javax.swing.JPanel {
         return strChat;
     }
 
-//    public String getReceiveStr() {
-//        return receiveStr;
-//    }
     public Boolean getFlagGoodConn() {
         return flagGoodConn;
     }
@@ -172,9 +169,6 @@ public class ClientPanel extends javax.swing.JPanel {
         return tpOutput;
     }
 
-//    public void setErrConn(boolean errConn) {
-//        this.errConn = errConn;
-//    }
     public void setStrChat(String strChat) {
         this.strChat = strChat;
     }

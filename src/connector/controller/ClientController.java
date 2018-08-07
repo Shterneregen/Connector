@@ -15,7 +15,6 @@ import connector.utils.Utils;
 import connector.view.ClientPanel;
 import java.io.IOException;
 import java.util.Optional;
-import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -28,7 +27,6 @@ public class ClientController {
     private Client client;
     private Resender resender;
     private String receiveStr;
-    private Properties stringsFile;
 
     private Encryption serverEncryption;
     private Encryption clientEncryption;
@@ -41,7 +39,6 @@ public class ClientController {
         this.clientType = clientType;
         clientEncryption = new Encryption();
         serverEncryption = new Encryption();
-        stringsFile = ProjectProperties.getInstance().getStringsFile();
     }
 
     public void sendMsg(String message) throws IOException {
@@ -73,6 +70,10 @@ public class ClientController {
             Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
             return false;
         }
+    }
+
+    public boolean setConnection(String ip, String port, String nic, String psw) {
+        return setConnection(ip, port, nic, psw, null);
     }
 
     public boolean disonnect() {
@@ -126,38 +127,59 @@ public class ClientController {
                     }
                     switch (receiveStr) {
                         case ControlLines.STR_WRONG_PASS:
-                            commandToMsg = stringsFile.getProperty("wrong_pass");
+                            commandToMsg = ProjectProperties.getString("wrong_pass");
                             break;
                         case ControlLines.STR_SAME_NIC:
-                            commandToMsg = stringsFile.getProperty("same_nic");
+                            commandToMsg = ProjectProperties.getString("same_nic");
                             break;
                         case ControlLines.STR_STOP_SERVER:
-                            commandToMsg = stringsFile.getProperty("stop_server");
+                            commandToMsg = ProjectProperties.getString("stop_server");
                             break;
                         default:
                             break;
                     }
 
-                    switch (receiveStr) {
-                        case ControlLines.STR_WRONG_PASS:
-                        case ControlLines.STR_SAME_NIC:
-                        case ControlLines.STR_STOP_SERVER:
-                            clientPanel.setStrChat(clientPanel.getStrChat() + "\n" + receiveStr);
-                            clientPanel.getTpOutput().append(commandToMsg + "\n");
-                            clientPanel.getTpOutput().setCaretPosition(clientPanel.getTpOutput().getText().length());
-//                            clientPanel.setErrConn(true);
-                            if (receiveStr.equals(ControlLines.STR_STOP_SERVER)) {
-                                resender.setStop();
-                            }
-                            clientPanel.exit();
-                            break;
-                        default:
-                            clientPanel.setStrChat(clientPanel.getStrChat() + "\n" + receiveStr);
-                            if (!message.isfSystemMessage()) {
-                                clientPanel.getTpOutput().append(receiveStr + "\n");
+                    if (clientPanel != null) {
+                        // Оконный режим
+                        switch (receiveStr) {
+                            case ControlLines.STR_WRONG_PASS:
+                            case ControlLines.STR_SAME_NIC:
+                            case ControlLines.STR_STOP_SERVER:
+                                clientPanel.setStrChat(clientPanel.getStrChat() + "\n" + receiveStr);
+                                clientPanel.getTpOutput().append(commandToMsg + "\n");
                                 clientPanel.getTpOutput().setCaretPosition(clientPanel.getTpOutput().getText().length());
-                            }
-                            break;
+                                if (receiveStr.equals(ControlLines.STR_STOP_SERVER)) {
+                                    resender.setStop();
+                                }
+                                clientPanel.exit();
+                                break;
+                            default:
+                                clientPanel.setStrChat(clientPanel.getStrChat() + "\n" + receiveStr);
+                                if (!message.isfSystemMessage()) {
+                                    clientPanel.getTpOutput().append(receiveStr + "\n");
+                                    clientPanel.getTpOutput().setCaretPosition(clientPanel.getTpOutput().getText().length());
+                                }
+                                break;
+                        }
+                    } else {
+                        // Консольный режим
+                        switch (receiveStr) {
+                            case ControlLines.STR_WRONG_PASS:
+                            case ControlLines.STR_SAME_NIC:
+                            case ControlLines.STR_STOP_SERVER:
+                                System.out.println(commandToMsg);
+                                if (receiveStr.equals(ControlLines.STR_STOP_SERVER)) {
+                                    resender.setStop();
+                                }
+                                break;
+                            default:
+                                if (!message.isfSystemMessage()) {
+//                                    PrintStream out = new PrintStream(System.out, true, "windows-1251");
+//                                    out.println(receiveStr);
+                                    System.out.println(receiveStr);
+                                }
+                                break;
+                        }
                     }
                 }
             } finally {
