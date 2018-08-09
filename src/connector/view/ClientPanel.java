@@ -28,8 +28,6 @@ public class ClientPanel extends javax.swing.JPanel {
     private ClientType clientType;
 
     private Boolean flagGoodConn;
-//    private boolean errConn;
-    private boolean bRsa;
     private Properties stringsFile;
 
     private List<String> listAddr; // Массив локальных IP адресов
@@ -40,9 +38,7 @@ public class ClientPanel extends javax.swing.JPanel {
         this.clientType = clientType;
 
         flagGoodConn = false;
-//        errConn = false;
         listAddr = Utils.getMyLocalIP();
-        bRsa = false;
 
         initComponents();
         setItemsNames();
@@ -106,7 +102,6 @@ public class ClientPanel extends javax.swing.JPanel {
     public void exit() {
         setButtonBeforeStart();
         flagGoodConn = false;
-//        errConn = false;
     }
 
     void setButtonAfterStart() {
@@ -392,7 +387,6 @@ public class ClientPanel extends javax.swing.JPanel {
             setButtonAfterStart();
         } else {
             tpOutput.append(stringsFile.getProperty("STR_NON_ACK") + "\n");
-//            errConn = true;
             flagGoodConn = false;
             exit();
         }

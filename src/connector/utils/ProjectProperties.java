@@ -12,6 +12,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -36,11 +37,10 @@ public class ProjectProperties {
 
     private final String S = System.getProperty("file.separator"); // separator
     private final String CONFIG_FILE_NAME = "config.properties";
-    private final String PATH_TO_INNER_RESOURCES = ".." + S + "resources" + S;
-    private final String PATH_TO_INNER_PROPERTIES = PATH_TO_INNER_RESOURCES + CONFIG_FILE_NAME;
+    private final String PATH_TO_INNER_RESOURCES = "/connector/resources/";
     private final String DEFAULT_ICON = "java.png";
 
-    private static Logger log = Logger.getLogger(ProjectProperties.class.getName());
+    private static final Logger log = Logger.getLogger(ProjectProperties.class.getName());
 
     private Properties projProperties;
     private static Properties stringsFile;
@@ -92,10 +92,13 @@ public class ProjectProperties {
 
         // Если из внешних загрузить не получилось, берём проперти из jar
         if (!isOuterProperties) {
-            try (InputStream inputStream = getClass().getResourceAsStream(PATH_TO_INNER_PROPERTIES)) {
-                projProperties.load(inputStream);
+            try {
+                URL url = getClass().getClassLoader().getResource("connector/resources/" + CONFIG_FILE_NAME);
+                if (url != null) {
+                    projProperties.load(url.openStream());
+                }
             } catch (Exception ex) {
-                log.log(Level.SEVERE, "Cannot load inner properties");
+                log.log(Level.SEVERE, "Cannot load inner properties", ex);
             }
         }
 

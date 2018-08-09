@@ -5,6 +5,7 @@ import connector.controller.ClientController;
 import connector.controller.ServerController;
 import connector.resources.ControlLines;
 import connector.utils.ProjectProperties;
+import connector.utils.Utils;
 import connector.view.ClientFrame;
 import java.io.Console;
 import java.io.IOException;
@@ -20,12 +21,24 @@ public class Connector {
 
     private static ClientFrame clientFrame;
     private static Logger log = Logger.getLogger(Connector.class.getName());
+    private static String encoding;
 
     public static void main(String[] args) {
+        encoding = System.getProperty("console.encoding", "Cp866");
         ProjectProperties pp = ProjectProperties.getInstance();
+        
         if (args.length > 0) {
             List<String> argList = new ArrayList<>(Arrays.asList(args));
             String mode = argList.get(0);
+
+            if (mode.equals("-h") || mode.equals("-help") && mode.equals("/?")) {
+                System.out.println("java -jar Connector.jar -s [port] [psw]");
+                System.out.println("java -jar Connector.jar -c [port] [psw] [nickname]");
+                System.out.println("-s\t" + ProjectProperties.getString("server.about"));
+                System.out.println("-c\t" + ProjectProperties.getString("client.about"));
+                return;
+            }
+
             String port;
             String psw;
 
@@ -35,20 +48,22 @@ public class Connector {
                         ? argList.get(2)
                         : getPassword();
             } else {
-                Scanner in = new Scanner(System.in);
+                Scanner in = new Scanner(System.in, encoding);
                 System.out.print(ProjectProperties.getString("tf.enter_port") + ": ");
                 port = in.nextLine();
                 psw = getPassword();
             }
 
             if (mode.equals("-s")) {
+                List<String> listAddr = Utils.getMyLocalIP();
+                listAddr.forEach(i -> System.out.println(i));
                 startServer(port, psw);
             } else if (mode.equals("-c")) {
                 String nic;
                 if (argList.size() > 3) {
                     nic = argList.get(3);
                 } else {
-                    Scanner in = new Scanner(System.in);
+                    Scanner in = new Scanner(System.in, encoding);
                     System.out.print(ProjectProperties.getString("tf.enter_nic") + ": ");
                     nic = in.nextLine();
                 }
@@ -111,7 +126,7 @@ public class Connector {
         @Override
         public void run() {
             while (!stoped) {
-                Scanner in = new Scanner(System.in);
+                Scanner in = new Scanner(System.in, encoding);
                 String msg = in.nextLine();
                 clientSendMsg(clientController, msg);
             }

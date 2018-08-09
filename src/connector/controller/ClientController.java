@@ -174,8 +174,6 @@ public class ClientController {
                                 break;
                             default:
                                 if (!message.isfSystemMessage()) {
-//                                    PrintStream out = new PrintStream(System.out, true, "windows-1251");
-//                                    out.println(receiveStr);
                                     System.out.println(receiveStr);
                                 }
                                 break;
