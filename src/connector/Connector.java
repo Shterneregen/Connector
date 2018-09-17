@@ -26,12 +26,12 @@ public class Connector {
     public static void main(String[] args) {
         encoding = System.getProperty("console.encoding", "Cp866");
         ProjectProperties pp = ProjectProperties.getInstance();
-        
+
         if (args.length > 0) {
             List<String> argList = new ArrayList<>(Arrays.asList(args));
             String mode = argList.get(0);
 
-            if (mode.equals("-h") || mode.equals("-help") && mode.equals("/?")) {
+            if (mode.equals("-h") || mode.equals("-help") || mode.equals("/?") || mode.equals("?")) {
                 System.out.println("java -jar Connector.jar -s [port] [psw]");
                 System.out.println("java -jar Connector.jar -c [port] [psw] [nickname]");
                 System.out.println("-s\t" + ProjectProperties.getString("server.about"));
@@ -106,6 +106,13 @@ public class Connector {
 
     private static void startServer(String port, String psw) {
         ServerController serverController = new ServerController(port, psw);
+
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            @Override
+            public void run() {
+                serverController.stopServer();
+            }
+        });
         serverController.startServer();
     }
 
@@ -125,8 +132,19 @@ public class Connector {
 
         @Override
         public void run() {
+            Runtime.getRuntime().addShutdownHook(new Thread() {
+                @Override
+                public void run() {
+                    clientController.disonnect();
+                }
+            });
             while (!stoped) {
                 Scanner in = new Scanner(System.in, encoding);
+                if (!in.hasNextLine()) {
+                    clientController.disonnect();
+                    stoped = true;
+                    return;
+                }
                 String msg = in.nextLine();
                 clientSendMsg(clientController, msg);
             }

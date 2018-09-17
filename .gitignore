@@ -8,3 +8,10 @@ nbactions.xml
 nb-configuration.xml
 
 .nb-gradle/
+out/
+
+# IntelliJ project files 
+*.iml
+*.iws
+*.ipr
+.idea/
