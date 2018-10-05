@@ -1,16 +1,15 @@
 package connector.utils;
 
-import java.io.UnsupportedEncodingException;
+import javax.crypto.BadPaddingException;
+import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.crypto.BadPaddingException;
-import javax.crypto.Cipher;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
 
 /**
  * Класс отвечающий за шифрование
@@ -23,49 +22,6 @@ public class Encryption {
         prepare();
     }
 
-    //<editor-fold defaultstate="collapsed" desc="Симметричное шифрование">
-    /**
-     * Шифрует строку методом xor
-     *
-     * @param pText шифруемый текст
-     * @param pKey ключ шифрования
-     * @return зашифрованная строка
-     * @throws UnsupportedEncodingException
-     */
-    public static String encode(String pText, String pKey) throws UnsupportedEncodingException {
-        byte[] iMsg = pText.getBytes("Cp1251");
-        byte[] iPsw = pKey.getBytes("Cp1251");
-        for (int i = 0, j = 0; i < iMsg.length; i++, j++) {
-            if (j == iPsw.length - 1) {
-                j = 0;
-            }
-            iMsg[i] ^= (byte) (iPsw[j] & 0xf);
-        }
-        return new String(iMsg, "Cp1251");
-    }
-
-    /**
-     * Расшифровывает строку методом xor
-     *
-     * @param pText зашифрованная строка
-     * @param pKey ключ шифрования
-     * @return расшифрованная строка
-     * @throws UnsupportedEncodingException
-     */
-    public static String decode(String pText, String pKey) throws UnsupportedEncodingException {
-        byte[] iMsg = pText.getBytes("Cp1251");
-        byte[] iPsw = pKey.getBytes("Cp1251");
-        for (int i = 0, j = 0; i < iMsg.length; i++, j++) {
-            if (j == iPsw.length - 1) {
-                j = 0;
-            }
-            iMsg[i] ^= (byte) (iPsw[j] & 0xf);
-        }
-        return new String(iMsg, "Cp1251");
-    }
-    //</editor-fold>
-
-    //<editor-fold defaultstate="collapsed" desc="Ассиметричное шифрование">
     private KeyPair keypair;
     private Cipher cipher;
 
@@ -96,13 +52,12 @@ public class Encryption {
         } catch (NoSuchAlgorithmException | NoSuchPaddingException ex) {
             Logger.getLogger(Encryption.class.getName()).log(Level.SEVERE, null, ex);
         }
-
     }
 
     /**
      * Формирует пару открытый/закрытый ключ
      */
-    public final void prepare() {
+    private void prepare() {
         try {
             //throws NoSuchAlgorithmException, NoSuchPaddingException
             KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA");
@@ -124,12 +79,12 @@ public class Encryption {
     public String encrypt(String plaintext) {
         byte[] bytes;
         byte[] encrypted;
-        String encryptedStrTranspherable = "";//
+        String encryptedStrTranspherable = "";
         try {
             this.cipher.init(Cipher.ENCRYPT_MODE, this.keypair.getPublic());
             bytes = plaintext.getBytes("UTF-8");
             encrypted = blockCipher(bytes, Cipher.ENCRYPT_MODE);
-//	encryptedTranspherable = Hex.encodeHex(encrypted);
+            //	encryptedTranspherable = Hex.encodeHex(encrypted);
             encryptedStrTranspherable = byte2Hex(encrypted);//
         } catch (Exception ex) {
             Logger.getLogger(Encryption.class.getName()).log(Level.SEVERE, null, ex);
@@ -214,21 +169,21 @@ public class Encryption {
         return toReturn;
     }
 
-    public static String byte2Hex(byte b[]) {
-        java.lang.String hs = "";
+    private static String byte2Hex(byte b[]) {
+        StringBuilder hs = new StringBuilder();
         java.lang.String stmp = "";
-        for (int n = 0; n < b.length; n++) {
-            stmp = java.lang.Integer.toHexString(b[n] & 0xff);
+        for (byte aB : b) {
+            stmp = Integer.toHexString(aB & 0xff);
             if (stmp.length() == 1) {
-                hs = hs + "0" + stmp;
+                hs.append("0").append(stmp);
             } else {
-                hs = hs + stmp;
+                hs.append(stmp);
             }
         }
-        return hs.toLowerCase();
+        return hs.toString().toLowerCase();
     }
 
-    public static byte hex2Byte(char a1, char a2) {
+    private static byte hex2Byte(char a1, char a2) {
         int k;
         if (a1 >= '0' && a1 <= '9') {
             k = a1 - 48;
@@ -252,7 +207,7 @@ public class Encryption {
         return (byte) (k & 0xff);
     }
 
-    public static byte[] hex2Byte(String str) {
+    private static byte[] hex2Byte(String str) {
         int len = str.length();
         if (len % 2 != 0) {
             return null;
@@ -265,38 +220,5 @@ public class Encryption {
         }
         return r;
     }
-    //</editor-fold>
-
-    //<editor-fold defaultstate="collapsed" desc="Не используется">
-    /**
-     * Преобразует строку в целочисленный массив
-     *
-     * @param message
-     * @return
-     * @throws UnsupportedEncodingException
-     */
-    public static int[] msgToInt(String message) throws UnsupportedEncodingException {
-        byte[] msgToByte = message.getBytes("UTF-8");
-        int[] imsg = new int[msgToByte.length];
-        for (int i = 0; i < msgToByte.length; i++) {
-            imsg[i] = (0xfff & msgToByte[i]);
-        }
-        return imsg;
-    }
-
-    /**
-     * Преобразует целочисленный массив в байтовый
-     *
-     * @param imsg
-     * @return
-     */
-    public static byte[] intToMsg(int[] imsg) {
-        byte[] intToByte = new byte[imsg.length];
-        for (int i = 0; i < imsg.length; i++) {
-            intToByte[i] = (byte) (imsg[i]);
-        }
-        return intToByte;
-    }
-    //</editor-fold>
 
 }
