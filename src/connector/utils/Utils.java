@@ -79,7 +79,7 @@ public class Utils {
      * @throws IOException
      * @throws LineUnavailableException
      */
-    public static void PlaySound(File soundFile) throws UnsupportedAudioFileException, IOException, LineUnavailableException {
+    public static void playSound(File soundFile) throws UnsupportedAudioFileException, IOException, LineUnavailableException {
         AudioInputStream stream = AudioSystem.getAudioInputStream(soundFile);
         DataLine.Info info = new DataLine.Info(Clip.class, stream.getFormat()); // получаем информацию о звуке из потока
         Clip clip = (Clip) AudioSystem.getLine(info); // инициализируем проигрыватель

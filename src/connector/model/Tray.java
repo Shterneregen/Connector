@@ -152,7 +152,7 @@ public class Tray {
                     trayIcon.displayMessage(clientPanel.getName(), receiveStr, TrayIcon.MessageType.INFO);
                     if (projectProperties.SOUND_SWITCH.equals(Switch.ON)) {
                         try {
-                            Utils.PlaySound(projectProperties.SOUND_FILE_FILE);
+                            Utils.playSound(projectProperties.SOUND_FILE_FILE);
                         } catch (Exception ex) {
                             Toolkit.getDefaultToolkit().beep();
                         }
