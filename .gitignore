@@ -15,3 +15,5 @@ out/
 *.iws
 *.ipr
 .idea/
+
+*.jar

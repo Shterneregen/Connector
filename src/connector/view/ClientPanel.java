@@ -9,6 +9,8 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.io.IOException;
 import java.util.List;
+import java.util.Observable;
+import java.util.Observer;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -20,7 +22,7 @@ import javax.swing.text.AbstractDocument;
  *
  * @author Yura
  */
-public class ClientPanel extends javax.swing.JPanel {
+public class ClientPanel extends javax.swing.JPanel implements Observer {
 
     private ClientController clientController;
 
@@ -170,6 +172,50 @@ public class ClientPanel extends javax.swing.JPanel {
 
     public ClientController getClientController() {
         return clientController;
+    }
+
+    @Override
+    public void update(Observable o, Object o1) {
+        clientController = (ClientController) o;
+        String receiveStr = clientController.getReceiveStr();
+
+//        System.out.println("update with receiveStr: " + receiveStr);
+        String commandToMsg = "";
+
+        switch (receiveStr) {
+            case ControlLines.STR_WRONG_PASS:
+                commandToMsg = ProjectProperties.getString("wrong_pass");
+                break;
+            case ControlLines.STR_SAME_NIC:
+                commandToMsg = ProjectProperties.getString("same_nic");
+                break;
+            case ControlLines.STR_STOP_SERVER:
+                commandToMsg = ProjectProperties.getString("stop_server");
+                break;
+            default:
+                break;
+        }
+
+        switch (receiveStr) {
+            case ControlLines.STR_WRONG_PASS:
+            case ControlLines.STR_SAME_NIC:
+            case ControlLines.STR_STOP_SERVER:
+                this.setStrChat(this.getStrChat() + "\n" + receiveStr);
+                this.getTpOutput().append(commandToMsg + "\n");
+                this.getTpOutput().setCaretPosition(this.getTpOutput().getText().length());
+                if (receiveStr.equals(ControlLines.STR_STOP_SERVER)) {
+                    clientController.resenderSetStop();
+                }
+                this.exit();
+                break;
+            default:
+                this.setStrChat(this.getStrChat() + "\n" + receiveStr);
+                if (!clientController.getMessage().isfSystemMessage()) {
+                    this.getTpOutput().append(receiveStr + "\n");
+                    this.getTpOutput().setCaretPosition(this.getTpOutput().getText().length());
+                }
+                break;
+        }
     }
 
     @SuppressWarnings("unchecked")
@@ -375,12 +421,12 @@ public class ClientPanel extends javax.swing.JPanel {
 
     private void btStartClientActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btStartClientActionPerformed
         clientController = new ClientController(clientType);
+        clientController.addObserver(this);
         boolean isConnection = clientController.setConnection(
                 (String) tfIP.getSelectedItem(),
                 tfPort.getText(),
                 tfNic.getText(),
-                String.valueOf(pfPas.getPassword()),
-                this);
+                String.valueOf(pfPas.getPassword()));
         if (isConnection) {
             strChat = "";
             flagGoodConn = true;
@@ -400,12 +446,7 @@ public class ClientPanel extends javax.swing.JPanel {
             exit();
 //            serverFrame.stopServer();
         }
-//        else {
-//            resender.setStop();
-//            tpOutput.append(stringsFile.getProperty("you_exit") + "\n");
-//            clientSendMsg(ControlLines.STR_EXIT);
-//            exit();
-//        }
+//        clientController.deleteObserver(this);
     }//GEN-LAST:event_btStopClientActionPerformed
 
     private void tfInputKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_tfInputKeyPressed
@@ -491,5 +532,5 @@ public class ClientPanel extends javax.swing.JPanel {
 //            g2.drawLine(getWidth() - delta - 1, delta, delta, getHeight() - delta - 1);
 //            g2.dispose();
 //        }
-//    } 
+//    }
 }
