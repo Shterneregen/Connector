@@ -8,11 +8,8 @@ package connector.controller;
 import connector.constant.ClientType;
 import connector.model.Client;
 import connector.model.Message;
-import connector.resources.ControlLines;
 import connector.utils.Encryption;
-import connector.utils.ProjectProperties;
 import connector.utils.Utils;
-import connector.view.ClientPanel;
 import java.io.IOException;
 import java.util.Optional;
 import java.util.logging.Level;
@@ -22,10 +19,11 @@ import java.util.logging.Logger;
  *
  * @author Yura
  */
-public class ClientController {
+public class ClientController extends java.util.Observable {
 
     private Client client;
     private Resender resender;
+    private Message message;
     private String receiveStr;
 
     private Encryption serverEncryption;
@@ -33,7 +31,6 @@ public class ClientController {
 
     private ServerController serverController;
     private ClientType clientType;
-    private ClientPanel clientPanel;
 
     public ClientController(ClientType clientType) {
         this.clientType = clientType;
@@ -45,8 +42,7 @@ public class ClientController {
         client.getOutputStream().writeObject(new Message(serverEncryption.encrypt(message)));
     }
 
-    public boolean setConnection(String ip, String port, String nic, String psw, ClientPanel clientPanel) {
-        this.clientPanel = clientPanel;
+    public boolean setConnection(String ip, String port, String nic, String psw) {
 
         Optional<String> optionalIp = Utils.getAndCheckIP(ip);
         Optional<Integer> optionalPort = Utils.getAndCheckPort(port);
@@ -72,10 +68,6 @@ public class ClientController {
         }
     }
 
-    public boolean setConnection(String ip, String port, String nic, String psw) {
-        return setConnection(ip, port, nic, psw, null);
-    }
-
     public boolean disonnect() {
         if (clientType.equals(ClientType.CLIENT_WITH_SERVER)) {
             serverController.stopServer();
@@ -89,12 +81,20 @@ public class ClientController {
         return receiveStr;
     }
 
+    public Message getMessage() {
+        return message;
+    }
+
+    public void resenderSetStop() {
+        resender.setStop();
+    }
+
     //<editor-fold defaultstate="collapsed" desc="class Resender">
     private class Resender extends Thread {
 
         private boolean stoped = false;
         private boolean firstMsg = true;
-        private Message message;
+//        private Message message;
         private String commandToMsg;
 
         public void setStop() {
@@ -122,62 +122,11 @@ public class ClientController {
 
                         // Client receive msg from server
                         receiveStr = Utils.removeTheTrash(clientEncryption.decrypt(message.getMessage()));
+
+                        setChanged();
+                        notifyObservers();
                     } catch (IOException | ClassNotFoundException e) {
                         break;
-                    }
-                    switch (receiveStr) {
-                        case ControlLines.STR_WRONG_PASS:
-                            commandToMsg = ProjectProperties.getString("wrong_pass");
-                            break;
-                        case ControlLines.STR_SAME_NIC:
-                            commandToMsg = ProjectProperties.getString("same_nic");
-                            break;
-                        case ControlLines.STR_STOP_SERVER:
-                            commandToMsg = ProjectProperties.getString("stop_server");
-                            break;
-                        default:
-                            break;
-                    }
-
-                    if (clientPanel != null) {
-                        // Оконный режим
-                        switch (receiveStr) {
-                            case ControlLines.STR_WRONG_PASS:
-                            case ControlLines.STR_SAME_NIC:
-                            case ControlLines.STR_STOP_SERVER:
-                                clientPanel.setStrChat(clientPanel.getStrChat() + "\n" + receiveStr);
-                                clientPanel.getTpOutput().append(commandToMsg + "\n");
-                                clientPanel.getTpOutput().setCaretPosition(clientPanel.getTpOutput().getText().length());
-                                if (receiveStr.equals(ControlLines.STR_STOP_SERVER)) {
-                                    resender.setStop();
-                                }
-                                clientPanel.exit();
-                                break;
-                            default:
-                                clientPanel.setStrChat(clientPanel.getStrChat() + "\n" + receiveStr);
-                                if (!message.isfSystemMessage()) {
-                                    clientPanel.getTpOutput().append(receiveStr + "\n");
-                                    clientPanel.getTpOutput().setCaretPosition(clientPanel.getTpOutput().getText().length());
-                                }
-                                break;
-                        }
-                    } else {
-                        // Консольный режим
-                        switch (receiveStr) {
-                            case ControlLines.STR_WRONG_PASS:
-                            case ControlLines.STR_SAME_NIC:
-                            case ControlLines.STR_STOP_SERVER:
-                                System.out.println(commandToMsg);
-                                if (receiveStr.equals(ControlLines.STR_STOP_SERVER)) {
-                                    resender.setStop();
-                                }
-                                break;
-                            default:
-                                if (!message.isfSystemMessage()) {
-                                    System.out.println(receiveStr);
-                                }
-                                break;
-                        }
                     }
                 }
             } finally {
