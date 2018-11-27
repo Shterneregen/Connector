@@ -125,7 +125,7 @@ public class ConnectionController extends Thread {
                         this.sendMsg(ControlLines.STR_SAME_NIC);
                     }
                 } else {
-                    // Чтобы сложнее было воспользоваться брут форсом - ставлю задержку ответа 
+                    // To make bruteforce harder
                     try {
                         Thread.sleep(5000);
                     } catch (InterruptedException ex) {
