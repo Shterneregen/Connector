@@ -40,7 +40,6 @@ public class ConnectionController extends Thread {
     private String name;
     private Properties stringsFile;
     private String psw;
-    private int userNumber;
     private StringBuilder buffChat;
     private boolean firstMsg = true;
 
@@ -48,7 +47,6 @@ public class ConnectionController extends Thread {
         this.socket = soc;
         this.serverEncryption = serverEncryption;
         this.psw = psw;
-        userNumber = 0;
         clientEncryption = new Encryption();
         try {
             inputStream = new ObjectInputStream(this.socket.getInputStream());
@@ -71,57 +69,53 @@ public class ConnectionController extends Thread {
                 Message message = (Message) inputStream.readObject();
 
                 if (firstMsg) {
-                    // Server receive pub key from client
+                    // Server receive client public key
                     clientEncryption.createPair(message.getPublicKey());
 
-                    // Server send pub key to client
+                    // Server send its public key to client
                     ConnectionController.this.outputStream
                             .writeObject(new Message(serverEncryption.getPublicKeyFromKeypair()));
                     firstMsg = false;
                     continue;
                 }
 
-                // Server receive psw & nic from client
+                // Server receives psw & nic from client
                 name = Utils.removeTheTrash(serverEncryption.decrypt(message.getName()));
                 String pswFromClient = Utils.removeTheTrash(serverEncryption.decrypt(message.getPsw()));
 
                 if (pswFromClient.equals(psw)) {
-                    // Проверяет, есть ли такой же ник в чате
+                    // Check nickname uniqueness
                     flagWrongNic = stoped = Utils.checkNicname(name, listNames);
 
                     if (!flagWrongNic) {
-                        userNumber++;
-
                         synchronized (listNames) {
                             listNames.add(name);
                         }
-                        // Оповещаем всех, что вошел новый участник
+                        // Notify everyone about new user
                         sendBroadcastMsg(name + " " + stringsFile.getProperty("server.msg.join"));
 
-                        // В цикле получаем очередное сообщение от данного клиента и рассылаем остальным
+                        // Get next message from client
                         while (!stoped) {
                             message = (Message) inputStream.readObject();
                             String msgFromClient = Utils.removeTheTrash(serverEncryption.decrypt(message.getMessage()));
 
                             switch (msgFromClient) {
-                                // Оповещаем всех, что данный клиент вышел
+                                // Notify everyone that the current user is out
                                 case ControlLines.STR_EXIT:
                                     connections.remove(ConnectionController.this);
                                     sendBroadcastMsg(name + " " + stringsFile.getProperty("server.msg.left"));
-                                    userNumber--;
                                     setStop();
                                     break;
-                                // Отправляем все сообщения сессии
+                                // Sending all session messages
                                 case ControlLines.STR_GET_ALL_MSG:
                                     String msg = "----- "
                                             + stringsFile.getProperty("server.msg.allMsg")
                                             + " -----"
                                             + new String(buffChat)
                                             + "\n----------------------\n";
-//                                    sendMsg(ConnectionController.this, msg);
                                     this.sendMsg(msg);
                                     break;
-                                // Отправляем всем клиентам очередное сообщение
+                                // Sending message to all users
                                 default:
                                     sendBroadcastMsg(name + ": " + msgFromClient);
                                     break;
@@ -131,13 +125,12 @@ public class ConnectionController extends Thread {
                         this.sendMsg(ControlLines.STR_SAME_NIC);
                     }
                 } else {
-                    // Чтобы сложнее было воспользоваться брут форсом - ставлю задержку ответа 
+                    // To make bruteforce harder
                     try {
                         Thread.sleep(5000);
                     } catch (InterruptedException ex) {
                         Logger.getLogger(ConnectionController.class.getName()).log(Level.SEVERE, null, ex);
                     }
-//                    sendMsg(ConnectionController.this, ControlLines.STR_WRONG_PASS);
                     this.sendMsg(ControlLines.STR_WRONG_PASS);
                     this.setStop();
                 }
@@ -152,7 +145,7 @@ public class ConnectionController extends Thread {
     }
 
     /**
-     * Sends a message to all participants
+     * Sends a message to all users
      */
     private void sendBroadcastMsg(String broadcastMsg) {
         synchronized (connections) {
@@ -165,18 +158,18 @@ public class ConnectionController extends Thread {
     }
 
     /**
-     * Sends a message to a particular participant
+     * Sends a message to a particular user
      */
     private void sendMsg(String msg) {
         try {
-            this.getOutputStream().writeObject(new Message(this.getClientEncryption().encrypt(msg), false));
+            outputStream.writeObject(new Message(clientEncryption.encrypt(msg), false));
         } catch (IOException ex) {
             Logger.getLogger(ConnectionController.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
     /**
-     * Закрывает входной и выходной потоки и сокет
+     * Closes the input and output streams and socket
      */
     private void close() {
         Utils.close(inputStream);
@@ -199,22 +192,18 @@ public class ConnectionController extends Thread {
     public static void stopServerNotification() {
         if (connections != null && !connections.isEmpty()) {
             synchronized (connections) {
-                for (ConnectionController connection : connections) {
+                connections.stream().forEach((connection) -> {
                     connection.sendMsg(ControlLines.STR_STOP_SERVER);
-                }
+                });
             }
         }
     }
 
-    public ObjectOutputStream getOutputStream() {
-        return outputStream;
-    }
-
-    public Encryption getClientEncryption() {
-        return clientEncryption;
-    }
-
     public static List<ConnectionController> getConnections() {
         return connections;
+    }
+
+    public int getUserCount() {
+        return connections != null ? connections.size() : 0;
     }
 }

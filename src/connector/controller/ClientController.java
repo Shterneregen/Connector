@@ -136,4 +136,7 @@ public class ClientController extends java.util.Observable {
     }
     //</editor-fold>
 
+    public String getNicname(){
+        return client.getNicname();
+    }
 }

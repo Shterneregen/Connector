@@ -28,7 +28,7 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.DocumentFilter;
 
 /**
- * Класс с дополнительными функциями. Вынесены сюда, чтобы не засорять основной код
+ * Класс с дополнительными функциями
  *
  * @author Yura
  */

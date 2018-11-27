@@ -2,6 +2,7 @@ package connector.model;
 
 import connector.constant.Switch;
 import connector.constant.TrayType;
+import connector.controller.ClientController;
 import connector.view.ClientPanel;
 import connector.resources.ControlLines;
 import connector.utils.ProjectProperties;
@@ -11,17 +12,18 @@ import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.util.Observable;
+import java.util.Observer;
 import java.util.Properties;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
-public class Tray {
+public class Tray implements Observer {
 
     private TrayIcon trayIcon;
     private SystemTray tray;
-    private Link link;
     private ProjectProperties projectProperties;
     private Properties stringsFile;
+
+    private ClientController clientController;
 //    ArrayList<Client> listClients = new ArrayList<Client>();
 
     public Tray() {
@@ -34,24 +36,17 @@ public class Tray {
     public void setTrayIcon(JFrame frame, ClientPanel client, TrayType trayType) {
 //        this.listClients = listClients;
         if (!SystemTray.isSupported()) {
-            if (client != null) {
-                link.setStop();
-            }
+
             frame.setVisible(true);
             frame.setState(JFrame.NORMAL);
             return;
         }
+        clientController = client.getClientController();
+        clientController.addObserver(this);
         PopupMenu trayMenu = new PopupMenu();
 
         MenuItem itemExtend = new MenuItem(stringsFile.getProperty("str.exit"));
         itemExtend.addActionListener((ActionEvent e) -> {
-//                if (listClients !=null) {
-////                    if (conf == 0 & listClients !=null) {
-//                    link.setStop();
-//                }
-            if (client != null) {
-                link.setStop();
-            }
 
             frame.setVisible(true);
             frame.setState(JFrame.NORMAL);
@@ -80,9 +75,7 @@ public class Tray {
         trayIcon.addMouseListener(new MouseListener() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                if (client != null) {
-                    link.setStop();
-                }
+                clientController.deleteObserver(Tray.this);
                 frame.setVisible(true);
                 frame.setState(JFrame.NORMAL);
                 tray.remove(trayIcon);
@@ -105,18 +98,6 @@ public class Tray {
             }
         });
 
-//        if (listClients !=null) {
-////            if (conf == 0 & listClients !=null) {
-//            for (int i = 0; i < listClients.size(); i++) {
-//                link = new Link(listClients.get(i));
-//                link.start();
-//            }
-//        }
-        if (client != null && projectProperties.POP_UP_SWITCH.equals(Switch.ON)) {
-            link = new Link(client);
-            link.start();
-        }
-
         try {
             tray.add(trayIcon);
         } catch (AWTException e) {
@@ -124,46 +105,26 @@ public class Tray {
         }
     }
 
-    private class Link extends Thread {
-
-        private ClientPanel clientPanel;
-        private boolean stoped = false;
-
-        private String msg;
-        private String oldMsg = "Нет сообщений";
-
-        public Link(ClientPanel client) {
-            this.clientPanel = client;
+    @Override
+    public void update(Observable o, Object o1) {
+        if (!(o instanceof ClientController)) {
+            return;
         }
+        clientController = (ClientController) o;
+        String msg = clientController.getReceiveStr();
+        System.out.println("msg: " + msg);
 
-        public void setStop() {
-            stoped = true;
+        String receiveStr = msg.equals(ControlLines.STR_STOP_SERVER)
+                ? stringsFile.getProperty("stop_server")
+                : msg;
+        if (projectProperties.POP_UP_SWITCH.equals(Switch.ON)) {
+            trayIcon.displayMessage(clientController.getNicname(), receiveStr, TrayIcon.MessageType.INFO);
         }
-
-        @Override
-        public void run() {
-            while (!stoped) {
-                msg = clientPanel.getStrChat();
-                if (!msg.equals(oldMsg)) {
-                    String receiveStr = msg.equals(ControlLines.STR_STOP_SERVER)
-                            ? stringsFile.getProperty("stop_server")
-                            : clientPanel.getClientController().getReceiveStr();
-//                            : client.getReceiveStr();
-                    trayIcon.displayMessage(clientPanel.getName(), receiveStr, TrayIcon.MessageType.INFO);
-                    if (projectProperties.SOUND_SWITCH.equals(Switch.ON)) {
-                        try {
-                            Utils.playSound(projectProperties.SOUND_FILE_FILE);
-                        } catch (Exception ex) {
-                            Toolkit.getDefaultToolkit().beep();
-                        }
-                    }
-                }
-                oldMsg = msg;
-                try {
-                    this.sleep(5000);
-                } catch (InterruptedException ex) {
-                    Logger.getLogger(Tray.class.getName()).log(Level.SEVERE, null, ex);
-                }
+        if (projectProperties.SOUND_SWITCH.equals(Switch.ON)) {
+            try {
+                Utils.playSound(projectProperties.SOUND_FILE_FILE);
+            } catch (Exception ex) {
+                Toolkit.getDefaultToolkit().beep();
             }
         }
     }

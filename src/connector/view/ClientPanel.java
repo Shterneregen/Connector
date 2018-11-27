@@ -18,7 +18,7 @@ import javax.swing.JTextArea;
 import javax.swing.text.AbstractDocument;
 
 /**
- * Панель клиента
+ * Client panel
  *
  * @author Yura
  */
@@ -176,10 +176,12 @@ public class ClientPanel extends javax.swing.JPanel implements Observer {
 
     @Override
     public void update(Observable o, Object o1) {
+        if (!(o instanceof ClientController)) {
+            return;
+        }
         clientController = (ClientController) o;
         String receiveStr = clientController.getReceiveStr();
 
-//        System.out.println("update with receiveStr: " + receiveStr);
         String commandToMsg = "";
 
         switch (receiveStr) {
