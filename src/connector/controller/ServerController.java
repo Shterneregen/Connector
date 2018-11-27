@@ -26,7 +26,6 @@ public class ServerController extends Thread {
     private ServerSocket serverSocket;
     private Encryption serverEncryption;
     private boolean stoped = false;
-    private int userNumber;
 
     public ServerController(String port, String psw) {
         Optional<Integer> checkPort = Utils.getAndCheckPort(port);
@@ -55,7 +54,6 @@ public class ServerController extends Thread {
     @Override
     public void run() {
         System.out.println("Server is started!");
-        userNumber = 0;
         Socket socket = null;
         try {
             serverSocket = new ServerSocket(port);
@@ -67,7 +65,6 @@ public class ServerController extends Thread {
                 ConnectionController con = new ConnectionController(socket, serverEncryption, psw);
                 ConnectionController.getConnections().add(con);
                 con.start();
-                userNumber++;
             }
         } catch (SocketException se) {
             System.out.println("Main SocketException");
@@ -78,10 +75,6 @@ public class ServerController extends Thread {
             Utils.close(serverSocket);
             Utils.close(socket);
         }
-    }
-
-    public int getUserNumber() {
-        return userNumber;
     }
 
 }
