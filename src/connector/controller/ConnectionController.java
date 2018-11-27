@@ -118,7 +118,8 @@ public class ConnectionController extends Thread {
                                             + " -----"
                                             + new String(buffChat)
                                             + "\n----------------------\n";
-                                    sendMsg(ConnectionController.this, msg);
+//                                    sendMsg(ConnectionController.this, msg);
+                                    this.sendMsg(msg);
                                     break;
                                 // Отправляем всем клиентам очередное сообщение
                                 default:
@@ -127,7 +128,7 @@ public class ConnectionController extends Thread {
                             }
                         }
                     } else {
-                        sendMsg(ConnectionController.this, ControlLines.STR_SAME_NIC);
+                        this.sendMsg(ControlLines.STR_SAME_NIC);
                     }
                 } else {
                     // Чтобы сложнее было воспользоваться брут форсом - ставлю задержку ответа 
@@ -136,7 +137,8 @@ public class ConnectionController extends Thread {
                     } catch (InterruptedException ex) {
                         Logger.getLogger(ConnectionController.class.getName()).log(Level.SEVERE, null, ex);
                     }
-                    sendMsg(ConnectionController.this, ControlLines.STR_WRONG_PASS);
+//                    sendMsg(ConnectionController.this, ControlLines.STR_WRONG_PASS);
+                    this.sendMsg(ControlLines.STR_WRONG_PASS);
                     this.setStop();
                 }
             }
@@ -150,23 +152,27 @@ public class ConnectionController extends Thread {
     }
 
     /**
-     * Отправляет сообщение всем участникам
+     * Sends a message to all participants
      */
-    private void sendBroadcastMsg(String broadcastMsg) throws IOException {
+    private void sendBroadcastMsg(String broadcastMsg) {
         synchronized (connections) {
-            for (ConnectionController thisConnection : connections) {
+            for (ConnectionController connection : connections) {
                 String msg = "[" + Utils.getTime(false) + "] " + broadcastMsg;
-                sendMsg(thisConnection, msg);
+                connection.sendMsg(msg);
                 buffChat.append(msg).append("\n");
             }
         }
     }
 
     /**
-     * Отправляем сообщение определенному участнику
+     * Sends a message to a particular participant
      */
-    private void sendMsg(ConnectionController connection, String msg) throws IOException {
-        connection.getOutputStream().writeObject(new Message(connection.getClientEncryption().encrypt(msg), false));
+    private void sendMsg(String msg) {
+        try {
+            this.getOutputStream().writeObject(new Message(this.getClientEncryption().encrypt(msg), false));
+        } catch (IOException ex) {
+            Logger.getLogger(ConnectionController.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     /**
@@ -187,21 +193,16 @@ public class ConnectionController extends Thread {
         }
     }
 
-    public static void closeAllConnections() {
-        try {
-            if (connections != null && !connections.isEmpty()) {
-                synchronized (connections) {
-                    for (ConnectionController thisConnection : connections) {
-                        thisConnection.getOutputStream().writeObject(new Message(
-                                thisConnection.getClientEncryption().encrypt(ControlLines.STR_STOP_SERVER), true
-                        ));
-//                        thisConnection.close();
-                    }
+    /**
+     * Notify all clients that the server is stopped
+     */
+    public static void stopServerNotification() {
+        if (connections != null && !connections.isEmpty()) {
+            synchronized (connections) {
+                for (ConnectionController connection : connections) {
+                    connection.sendMsg(ControlLines.STR_STOP_SERVER);
                 }
             }
-        } catch (Exception e) {
-            System.err.println("Потоки не были закрыты! (closeAll)");
-            e.printStackTrace();
         }
     }
 

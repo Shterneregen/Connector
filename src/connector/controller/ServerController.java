@@ -42,7 +42,7 @@ public class ServerController extends Thread {
     }
 
     public void stopServer() {
-        ConnectionController.closeAllConnections();
+        ConnectionController.stopServerNotification();
         this.setStop();
         Utils.close(serverSocket);
     }

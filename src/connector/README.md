@@ -1,7 +1,7 @@
 ## Connector
 Small LAN chat with RSA
 
-Console and windowed modes.
+Console and windows modes.
 
 *Console mode:*
 
