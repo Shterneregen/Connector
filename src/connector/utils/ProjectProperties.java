@@ -64,7 +64,9 @@ public class ProjectProperties {
     private static ProjectProperties instance;
 
     public static synchronized ProjectProperties getInstance() {
-        instance = instance == null ? new ProjectProperties() : instance;
+        if (instance == null) {
+            instance = new ProjectProperties();
+        }
         return instance;
     }
 

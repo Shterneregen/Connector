@@ -15,7 +15,7 @@ import java.util.Properties;
 import javax.swing.text.AbstractDocument;
 
 /**
- * Окно сервера
+ * Server window
  *
  * @author Yura
  */
@@ -25,9 +25,9 @@ public class ServerFrame extends javax.swing.JFrame {
     private Properties stringsFile;
 
     /**
-     * Окно сервера
+     * Server window
      *
-     * @param frameName название окна
+     * @param frameName window name
      * @param serverConfig ServerConfig
      */
     public ServerFrame(String frameName, ServerConfig serverConfig) {

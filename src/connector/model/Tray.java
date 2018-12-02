@@ -36,7 +36,6 @@ public class Tray implements Observer {
     public void setTrayIcon(JFrame frame, ClientPanel client, TrayType trayType) {
 //        this.listClients = listClients;
         if (!SystemTray.isSupported()) {
-
             frame.setVisible(true);
             frame.setState(JFrame.NORMAL);
             return;
@@ -47,7 +46,6 @@ public class Tray implements Observer {
 
         MenuItem itemExtend = new MenuItem(stringsFile.getProperty("str.exit"));
         itemExtend.addActionListener((ActionEvent e) -> {
-
             frame.setVisible(true);
             frame.setState(JFrame.NORMAL);
             tray = SystemTray.getSystemTray();
@@ -112,7 +110,7 @@ public class Tray implements Observer {
         }
         clientController = (ClientController) o;
         String msg = clientController.getReceiveStr();
-        System.out.println("msg: " + msg);
+//        System.out.println("msg: " + msg);
 
         String receiveStr = msg.equals(ControlLines.STR_STOP_SERVER)
                 ? stringsFile.getProperty("stop_server")
