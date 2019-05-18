@@ -1,0 +1,12 @@
+# Gradle
+.gradle
+out/
+build
+
+# IntelliJ project files
+*.iml
+*.iws
+*.ipr
+.idea
+
+*.jar

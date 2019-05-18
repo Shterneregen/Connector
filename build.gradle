@@ -1,0 +1,15 @@
+plugins {
+    id 'java'
+    id 'application'
+}
+mainClassName = 'connector.Connector'
+
+jar {
+    archivesBaseName = 'Connector'
+    manifest {
+        attributes(
+                'Class-Path': configurations.compile.collect { it.getName() }.join(' '),
+                'Main-Class': 'connector.Connector'
+        )
+    }
+}
