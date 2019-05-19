@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package connector.controller;
 
 import connector.constant.ClientType;
@@ -10,19 +5,18 @@ import connector.model.Client;
 import connector.model.Message;
 import connector.utils.Encryption;
 import connector.utils.Utils;
+
 import java.io.IOException;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/**
- *
- * @author Yura
- */
 public class ClientController extends java.util.Observable {
 
+    private static final Logger LOG = Logger.getLogger(ClientController.class.getName());
+
     private Client client;
-    private Resender resender;
+    private Receiver receiver;
     private Message message;
     private String receiveStr;
 
@@ -38,7 +32,7 @@ public class ClientController extends java.util.Observable {
         serverEncryption = new Encryption();
     }
 
-    public void sendMsg(String message) throws IOException {
+    public void sendMessage(String message) throws IOException {
         client.getOutputStream().writeObject(new Message(serverEncryption.encrypt(message)));
     }
 
@@ -56,23 +50,22 @@ public class ClientController extends java.util.Observable {
         }
 
         try {
-            // Запускаем поток получения сообщений от серверной части
-            resender = new Resender();
-            resender.start();
-            // Client send pub key
+            receiver = new Receiver();
+            receiver.start();
+            // Client sends public key
             client.getOutputStream().writeObject(new Message(clientEncryption.getPublicKeyFromKeypair()));
             return true;
-        } catch (IOException ex) {
-            Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException e) {
+            LOG.log(Level.SEVERE, e.getMessage(), e);
             return false;
         }
     }
 
-    public boolean disonnect() {
+    public boolean disconnect() {
         if (clientType.equals(ClientType.CLIENT_WITH_SERVER)) {
             serverController.stopServer();
         } else {
-            resender.setStop();
+            receiver.setStop();
         }
         return true;
     }
@@ -85,34 +78,35 @@ public class ClientController extends java.util.Observable {
         return message;
     }
 
-    public void resenderSetStop() {
-        resender.setStop();
+    public void stopReceiver() {
+        receiver.setStop();
     }
 
-    //<editor-fold defaultstate="collapsed" desc="class Resender">
-    private class Resender extends Thread {
+    public String getNicname() {
+        return client.getNicname();
+    }
 
-        private boolean stoped = false;
+    private class Receiver extends Thread {
+
+        private boolean stop = false;
         private boolean firstMsg = true;
-//        private Message message;
-        private String commandToMsg;
 
-        public void setStop() {
-            stoped = true;
+        void setStop() {
+            stop = true;
         }
 
         @Override
         public void run() {
             try {
-                while (!stoped) {
+                while (!stop) {
                     try {
                         message = (Message) client.getInputStream().readObject();
                         if (firstMsg) {
                             firstMsg = false;
-                            // Client get pub key from server
-                            serverEncryption.createPair(message.getPublicKey());
+                            // Client receives public key from server
+                            serverEncryption.setPublicKey(message.getPublicKey());
 
-                            // Client send psw & nic
+                            // Client sends psw & nic
                             String pfStr = client.getPsw();
                             client.getOutputStream().writeObject(new Message(
                                     serverEncryption.encrypt(pfStr),
@@ -120,7 +114,7 @@ public class ClientController extends java.util.Observable {
                             continue;
                         }
 
-                        // Client receive msg from server
+                        // Client receives message from server
                         receiveStr = Utils.removeTheTrash(clientEncryption.decrypt(message.getMessage()));
 
                         setChanged();
@@ -133,10 +127,5 @@ public class ClientController extends java.util.Observable {
                 client.closeStreams();
             }
         }
-    }
-    //</editor-fold>
-
-    public String getNicname(){
-        return client.getNicname();
     }
 }

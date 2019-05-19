@@ -1,11 +1,7 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package connector.model;
 
 import connector.utils.Utils;
+
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -13,10 +9,6 @@ import java.net.Socket;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/**
- *
- * @author Yura
- */
 public class Client {
 
     private Socket socket;
@@ -50,15 +42,6 @@ public class Client {
         Utils.close(socket);
     }
 
-    //<editor-fold defaultstate="collapsed" desc="get-set">
-    public int getPort() {
-        return port;
-    }
-
-    public String getIp() {
-        return ip;
-    }
-
     public String getNicname() {
         return nicname;
     }
@@ -74,6 +57,5 @@ public class Client {
     public ObjectOutputStream getOutputStream() {
         return outputStream;
     }
-    //</editor-fold>
 
 }

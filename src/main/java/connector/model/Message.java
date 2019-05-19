@@ -3,21 +3,16 @@ package connector.model;
 import java.io.Serializable;
 import java.security.PublicKey;
 
-/**
- * Сообщение, передаётся между сервером и клиентом
- *
- * @author Yura
- */
 public class Message implements Serializable {
 
-    private boolean fSystemMessage;
+    private boolean systemMessage;
     private String psw;
     private String name;
     private String message;
     private PublicKey publicKey;
 
-    public boolean isfSystemMessage() {
-        return fSystemMessage;
+    public boolean isNotSystemMessage() {
+        return !systemMessage;
     }
 
     public String getPsw() {
@@ -48,7 +43,7 @@ public class Message implements Serializable {
     /**
      * Для инициализации клиента на сервере
      *
-     * @param psw пароль сессии
+     * @param psw  пароль сессии
      * @param name имя пользователя
      */
     public Message(String psw, String name) {
@@ -68,24 +63,12 @@ public class Message implements Serializable {
     /**
      * От сервера, обычное
      *
-     * @param message сообщение сервера
-     * @param fSystemMessage флаг системного сообщения
+     * @param message       сообщение сервера
+     * @param systemMessage флаг системного сообщения
      */
-    public Message(String message, boolean fSystemMessage) {
+    public Message(String message, boolean systemMessage) {
         this.message = message;
-        this.fSystemMessage = fSystemMessage;
+        this.systemMessage = systemMessage;
     }
 
-    /**
-     * От сервера, ответ на первое сообщение клиента
-     *
-     * @param message сообщение
-     * @param fSystemMessage флаг системного сообщения
-     * @param publicKey открытый ключ сервера
-     */
-    public Message(String message, boolean fSystemMessage, PublicKey publicKey) {
-        this.message = message;
-        this.fSystemMessage = fSystemMessage;
-        this.publicKey = publicKey;
-    }
 }

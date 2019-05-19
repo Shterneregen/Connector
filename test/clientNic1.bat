@@ -1,2 +1,2 @@
-java -jar Connector.jar -c 9988 9988 nic
+java -jar Connector.jar -c 9988 1122 nic
 pause

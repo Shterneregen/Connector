@@ -11,53 +11,21 @@ import java.security.PublicKey;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/**
- * Класс отвечающий за шифрование
- *
- * @author Yura
- */
 public class Encryption {
 
     public Encryption() {
-        prepare();
+        createKeyPair();
     }
 
     private KeyPair keypair;
     private Cipher cipher;
+    private PublicKey publicKey;
 
-    /**
-     * Возвращает открытый ключ из существующей пары открытый/закрытый ключ
-     *
-     * @return
-     */
     public PublicKey getPublicKeyFromKeypair() {
         return keypair.getPublic();
     }
 
-    /**
-     * Формирует пару открытый/закрытый ключ по заданному открытому ключу
-     *
-     * @param publicKey открытый ключ
-     */
-    public void createPair(PublicKey publicKey) {
-        try {
-            //throws NoSuchAlgorithmException, NoSuchPaddingException
-
-            KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA");
-            kpg.initialize(1024);
-            KeyPair tempKeypair = kpg.generateKeyPair();
-
-            this.keypair = new KeyPair(publicKey, tempKeypair.getPrivate());
-            this.cipher = Cipher.getInstance("RSA");
-        } catch (NoSuchAlgorithmException | NoSuchPaddingException ex) {
-            Logger.getLogger(Encryption.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
-
-    /**
-     * Формирует пару открытый/закрытый ключ
-     */
-    private void prepare() {
+    private void createKeyPair() {
         try {
             //throws NoSuchAlgorithmException, NoSuchPaddingException
             KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA");
@@ -81,15 +49,14 @@ public class Encryption {
         byte[] encrypted;
         String encryptedStrTranspherable = "";
         try {
-            this.cipher.init(Cipher.ENCRYPT_MODE, this.keypair.getPublic());
+            this.cipher.init(Cipher.ENCRYPT_MODE, publicKey);
             bytes = plaintext.getBytes("UTF-8");
             encrypted = blockCipher(bytes, Cipher.ENCRYPT_MODE);
-            //	encryptedTranspherable = Hex.encodeHex(encrypted);
             encryptedStrTranspherable = byte2Hex(encrypted);//
         } catch (Exception ex) {
             Logger.getLogger(Encryption.class.getName()).log(Level.SEVERE, null, ex);
         }
-        return encryptedStrTranspherable;//
+        return encryptedStrTranspherable;
     }
 
     /**
@@ -171,7 +138,7 @@ public class Encryption {
 
     private static String byte2Hex(byte b[]) {
         StringBuilder hs = new StringBuilder();
-        java.lang.String stmp = "";
+        java.lang.String stmp;
         for (byte aB : b) {
             stmp = Integer.toHexString(aB & 0xff);
             if (stmp.length() == 1) {
@@ -221,4 +188,7 @@ public class Encryption {
         return r;
     }
 
+    public void setPublicKey(PublicKey publicKey) {
+        this.publicKey = publicKey;
+    }
 }

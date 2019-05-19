@@ -2,8 +2,6 @@ package connector.constant;
 
 /**
  * Сервер запущен из клиента или один
- *
- * @author Yura
  */
 public enum ServerConfig {
     /**

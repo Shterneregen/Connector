@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package connector;
 
 import connector.constant.ClientType;
@@ -11,6 +6,7 @@ import connector.controller.ServerController;
 import connector.constant.ControlLines;
 import connector.utils.ProjectProperties;
 import connector.utils.Utils;
+
 import java.io.Console;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -22,21 +18,14 @@ import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/**
- *
- * @author Worker
- */
-public class ConsoleMode {
+class ConsoleMode {
 
-    private static Logger log = Logger.getLogger(ConsoleMode.class.getName());
     private static String encoding;
 
-    public static void launch(String[] args) {
+    static void launch(String[] args) {
 
         encoding = System.getProperty("console.encoding", "Cp866");
-        ProjectProperties pp = ProjectProperties.getInstance();
 
-//        if (args.length > 0) {
         List<String> argList = new ArrayList<>(Arrays.asList(args));
         String mode = argList.get(0);
 
@@ -61,8 +50,8 @@ public class ConsoleMode {
         }
 
         if (mode.equals("-s")) {
-            List<String> listAddr = Utils.getMyLocalIP();
-            listAddr.forEach(i -> System.out.println(i));
+            List<String> listAddr = Utils.getLocalIpList();
+            listAddr.forEach(System.out::println);
             startServer(port, psw);
         } else if (mode.equals("-c")) {
             String nic;
@@ -84,9 +73,9 @@ public class ConsoleMode {
     }
 
     private static String getPassword() {
-        Console cnsl = System.console();
-        if (cnsl != null) {
-            char[] pwd = cnsl.readPassword(ProjectProperties.getString("tf.enter_pass") + ": ");
+        Console console = System.console();
+        if (console != null) {
+            char[] pwd = console.readPassword(ProjectProperties.getString("tf.enter_pass") + ": ");
             return String.valueOf(pwd);
         }
         throw new RuntimeException("Cannot read console");
@@ -95,7 +84,7 @@ public class ConsoleMode {
     private static void clientSendMsg(ClientController clientController, String message) {
         if (!message.replaceAll("\\s+", "").equals("")) {
             try {
-                clientController.sendMsg(message);
+                clientController.sendMessage(message);
             } catch (IOException ex) {
                 Logger.getLogger(Connector.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -104,13 +93,7 @@ public class ConsoleMode {
 
     private static void startServer(String port, String psw) {
         ServerController serverController = new ServerController(port, psw);
-
-        Runtime.getRuntime().addShutdownHook(new Thread() {
-            @Override
-            public void run() {
-                serverController.stopServer();
-            }
-        });
+        Runtime.getRuntime().addShutdownHook(new Thread(serverController::stopServer));
         serverController.startServer();
     }
 
@@ -118,30 +101,25 @@ public class ConsoleMode {
 
         ClientController clientController;
 
-        private boolean stoped = false;
+        private boolean stop = false;
 
-        public Sender(ClientController clientController) {
+        Sender(ClientController clientController) {
             this.clientController = clientController;
             clientController.addObserver(this);
         }
 
         public void setStop() {
-            stoped = true;
+            stop = true;
         }
 
         @Override
         public void run() {
-            Runtime.getRuntime().addShutdownHook(new Thread() {
-                @Override
-                public void run() {
-                    clientController.disonnect();
-                }
-            });
-            while (!stoped) {
+            Runtime.getRuntime().addShutdownHook(new Thread(() -> clientController.disconnect()));
+            while (!stop) {
                 Scanner in = new Scanner(System.in, encoding);
                 if (!in.hasNextLine()) {
-                    clientController.disonnect();
-                    stoped = true;
+                    clientController.disconnect();
+                    stop = true;
                     return;
                 }
                 String msg = in.nextLine();
@@ -153,7 +131,6 @@ public class ConsoleMode {
         public void update(Observable o, Object o1) {
             clientController = (ClientController) o;
             String receiveStr = clientController.getReceiveStr();
-//            System.out.println("update with receiveStr: " + receiveStr);
 
             String commandToMsg = "";
 
@@ -177,11 +154,11 @@ public class ConsoleMode {
                 case ControlLines.STR_STOP_SERVER:
                     System.out.println(commandToMsg);
                     if (receiveStr.equals(ControlLines.STR_STOP_SERVER)) {
-                        clientController.resenderSetStop();
+                        clientController.stopReceiver();
                     }
                     break;
                 default:
-                    if (!clientController.getMessage().isfSystemMessage()) {
+                    if (clientController.getMessage().isNotSystemMessage()) {
                         System.out.println(receiveStr);
                     }
                     break;
