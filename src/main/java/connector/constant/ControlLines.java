@@ -2,6 +2,9 @@ package connector.constant;
 
 public class ControlLines {
 
+    private ControlLines() {
+    }
+
     public static final String STR_EXIT = "</exit/>";
     public static final String STR_GET_ALL_MSG = "</GET-ALL/>";
 

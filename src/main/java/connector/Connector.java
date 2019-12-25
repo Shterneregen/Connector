@@ -4,7 +4,7 @@ import connector.constant.ControlLines;
 import connector.utils.ProjectProperties;
 import connector.view.ClientFrame;
 
-import javax.swing.JFrame;
+import javax.swing.*;
 
 public class Connector {
 
@@ -14,7 +14,7 @@ public class Connector {
             ConsoleMode.launch(args);
         } else {
             ClientFrame clientFrame = new ClientFrame(ControlLines.MAIN_NAME + " main");
-            clientFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            clientFrame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
             clientFrame.setVisible(true);
         }
     }

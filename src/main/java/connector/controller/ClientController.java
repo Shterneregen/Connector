@@ -4,7 +4,7 @@ import connector.constant.ClientType;
 import connector.model.Client;
 import connector.model.Message;
 import connector.utils.Encryption;
-import connector.utils.Utils;
+import connector.utils.NetUtils;
 
 import java.io.IOException;
 import java.util.Optional;
@@ -38,8 +38,8 @@ public class ClientController extends java.util.Observable {
 
     public boolean setConnection(String ip, String port, String nic, String psw) {
 
-        Optional<String> optionalIp = Utils.getAndCheckIP(ip);
-        Optional<Integer> optionalPort = Utils.getAndCheckPort(port);
+        Optional<String> optionalIp = NetUtils.getAndCheckIP(ip);
+        Optional<Integer> optionalPort = NetUtils.getAndCheckPort(port);
 
         if (optionalIp.isPresent() && optionalPort.isPresent()) {
             if (clientType.equals(ClientType.CLIENT_WITH_SERVER)) {
@@ -61,13 +61,12 @@ public class ClientController extends java.util.Observable {
         }
     }
 
-    public boolean disconnect() {
+    public void disconnect() {
         if (clientType.equals(ClientType.CLIENT_WITH_SERVER)) {
             serverController.stopServer();
         } else {
             receiver.setStop();
         }
-        return true;
     }
 
     public String getReceiveStr() {
@@ -115,7 +114,7 @@ public class ClientController extends java.util.Observable {
                         }
 
                         // Client receives message from server
-                        receiveStr = Utils.removeTheTrash(clientEncryption.decrypt(message.getMessage()));
+                        receiveStr = clientEncryption.decrypt(message.getMessage());
 
                         setChanged();
                         notifyObservers();

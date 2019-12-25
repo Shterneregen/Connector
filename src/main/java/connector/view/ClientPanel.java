@@ -3,8 +3,9 @@ package connector.view;
 import connector.constant.ClientType;
 import connector.constant.ControlLines;
 import connector.controller.ClientController;
+import connector.utils.DigitsFilter;
+import connector.utils.NetUtils;
 import connector.utils.ProjectProperties;
-import connector.utils.Utils;
 
 import javax.swing.*;
 import javax.swing.text.AbstractDocument;
@@ -23,17 +24,17 @@ public class ClientPanel extends JPanel implements Observer {
     private String strChat;
     private ClientType clientType;
     private Boolean goodConnection;
-    private List<String> listAddr; // Local ip list
+    private List<String> localIpList;
 
     ClientPanel(ClientType clientType) {
         this.clientType = clientType;
 
         goodConnection = false;
-        listAddr = Utils.getLocalIpList();
+        localIpList = NetUtils.getLocalIpList();
 
         initComponents();
         setItemsNames();
-        listAddr.forEach(address -> tfIP.addItem(address));
+        localIpList.forEach(address -> tfIP.addItem(address));
         if (clientType.equals(ClientType.CLIENT_WITH_SERVER)) {
             btStartClient.setText(ProjectProperties.getString("clientPanel.button.create_conversation"));
             btStopClient.setText(ProjectProperties.getString("clientPanel.button.stop_conversation"));
@@ -42,7 +43,7 @@ public class ClientPanel extends JPanel implements Observer {
             btStartClient.setText(ProjectProperties.getString("clientPanel.button.join"));
             btStopClient.setText(ProjectProperties.getString("str.exit"));
         }
-        ((AbstractDocument) tfPort.getDocument()).setDocumentFilter(new Utils().new DigitsFilter());
+        ((AbstractDocument) tfPort.getDocument()).setDocumentFilter(new DigitsFilter());
 
         tpOutput.setWrapStyleWord(true);
         tpOutput.setLineWrap(true);
@@ -65,7 +66,7 @@ public class ClientPanel extends JPanel implements Observer {
                 tfIP.setEditable(true);
             }
             tfIP.removeAllItems();
-            listAddr.forEach(address -> tfIP.addItem(address));
+            localIpList.forEach(address -> tfIP.addItem(address));
         });
     }
 
@@ -401,7 +402,6 @@ public class ClientPanel extends JPanel implements Observer {
             tpOutput.append(ProjectProperties.getString("you_exit") + "\n");
             sendMessage(ControlLines.STR_EXIT);
             exit();
-//            serverFrame.stopServer();
         }
 //        clientController.deleteObserver(this);
     }

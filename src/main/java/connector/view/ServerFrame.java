@@ -5,14 +5,15 @@ import connector.constant.ServerConfig;
 import connector.constant.TrayType;
 import connector.controller.ServerController;
 import connector.model.Tray;
+import connector.utils.DigitsFilter;
+import connector.utils.NetUtils;
 import connector.utils.ProjectProperties;
-import connector.utils.Utils;
 
 import javax.swing.*;
 import javax.swing.text.AbstractDocument;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
-import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 class ServerFrame extends JFrame {
@@ -24,7 +25,7 @@ class ServerFrame extends JFrame {
 
         initComponents();
         setItemsNames();
-        ((AbstractDocument) tfPort.getDocument()).setDocumentFilter(new Utils().new DigitsFilter());
+        ((AbstractDocument) tfPort.getDocument()).setDocumentFilter(new DigitsFilter());
         setResizable(false);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
@@ -65,7 +66,7 @@ class ServerFrame extends JFrame {
     }
 
     private void setItemsNames() {
-        ArrayList<String> listAddr = Utils.getLocalIpList();
+        List<String> listAddr = NetUtils.getLocalIpList();
         for (String aListAddr : listAddr) {
             jcbIP.addItem(aListAddr);
         }
@@ -91,7 +92,7 @@ class ServerFrame extends JFrame {
     }
 
     private void startServer(String port, String psw) {
-        Optional<Integer> checkPort = Utils.getAndCheckPort(port);
+        Optional<Integer> checkPort = NetUtils.getAndCheckPort(port);
         Optional<String> checkPsw = checkPsw(psw);
         if (checkPort.isPresent() && checkPsw.isPresent()) {
             btStartServer.setEnabled(false);
@@ -103,11 +104,11 @@ class ServerFrame extends JFrame {
             serverController = new ServerController(port, psw);
             serverController.startServer();
         } else {
-            String errorPort = !checkPort.isPresent()
+            String errorPort = checkPort.isPresent()
                     ? ProjectProperties.getString("wrong_port") + "; "
                     : "";
 
-            String errorPsw = !checkPsw.isPresent()
+            String errorPsw = checkPsw.isPresent()
                     ? ProjectProperties.getString("tf.enter_pass") + "; "
                     : "";
 

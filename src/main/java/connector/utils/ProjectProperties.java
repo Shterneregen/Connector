@@ -42,6 +42,9 @@ public class ProjectProperties {
     private static boolean soundOn;
     private static boolean popUpOn;
 
+    private ProjectProperties() {
+    }
+
     public static String getString(String str) {
         return langFile.getProperty(str);
     }

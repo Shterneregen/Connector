@@ -4,6 +4,7 @@ import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
+import java.nio.charset.StandardCharsets;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
@@ -12,6 +13,11 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class Encryption {
+
+    private static final Logger LOG = Logger.getLogger(Encryption.class.getName());
+
+    private static final String RSA = "RSA";
+    private static final int KEY_SIZE = 1024;
 
     public Encryption() {
         createKeyPair();
@@ -28,13 +34,13 @@ public class Encryption {
     private void createKeyPair() {
         try {
             //throws NoSuchAlgorithmException, NoSuchPaddingException
-            KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA");
-            kpg.initialize(1024);
+            KeyPairGenerator kpg = KeyPairGenerator.getInstance(RSA);
+            kpg.initialize(KEY_SIZE);
             this.keypair = kpg.generateKeyPair();
 
-            this.cipher = Cipher.getInstance("RSA");
+            this.cipher = Cipher.getInstance(RSA);
         } catch (NoSuchAlgorithmException | NoSuchPaddingException ex) {
-            Logger.getLogger(Encryption.class.getName()).log(Level.SEVERE, null, ex);
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
         }
     }
 
@@ -50,34 +56,26 @@ public class Encryption {
         String encryptedStrTranspherable = "";
         try {
             this.cipher.init(Cipher.ENCRYPT_MODE, publicKey);
-            bytes = plaintext.getBytes("UTF-8");
+            bytes = plaintext.getBytes(StandardCharsets.UTF_8);
             encrypted = blockCipher(bytes, Cipher.ENCRYPT_MODE);
-            encryptedStrTranspherable = byte2Hex(encrypted);//
+            encryptedStrTranspherable = byte2Hex(encrypted);
         } catch (Exception ex) {
-            Logger.getLogger(Encryption.class.getName()).log(Level.SEVERE, null, ex);
+            LOG.log(Level.SEVERE, null, ex);
         }
         return encryptedStrTranspherable;
     }
 
-    /**
-     * Расшифровывает строку закрытым ключом
-     *
-     * @param encryptedStr зашифрованая строка
-     * @return расшифрованная строка
-     */
     public String decrypt(String encryptedStr) {
-        byte[] bts;
-        byte[] decrypted;
-        String resStr = "";
         try {
             this.cipher.init(Cipher.DECRYPT_MODE, this.keypair.getPrivate());
-            bts = hex2Byte(encryptedStr);
-            decrypted = blockCipher(bts, Cipher.DECRYPT_MODE);
-            resStr = new String(decrypted, "UTF-8");
+            byte[] bts = hex2Byte(encryptedStr);
+            byte[] decrypted = blockCipher(bts, Cipher.DECRYPT_MODE);
+            String resStr = new String(decrypted, StandardCharsets.UTF_8);
+            return removeTheTrash(resStr);
         } catch (Exception ex) {
-            Logger.getLogger(Encryption.class.getName()).log(Level.SEVERE, null, ex);
+            LOG.log(Level.SEVERE, null, ex);
         }
-        return resStr;
+        return "no decrypt result";
     }
 
     private byte[] blockCipher(byte[] bytes, int mode) throws IllegalBlockSizeException, BadPaddingException {
@@ -186,6 +184,28 @@ public class Encryption {
             k++;
         }
         return r;
+    }
+
+    /**
+     * Removes control characters from a string
+     */
+    public static String removeTheTrash(String s) {
+        char[] buf = new char[1024];
+        int length = s.length();
+        char[] oldChars = (length < 1024) ? buf : new char[length];
+        s.getChars(0, length, oldChars, 0);
+        int newLen = 0;
+        for (int j = 0; j < length; j++) {
+            char ch = oldChars[j];
+            if (ch >= ' ') {
+                oldChars[newLen] = ch;
+                newLen++;
+            }
+        }
+        if (newLen != length) {
+            s = new String(oldChars, 0, newLen);
+        }
+        return s;
     }
 
     public void setPublicKey(PublicKey publicKey) {

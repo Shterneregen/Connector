@@ -1,11 +1,11 @@
 package connector;
 
 import connector.constant.ClientType;
+import connector.constant.ControlLines;
 import connector.controller.ClientController;
 import connector.controller.ServerController;
-import connector.constant.ControlLines;
+import connector.utils.NetUtils;
 import connector.utils.ProjectProperties;
-import connector.utils.Utils;
 
 import java.io.Console;
 import java.io.IOException;
@@ -20,11 +20,17 @@ import java.util.logging.Logger;
 
 class ConsoleMode {
 
+    private static final String CONSOLE_ENCODING = "Cp866";
+
+    private static Console console = System.console();
     private static String encoding;
+
+    private ConsoleMode() {
+    }
 
     static void launch(String[] args) {
 
-        encoding = System.getProperty("console.encoding", "Cp866");
+        encoding = System.getProperty("console.encoding", CONSOLE_ENCODING);
 
         List<String> argList = new ArrayList<>(Arrays.asList(args));
         String mode = argList.get(0);
@@ -44,14 +50,14 @@ class ConsoleMode {
                     : getPassword();
         } else {
             Scanner in = new Scanner(System.in, encoding);
-            System.out.print(ProjectProperties.getString("tf.enter_port") + ": ");
+            writeLine(ProjectProperties.getString("tf.enter_port") + ": ");
             port = in.nextLine();
             psw = getPassword();
         }
 
         if (mode.equals("-s")) {
-            List<String> listAddr = Utils.getLocalIpList();
-            listAddr.forEach(System.out::println);
+            List<String> listAddr = NetUtils.getLocalIpList();
+            listAddr.forEach(ConsoleMode::writeLine);
             startServer(port, psw);
         } else if (mode.equals("-c")) {
             String nic;
@@ -59,7 +65,7 @@ class ConsoleMode {
                 nic = argList.get(3);
             } else {
                 Scanner in = new Scanner(System.in, encoding);
-                System.out.print(ProjectProperties.getString("tf.enter_nic") + ": ");
+                writeLine(ProjectProperties.getString("tf.enter_nic") + ": ");
                 nic = in.nextLine();
             }
             ClientController clientController = new ClientController(ClientType.CLIENT_WITHOUT_SERVER);
@@ -73,7 +79,6 @@ class ConsoleMode {
     }
 
     private static String getPassword() {
-        Console console = System.console();
         if (console != null) {
             char[] pwd = console.readPassword(ProjectProperties.getString("tf.enter_pass") + ": ");
             return String.valueOf(pwd);
@@ -152,14 +157,14 @@ class ConsoleMode {
                 case ControlLines.STR_WRONG_PASS:
                 case ControlLines.STR_SAME_NIC:
                 case ControlLines.STR_STOP_SERVER:
-                    System.out.println(commandToMsg);
+                    writeLine(commandToMsg);
                     if (receiveStr.equals(ControlLines.STR_STOP_SERVER)) {
                         clientController.stopReceiver();
                     }
                     break;
                 default:
                     if (clientController.getMessage().isNotSystemMessage()) {
-                        System.out.println(receiveStr);
+                        writeLine(receiveStr);
                     }
                     break;
             }
@@ -167,9 +172,14 @@ class ConsoleMode {
     }
 
     private static void showHelp() {
-        System.out.println("java -jar Connector.jar -s [port] [psw]");
-        System.out.println("java -jar Connector.jar -c [port] [psw] [nickname]");
-        System.out.println("-s\t" + ProjectProperties.getString("server.about"));
-        System.out.println("-c\t" + ProjectProperties.getString("client.about"));
+        writeLine("java -jar Connector.jar -s [port] [psw]");
+        writeLine("java -jar Connector.jar -c [port] [psw] [nickname]");
+        writeLine("-s\t" + ProjectProperties.getString("server.about"));
+        writeLine("-c\t" + ProjectProperties.getString("client.about"));
     }
+
+    private static void writeLine(String line) {
+        console.writer().println(line);
+    }
+
 }

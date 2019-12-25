@@ -9,7 +9,9 @@ import connector.utils.Utils;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.lang.invoke.MethodHandles;
 import java.net.Socket;
+import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -18,13 +20,13 @@ import java.util.logging.Logger;
 
 public class ConnectionController extends Thread {
 
-    private static final Logger LOG = Logger.getLogger(ConnectionController.class.getName());
+    private static final Logger LOG = Logger.getLogger(MethodHandles.lookup().lookupClass().getSimpleName());
 
-    private static List<ConnectionController> connections = Collections.synchronizedList(new ArrayList<>());
+    private static final List<ConnectionController> connections = Collections.synchronizedList(new ArrayList<>());
     private static List<String> listNames = new ArrayList<>();
 
     private Socket socket;
-    private Boolean wrongNic = false;
+    private Boolean notUniqueNic = false;
     private boolean stop = false;
     private ObjectInputStream inputStream;
     private ObjectOutputStream outputStream;
@@ -35,8 +37,8 @@ public class ConnectionController extends Thread {
     private StringBuilder buffChat;
     private boolean firstMsg = true;
 
-    ConnectionController(Socket soc, Encryption serverEncryption, String psw) {
-        this.socket = soc;
+    ConnectionController(Socket socket, Encryption serverEncryption, String psw) {
+        this.socket = socket;
         this.serverEncryption = serverEncryption;
         this.psw = psw;
         clientEncryption = new Encryption();
@@ -71,64 +73,64 @@ public class ConnectionController extends Thread {
                 }
 
                 // Server receives psw & nic from client
-                name = Utils.removeTheTrash(serverEncryption.decrypt(message.getName()));
-                String pswFromClient = Utils.removeTheTrash(serverEncryption.decrypt(message.getPsw()));
+                name = serverEncryption.decrypt(message.getName());
+                String pswFromClient = serverEncryption.decrypt(message.getPsw());
 
-                if (pswFromClient.equals(psw)) {
-                    // Check nickname uniqueness
-                    wrongNic = Utils.isNotUniqueNicname(name, listNames);
-                    stop = Utils.isNotUniqueNicname(name, listNames);
-
-                    if (!wrongNic) {
-                        synchronized (listNames) {
-                            listNames.add(name);
-                        }
-                        // Notify everyone about new user
-                        sendBroadcastMessage(name + " " + ProjectProperties.getString("server.msg.join"));
-
-                        // Get next message from client
-                        while (!stop) {
-                            message = (Message) inputStream.readObject();
-                            String msgFromClient = Utils.removeTheTrash(serverEncryption.decrypt(message.getMessage()));
-
-                            switch (msgFromClient) {
-                                // Notify everyone that the current user is out
-                                case ControlLines.STR_EXIT:
-                                    connections.remove(ConnectionController.this);
-                                    sendBroadcastMessage(name + " " + ProjectProperties.getString("server.msg.left"));
-                                    setStop();
-                                    break;
-                                // Sending all session messages
-                                case ControlLines.STR_GET_ALL_MSG:
-                                    String msg = "----- "
-                                            + ProjectProperties.getString("server.msg.allMsg")
-                                            + " -----"
-                                            + new String(buffChat)
-                                            + "\n----------------------\n";
-                                    this.sendMessage(msg);
-                                    break;
-                                // Sending message to all users
-                                default:
-                                    sendBroadcastMessage(name + ": " + msgFromClient);
-                                    break;
-                            }
-                        }
-                    } else {
-                        this.sendMessage(ControlLines.STR_SAME_NIC);
-                    }
-                } else {
+                if (!pswFromClient.equals(psw)) {
                     // To make bruteforce harder
                     try {
                         Thread.sleep(5000);
                     } catch (InterruptedException e) {
                         LOG.log(Level.SEVERE, e.getMessage(), e);
                     }
-                    this.sendMessage(ControlLines.STR_WRONG_PASS);
-                    this.setStop();
+                    sendMessage(ControlLines.STR_WRONG_PASS);
+                    break;
                 }
+
+                // Check nickname uniqueness
+                notUniqueNic = Utils.isNotUniqueNic(name, listNames);
+                if (notUniqueNic) {
+                    sendMessage(ControlLines.STR_SAME_NIC);
+                    break;
+                }
+
+                synchronized (listNames) {
+                    listNames.add(name);
+                }
+                // Notify everyone about new user
+                sendBroadcastMessage(name + " " + ProjectProperties.getString("server.msg.join"));
+
+                // Get next message from client
+                while (!stop) {
+                    message = (Message) inputStream.readObject();
+                    String msgFromClient = serverEncryption.decrypt(message.getMessage());
+
+                    switch (msgFromClient) {
+                        // Notify everyone that the current user is out
+                        case ControlLines.STR_EXIT:
+                            connections.remove(ConnectionController.this);
+                            sendBroadcastMessage(name + " " + ProjectProperties.getString("server.msg.left"));
+                            setStop();
+                            break;
+                        // Sending all session messages
+                        case ControlLines.STR_GET_ALL_MSG:
+                            String msg = "----- "
+                                    + ProjectProperties.getString("server.msg.allMsg")
+                                    + " -----"
+                                    + new String(buffChat)
+                                    + "\n----------------------\n";
+                            this.sendMessage(msg);
+                            break;
+                        // Sending message to all users
+                        default:
+                            sendBroadcastMessage(name + ": " + msgFromClient);
+                            break;
+                    }
+                }
+
             }
-        } catch (java.net.SocketException se) {
-            System.out.println("Connection SocketException");
+        } catch (SocketException se) {
+            LOG.info("Connection SocketException");
         } catch (IOException | ClassNotFoundException e) {
             LOG.log(Level.SEVERE, e.getMessage(), e);
         } finally {
@@ -171,7 +173,7 @@ public class ConnectionController extends Thread {
         synchronized (connections) {
             connections.remove(ConnectionController.this);
         }
-        if (!wrongNic && listNames != null && !listNames.isEmpty()) {
+        if (!notUniqueNic && listNames != null && !listNames.isEmpty()) {
             synchronized (listNames) {
                 listNames.remove(name);
             }
@@ -182,7 +184,7 @@ public class ConnectionController extends Thread {
      * Notify all clients that the server is stopped
      */
     static void stopServerNotification() {
-        if (connections != null && !connections.isEmpty()) {
+        if (!connections.isEmpty()) {
             synchronized (connections) {
                 connections.forEach(connection -> connection.sendMessage(ControlLines.STR_STOP_SERVER));
             }
@@ -194,6 +196,6 @@ public class ConnectionController extends Thread {
     }
 
     public int getUserCount() {
-        return connections != null ? connections.size() : 0;
+        return connections.size();
     }
 }
